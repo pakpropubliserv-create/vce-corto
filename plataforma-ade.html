@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Você é - Plataforma Ade</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #D9297B;
+            --secondary: #000000;
+            --accent: #FFFFFF;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --border: #dee2e6;
+            --success: #27ae60;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--accent); color: var(--text-dark); }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--accent);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 { font-size: 28px; margin-bottom: 5px; }
+        header p { font-size: 13px; opacity: 0.9; }
+
+        .layout { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 90px); gap: 0; }
+        .panel { overflow-y: auto; border-right: 2px solid var(--border); background: var(--accent); padding: 20px; }
+        .panel.right { border-right: none; border-left: 2px solid var(--border); }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: var(--bg-light);
+            border-bottom: 2px solid var(--border);
+            margin: -20px -20px 20px -20px;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+
+        textarea:focus { outline: none; border-color: var(--primary); }
+
+        button {
+            background: var(--primary);
+            color: var(--accent);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        button:hover { background: var(--secondary); transform: translateY(-1px); }
+        button.secondary { background: var(--secondary); }
+        button.secondary:hover { background: var(--primary); }
+        button.small { padding: 6px 12px; font-size: 11px; }
+
+        .card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .card strong { color: var(--primary); display: block; margin-bottom: 3px; }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--accent);
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .asistencia-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            padding: 6px 10px;
+            font-size: 11px;
+            float: right;
+            margin-bottom: 10px;
+        }
+
+        .asistencia-toggle.active { background: var(--primary); color: var(--accent); border-color: var(--primary); }
+
+        .storyboard-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 12px;
+        }
+
+        .storyboard-canvas {
+            border: 2px dashed var(--border);
+            border-radius: 4px;
+            background: var(--accent);
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-style: italic;
+            font-size: 11px;
+        }
+
+        .asistente-step {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .asistente-step h3 { margin: 0 0 10px 0; font-size: 20px; }
+        .asistente-step p { margin: 0; font-size: 12px; opacity: 0.95; }
+
+        .option-btn {
+            padding: 10px 12px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover { border-color: var(--primary); }
+        .option-btn.selected { background: var(--primary); color: var(--accent); border-color: var(--primary); }
+
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .panel { border-right: none; min-height: 50vh; }
+            .panel.right { border-left: none; border-top: 2px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎬 Você é - Plataforma Ade</h1>
+        <p>Asistencia en todos los pasos • Desgloces automáticos • Storyboard generado</p>
+    </header>
+
+    <div class="layout">
+        <!-- Panel Izquierdo -->
+        <div class="panel">
+            <div class="tabs">
+                <button class="tab-button active" onclick="abrirTab('literario', event)">✍️ Literário</button>
+                <button class="tab-button" onclick="abrirTab('tecnico', event)">⚙️ Técnico</button>
+                <button class="tab-button" onclick="abrirTab('paleta', event)">🎨 Paleta</button>
+            </div>
+
+            <!-- Tab: Literário con Asistencia -->
+            <div id="literario-tab" class="tab-content active">
+                <button class="asistencia-toggle active" id="asistLiterarioBtn" onclick="toggleAsistencia('literario')">💡 Asistencia ON</button>
+                <div style="clear: both;"></div>
+
+                <div id="asistenciaLiterarioDiv" style="background: #fffef7; border-left: 3px solid #f39c12; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                    <strong style="color: #f39c12; font-size: 13px;">💡 Guía de Escritura:</strong>
+                    <p style="font-size: 11px; margin-top: 8px; line-height: 1.6;">
+                        ✓ Usa <strong>SEQUÊNCIA [nº]: [título]</strong> para cada acto<br>
+                        ✓ Escribe narrativa pura (sin direcciones de cámara)<br>
+                        ✓ Agrega <strong>PLANOS:</strong>, <strong>SOM:</strong>, <strong>ANIMAÇÃO:</strong> al final<br>
+                        ✓ Dos personajes vivos: <strong>ARTISTA</strong> y <strong>MÃE</strong><br>
+                        ✓ Los otros son visuales/digitales (K-POP, POP ART, GRAFITE)
+                    </p>
+                </div>
+
+                <textarea id="guiaoLiterario" style="height: 400px;"></textarea>
+                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 10px;">💾 Salvar Guião Literário</button>
+            </div>
+
+            <!-- Tab: Técnico -->
+            <div id="tecnico-tab" class="tab-content">
+                <button class="asistencia-toggle active" id="asistTecnicoBtn" onclick="toggleAsistencia('tecnico')">💡 Asistencia ON</button>
+                <div style="clear: both;"></div>
+
+                <div id="asistenciaTecnicoDiv" style="background: #fffef7; border-left: 3px solid #f39c12; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                    <strong style="color: #f39c12; font-size: 13px;">💡 Asistencia:</strong>
+                    <p style="font-size: 11px; margin-top: 8px;">El asistente te guía secuencia por secuencia eligiendo planos, ángulos y movimientos.</p>
+                </div>
+
+                <button onclick="iniciarAsistenteTecnico()" style="width: 100%; padding: 12px; margin-bottom: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 13px;">
+                    🚀 Iniciar Asistente Técnico
+                </button>
+
+                <div id="modoManualTecnico" style="display: none;">
+                    <p style="font-size: 11px; color: #666; margin-bottom: 10px;">Edita manualmente el guião técnico:</p>
+                    <textarea id="guiaoTecnico" style="height: 300px; font-family: 'Courier New', monospace;"></textarea>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button onclick="salvarGuiaoTecnico()" style="flex: 1;">💾 Salvar</button>
+                        <button onclick="iniciarAsistenteTecnico()" class="secondary" style="flex: 1;">🚀 Asistente</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Paleta -->
+            <div id="paleta-tab" class="tab-content">
+                <button class="asistencia-toggle active" id="asistPaletaBtn" onclick="toggleAsistencia('paleta')">💡 Asistencia ON</button>
+                <div style="clear: both;"></div>
+
+                <div id="asistenciaPaletaDiv" style="background: #fffef7; border-left: 3px solid #f39c12; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                    <strong style="color: #f39c12; font-size: 13px;">💡 Identidad Visual:</strong>
+                    <p style="font-size: 11px; margin-top: 8px;">Define colores primarios y secundarios para tu cortometraje.</p>
+                </div>
+
+                <div class="card">
+                    <strong>🎨 Primaria (Destaque)</strong>
+                    <input type="color" id="colorPrimario" value="#D9297B" style="width: 50px; height: 40px; border-radius: 4px; border: none; cursor: pointer;">
+                    <input type="text" id="colorPrimarioText" value="#D9297B" style="width: 100%; margin-top: 5px;">
+                </div>
+
+                <div class="card">
+                    <strong>⚫ Secundaria (Sombra)</strong>
+                    <input type="color" id="colorSecundario" value="#000000" style="width: 50px; height: 40px; border-radius: 4px; border: none; cursor: pointer;">
+                    <input type="text" id="colorSecundarioText" value="#000000" style="width: 100%; margin-top: 5px;">
+                </div>
+
+                <button onclick="salvarPaleta()" style="width: 100%; margin-top: 10px;">💾 Salvar Paleta</button>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Desgloces y Storyboard -->
+        <div class="panel right">
+            <div class="tabs">
+                <button class="tab-button active" onclick="abrirTab('desgloces', event)">📋 Desgloces</button>
+                <button class="tab-button" onclick="abrirTab('storyboard', event)">🎬 Storyboard</button>
+            </div>
+
+            <!-- Tab: Desgloces -->
+            <div id="desgloces-tab" class="tab-content active">
+                <button onclick="exportarDesglocesPDF()" style="width: 100%; margin-bottom: 15px;">📥 Exportar PDF</button>
+                <div id="desglocesContainer">
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Cargando desgloces...</p>
+                </div>
+            </div>
+
+            <!-- Tab: Storyboard -->
+            <div id="storyboard-tab" class="tab-content">
+                <button onclick="exportarStoryboardPDF()" style="width: 100%; margin-bottom: 15px;">📥 Exportar Storyboard PDF</button>
+                <div id="storyboardContainer">
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Completa el guião técnico para ver storyboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asistente -->
+    <div id="asistenteModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--primary);">
+                <div>
+                    <h2 style="color: var(--primary); margin: 0; font-size: 24px;">✍️ Asistente de Escritura Ade</h2>
+                    <p style="font-size: 11px; color: #999; margin: 8px 0 0 0;" id="progressText"></p>
+                </div>
+                <button onclick="cerrarAsistente()" style="background: var(--secondary); padding: 6px 12px; font-size: 14px;">✕</button>
+            </div>
+            <div id="asistenteContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const guiaoPadrao = `Título: Você é
+
+Logline: Uma artista descobre que só consegue criar algo verdadeiro quando aceita quem ela realmente é.
+
+=====
+
+SEQUÊNCIA 1: A LIXEIRA
+
+TELA PRETA.
+
+Sonido de clique. Um arquivo entra na lixeira. Outro. Outro. Outro.
+
+Montagem rápida de nomes de arquivos sendo deletados: "KPOP_FINAL.psd", "KPOP_FINAL_V2.psd", "POP_ART_FINAL.psd", "ESTILO_BANKSY.psd", "CONCURSO_DEFINITIVO.psd".
+
+Todos são apagados. A lixeira fica cada vez mais cheia.
+
+INT. QUARTO DA ARTISTA - NOITE
+
+O quarto. Uma CAMA simples contra a parede. Uma mesa com monitor. Prateleira ao fundo.
+
+A ARTISTA, 20-25 años, asiática, está sentada na frente do monitor, frustrada. Passa a mão pela testa e cabeça em sinal de desespero.
+
+Ao fundo da prateleira, quase invisível, um pequeno GATO DE BRINQUEDO esquecido.
+
+SOM: Cliques repetidos. Whoosh de arquivos caindo. Música: intro minimalista e tensa.
+ANIMAÇÃO: Arquivos caindo na lixeira. Lixeira se enchendo progressivamente.
+
+=====
+
+SEQUÊNCIA 2: O CONCURSO
+
+INT. QUARTO DA ARTISTA - NOITE
+
+A ARTISTA vê no monitor:
+
+"Último dia para inscrição."
+"Tema: IDENTIDADE"
+
+Ela lê. A notícia não traz esperança.
+
+Ela fecha a janela do concurso lentamente.
+
+Suspira. Volta a desenhar, como se nada tivesse acontecido.
+
+SOM: Clique suave de mouse. Som de janela cerrando. Música continúa, agora mais baixa.
+
+=====
+
+SEQUÊNCIA 3: AS ARTES GANHAM VIDA
+
+INT. QUARTO DA ARTISTA - NOITE
+
+No monitor, três janelas se abrem lado a lado. Cada uma contém uma versión animada de las artes que ella deletó.
+
+JANELA 1 - PERSONAGEM K-POP: Estilo anime brilhante, exagerado, fashionable. Cores pastel, movimentos suaves e superficiais.
+
+JANELA 2 - PERSONAGEM POP ART: Estilo Warhol, cores limitadas, geométrico, artificial. Quadrado, rígido, impessoal.
+
+JANELA 3 - PERSONAGEM GRAFITE: Estilo urbano, linhas negras grossas, street art, sério e desafiante.
+
+As três janelas palpitam. Os personajes falam, cada uno desde su ventana.
+
+K-POP: Você queria ser popular.
+
+POP ART: Você queria ser moderna.
+
+GRAFITE: Você queria parecer profunda.
+
+A ARTISTA ignora suas voces. Continua desenhando como si no las oyera.
+
+ANIMAÇÃO: Os três personagens em suas próprias janelas de computador. K-pop em cores pastel brilhantes. Pop Art en bloques de color. Grafite en líneas negras gruesas. Cada uno en su proprio espacio visual.
+SOM: Vozes dos personajes ecoando desde las ventanas. Whoosh de apariciones. Música intensifica, tono más dramático.
+
+=====
+
+SEQUÊNCIA 4: O ATAQUE
+
+INT. QUARTO DA ARTISTA - NOITE
+
+As três janelas explodem. Agora, los tres personajes no hablan. Simplemente atacam.
+
+Palavras animadas surgem caóticamente na tela do monitor, apareciendo e desapareciendo rapidamente:
+
+REJEITADA
+FRACASSO
+ESTRANHA
+INVISÍVEL
+
+Cada palabra es una ferida. Cada palabra a fere.
+
+Ela tenta apagar com o mouse. Mas quanto mais apaga, mais palavras aparecem. O caos aumenta exponencialmente.
+
+Os três personajes agora se movem más rápido, más agressivamente. Invadem a tela inteira. Toda a realidade parece desaparecer.
+
+ANIMAÇÃO: Palavras em movimento caótico, apareciendo de todas as direções. Glitch effects na tela. Os personajes invaden todo o espaço visual. Pulsos de luz desagradables. A tela inteira vibra.
+SOM: Palavras apareciendo con sonidos agudos y penetrantes. Heartbeat acelerado. Sonidos distorsionados e angustosos. Música atinge o climax caótico.
+
+=====
+
+SEQUÊNCIA 5: A VERDADE
+
+INT. QUARTO DA ARTISTA - NOITE
+
+A ARTISTA explode.
+
+Fecha o notebook violentamente.
+
+Se levanta de la silla.
+
+Camina hacia la cama y se deja caer en ella, exhausta.
+
+Silêncio absoluto.
+
+Ella respira profundamente, luchando contra las lágrimas. Su cuerpo tiembla.
+
+Pela primeira vez, ela fala sua verdade. Sua voz é pequeña, quebrada, honesta.
+
+ARTISTA: Eu não sei o que as pessoas querem. Eu nunca soube. E eu estou cansada de fingir que sei.
+
+Ella se queda acostada. Mirando el techo. Completamente derrotada.
+
+El silence persiste.
+
+SOM: Diálogo (primeira vez que a ouvimos falar, sua voz frágil). Silêncio quase total. Respiración pesada. Música desaparece completamente.
+
+=====
+
+SEQUÊNCIA 6: A MÃE
+
+INT. QUARTO DA ARTISTA - NOITE
+
+La puerta se abre lentamente.
+
+La voz de la MÃE chega do outro cômodo. A vemos apenas de costas, na porta.
+
+MÃE (O.S.): Filha?
+
+A ARTISTA, ainda acostada, apenas murmura.
+
+ARTISTA: Oi?
+
+MÃE: Achei uma coisa sua. Aquela que você carregava para todo lado quando era pequena.
+
+La mãe entra. Se aproxima da cama.
+
+Coloca o GATO DE BRINQUEDO gentilmente ao lado da ARTISTA, na cama.
+
+MÃE: Vou deixar aqui com você.
+
+La madre sai. Silêncio simples. O quarto volta a estar en silencio.
+
+SOM: Vozes naturales. Pasos suaves. Som do brinquedo sendo colocado na cama. Música: minimalista, warm, esperanzadora.
+
+=====
+
+SEQUÊNCIA 7: A DESCOBERTA
+
+INT. QUARTO DA ARTISTA - NOITE
+
+A ARTISTA, ainda acostada, ve o brinquedo ao seu lado.
+
+O GATO DE BRINQUEDO.
+
+Gasto pelo tempo. Um pouco feio. Talvez lhe falte um olho. Mas claramente amado.
+
+Ella se senta lentamente. Lo mira.
+
+Ella sorri. Pela primeira vez em todo el cortometraje. De verdad.
+
+Ella lo pega com cuidado. Observa cada detalhe. Sus dedos sienten la textura gasatada por los años.
+
+Lembra de quem era antes de pensar em likes, seguidores, algoritmos, concursos.
+
+O brinquedo en sus manos la transporta a un lugar donde ella era simplemente ella. Donde eso era suficiente.
+
+ANIMAÇÃO: Mudança sutil de iluminación ao seu redor (más cálida, más suave). Flashback brevísimo y delicado: ella cuando criança, segurando el mismo brinquedo, riendo.
+SOM: Música sube ligeiramente, agora com esperanza genuína. Som do brinquedo sendo agarrado gentilmente.
+
+=====
+
+SEQUÊNCIA 8: A CRIAÇÃO
+
+INT. QUARTO DA ARTISTA - NOITE
+
+Ella se levanta de la cama.
+
+Va até el escritorio.
+
+Abre su laptop.
+
+Se sienta.
+
+Y comienza a cerrar pestañas. Pinterest. Instagram. Otros tabs de "inspiración".
+
+Todas las ventanas que la distrajeron. Todas las voces que no eran la suya.
+
+Las cierra una por una.
+
+El navegador queda en blanco. Vacío.
+
+Ella abre su programa de dibujo.
+
+Comienza a dibujar.
+
+El GATO DE BRINQUEDO está al lado de la computadora, como companhero silencioso.
+
+Línea por línea, un gato anime nace. No porque anime esté na moda. Pero porque siempre fue el tipo de dibujo que ella amó hacer. Su verdadero estilo.
+
+Los tres personajes anteriores (K-pop, Pop Art, Grafite) aparecen brevemente en el fondo de su consciencia.
+
+Eles apenas observan.
+
+Y comienzan a desaparecer. Uno por uno. Desvanecimiento suave.
+
+El nuevo gato cobra forma, llena el espacio que quedó.
+
+ANIMAÇÃO: O gato anime nasce progressivamente (line by line, trazo a trazo). Os três personajes anteriores desaparecem gradualmente (fade out suave, um por um). O novo gato cobra vida naturalmente, sem violencia, sin esfuerzo.
+SOM: Sonidos suaves de lápiz/stylus. Clicks suaves de ferramentas digitales. Música: crescendo positivo, esperança completa.
+
+=====
+
+SEQUÊNCIA 9: CLÍMAX
+
+INT. QUARTO DA ARTISTA / PANTALLA - NOITE
+
+O novo GATO animado cobra vida na tela.
+
+Olha para a ARTISTA.
+
+Sorri.
+
+Um sorriso genuino. Familiar.
+
+Não fala nada. Não precisa.
+
+Porque es la primera creación que no está tentando ser outra pessoa. No es K-pop, ni Pop Art, ni Grafite.
+
+Es simplemente ella. Verdadera. Libre.
+
+O contacto entre elas es silencioso. Profundo. Sagrado.
+
+ANIMAÇÃO: O gato cobra movimento e vida com suavidade. Contacto visual direto entre artista e criação. Sonrisa genuína del gato que refleja la sonrisa de ella.
+SOM: Sonido suave de vida/energía. Música resolve em paz total.
+
+=====
+
+SEQUÊNCIA 10: FINAL
+
+INT. QUARTO DA ARTISTA - NOITE
+
+Ella abre el navegador.
+
+El formulario del concurso aparece.
+
+Ella lo mira.
+
+Y luego mira el archivo. Su gato. Su verdad.
+
+Anexa el archivo.
+
+O cursor paira sobre o botón:
+
+ENVIAR
+
+Ella hesita por un momento.
+
+No porque tenga miedo.
+
+Sino porque esta vez, lo que está enviando es realmente suyo.
+
+Respira profundamente.
+
+Y hace clic.
+
+UPLOAD 100%
+
+Silêncio.
+
+A tela fica branca.
+
+Corte rápido para o GATO DE BRINQUEDO na mesinha do lado da cama. Agora não está esquecido. Está cuidado.
+
+Corte para a LIXEIRA que estava cheia. Ahora está vacía. Limpia.
+
+Corte para preto absoluto.
+
+Créditos finales en blanco y negro.
+
+FIM.
+
+ANIMAÇÃO: Formulário apareciendo. Cursor animado. Barra de progresso subindo lentamente. Upload 100%. Transiciones finales suaves y ceremoniales.
+SOM: Respiracion profunda (antes de clicar). Click del mouse. Sonido de upload (minimalista, suave). Silêncio final absoluto. Música desaparece gradualmente, dejando only el sonido del silencio.`;
+
+        // Guión técnico predefinido para las 10 secuencias
+        const guiaoTecnicoPredefinido = `SEQUÊNCIA 1 | PLANO: Wide shot | ÁNGULO: Nivel | MOVIMENTO: Ninguno | NOTAS: Iniciar en tela negra, revelación del quarto
+SEQUÊNCIA 2 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom in | NOTAS: Foco en monitor, luego en cara frustrada
+SEQUÊNCIA 3 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Pan | NOTAS: Tres ventanas en pantalla, alternancia entre personajes
+SEQUÊNCIA 4 | PLANO: Wide shot | ÁNGULO: Holandés | MOVIMENTO: Tilt + Zoom | NOTAS: Caos visual, glitch effects, personajes invadiendo
+SEQUÊNCIA 5 | PLANO: Close-up | ÁNGULO: Inferior | MOVIMENTO: Ninguno | NOTAS: Expresión de verdad, primer diálogo hablado
+SEQUÊNCIA 6 | PLANO: Two-shot | ÁNGULO: Perfil | MOVIMENTO: Dolly | NOTAS: Madre entra lentamente, coloca brinquedo con ternura
+SEQUÊNCIA 7 | PLANO: Extreme close-up | ÁNGULO: Superior | MOVIMENTO: Ninguno | NOTAS: Foco en brinquedo, flashback emocional
+SEQUÊNCIA 8 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Tracking | NOTAS: Time-lapse de creación, cierre de tabs innecesarios
+SEQUÊNCIA 9 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Zoom in | NOTAS: Gato cobra vida, contacto visual directo
+SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS: Envío del archivo, desenlace ceremonial`;
+
+        let asistencias = { literario: true, tecnico: true, paleta: true };
+        let secuenciasParseadas = [];
+        let respuestasAsistente = {};
+        let pasoActual = 0;
+
+        const opcionesPlano = ['Wide shot', 'Medium shot', 'Close-up', 'Extreme close-up', 'Over the shoulder', 'Two-shot'];
+        const opcionesAngulo = ['Nivel', 'Frontal', 'Perfil', '45°', 'Superior', 'Inferior', 'Holandés'];
+        const opcionesMovimiento = ['Ninguno', 'Zoom in', 'Zoom out', 'Pan', 'Dolly', 'Tilt', 'Tracking'];
+
+        function parseGuiaoLiterario(texto) {
+            const lineas = texto.split('\n');
+            const sequencias = [];
+            let secActual = null;
+
+            lineas.forEach(linea => {
+                if (linea.match(/^SEQUÊNCIA\s+\d+:/i)) {
+                    if (secActual) sequencias.push(secActual);
+                    const num = parseInt(linea.match(/\d+/)[0]);
+                    secActual = {
+                        numero: num,
+                        titulo: linea.replace(/^SEQUÊNCIA\s+\d+:\s*/i, '').trim(),
+                        descripcion: '',
+                        personajes: [],
+                        locaciones: [],
+                        props: [],
+                        planos: [],
+                        animacoes: [],
+                        son: ''
+                    };
+                } else if (secActual) {
+                    if (linea.match(/^PLANOS?:/i)) {
+                        const planos = linea.split(':')[1].split('.').map(p => p.trim()).filter(p => p);
+                        secActual.planos = planos;
+                    } else if (linea.match(/^S[OÓ]M:/i)) {
+                        secActual.son = linea.split(':')[1]?.trim() || '';
+                    } else if (linea.match(/^ANIMAÇÃ?O?:/i)) {
+                        const anim = linea.split(':')[1].split('.').map(a => a.trim()).filter(a => a);
+                        secActual.animacoes = anim;
+                    } else if (linea.match(/^(INT\.|EXT\.)/)) {
+                        secActual.locaciones.push(linea.trim());
+                    } else if (linea.match(/^(ARTISTA|MÃE|GATO DE BRINQUEDO)/i)) {
+                        const nome = linea.trim();
+                        if (!secActual.personajes.includes(nome)) {
+                            secActual.personajes.push(nome);
+                        }
+                    } else if (linea.trim()) {
+                        secActual.descripcion += (secActual.descripcion ? ' ' : '') + linea.trim();
+                    }
+                }
+            });
+
+            if (secActual) sequencias.push(secActual);
+            return sequencias;
+        }
+
+        function abrirTab(tab, event) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleAsistencia(tipo) {
+            asistencias[tipo] = !asistencias[tipo];
+            const btn = document.getElementById(`asist${tipo.charAt(0).toUpperCase() + tipo.slice(1)}Btn`);
+            btn.classList.toggle('active');
+            btn.textContent = asistencias[tipo] ? '💡 Asistencia ON' : '💡 Asistencia OFF';
+
+            const div = document.getElementById(`asistencia${tipo.charAt(0).toUpperCase() + tipo.slice(1)}Div`);
+            if (div) div.style.display = asistencias[tipo] ? 'block' : 'none';
+        }
+
+        function salvarGuiaoLiterario() {
+            const texto = document.getElementById('guiaoLiterario').value;
+            localStorage.setItem('guiaoLiterario', texto);
+            secuenciasParseadas = parseGuiaoLiterario(texto);
+            atualizarDesgloces();
+            alert('✓ Guião Literário salvo');
+        }
+
+        function atualizarDesgloces() {
+            let html = '';
+
+            html += `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">${secuenciasParseadas.length}</strong><div style="font-size: 10px; color: #999;">Secuencias</div></div>
+                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">2</strong><div style="font-size: 10px; color: #999;">Personajes</div></div>
+                </div>
+            `;
+
+            // Personajes
+            html += `<div class="card"><strong>👥 Personajes Vivos</strong>
+                <div style="background: var(--accent); padding: 8px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>ARTISTA</strong><br><span style="color: #999;">Protagonista • Presente en todas las secuencias</span></div>
+                <div style="background: var(--accent); padding: 8px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>MÃE</strong><br><span style="color: #999;">Apoyo emocional • Secuencia 6</span></div>
+            </div>`;
+
+            // Locaciones
+            const locacionesUnicas = [...new Set(secuenciasParseadas.flatMap(s => s.locaciones))];
+            if (locacionesUnicas.length > 0) {
+                html += `<div class="card"><strong>📍 Locaciones</strong>`;
+                locacionesUnicas.forEach(l => {
+                    html += `<div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">${l}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Elementos visuales
+            html += `<div class="card"><strong>🎬 Elementos Visuales</strong>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">🎁 GATO DE BRINQUEDO</div>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">🖥️ MONITOR / LAPTOP</div>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">📁 LIXEIRA (llena al inicio, vacía al final)</div>
+            </div>`;
+
+            // Visuales digitales
+            html += `<div class="card"><strong>🎨 Personajes Digitales (NO VIVOS)</strong>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE K-POP • Anime brilhante</div>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE POP ART • Estilo Warhol</div>
+                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE GRAFITE • Street art</div>
+            </div>`;
+
+            document.getElementById('desglocesContainer').innerHTML = html;
+        }
+
+        function iniciarAsistenteTecnico() {
+            const texto = document.getElementById('guiaoLiterario').value;
+            if (!texto.trim()) {
+                alert('Por favor, escribe el guião literário primero');
+                return;
+            }
+
+            if (!asistencias.tecnico) {
+                document.getElementById('modoManualTecnico').style.display = 'block';
+                return;
+            }
+
+            secuenciasParseadas = parseGuiaoLiterario(texto);
+            respuestasAsistente = {};
+            pasoActual = 0;
+
+            document.getElementById('asistenteModal').style.display = 'flex';
+            mostrarPasoAsistente();
+        }
+
+        function mostrarPasoAsistente() {
+            if (pasoActual >= secuenciasParseadas.length) {
+                generarGuiaoTecnico();
+                return;
+            }
+
+            const seq = secuenciasParseadas[pasoActual];
+            document.getElementById('progressText').textContent = `Secuencia ${pasoActual + 1} / ${secuenciasParseadas.length}`;
+
+            let html = `
+                <div class="asistente-step">
+                    <h3>SEQ ${seq.numero}: ${seq.titulo}</h3>
+                    <p>${seq.descripcion.substring(0, 150)}...</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">🎬 ¿Qué tipo de plano?</div>
+                    <div>
+                        ${opcionesPlano.map(op => `
+                            <button class="option-btn ${respuestasAsistente[seq.numero]?.plano === op ? 'selected' : ''}"
+                                onclick="seleccionarOpcion(${seq.numero}, 'plano', '${op}')">
+                                ${op}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">📐 ¿Ángulo de cámara?</div>
+                    <div>
+                        ${opcionesAngulo.map(op => `
+                            <button class="option-btn ${respuestasAsistente[seq.numero]?.angulo === op ? 'selected' : ''}"
+                                onclick="seleccionarOpcion(${seq.numero}, 'angulo', '${op}')">
+                                ${op}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">🎥 ¿Movimiento de cámara?</div>
+                    <div>
+                        ${opcionesMovimiento.map(op => `
+                            <button class="option-btn ${respuestasAsistente[seq.numero]?.movimiento === op ? 'selected' : ''}"
+                                onclick="seleccionarOpcion(${seq.numero}, 'movimiento', '${op}')">
+                                ${op}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">📝 Notas técnicas</div>
+                    <input type="text" placeholder="Notas, detalles..." style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 4px; font-size: 12px;"
+                        value="${respuestasAsistente[seq.numero]?.notas || ''}"
+                        onchange="respuestasAsistente[${seq.numero}] = respuestasAsistente[${seq.numero}] || {}; respuestasAsistente[${seq.numero}].notas = this.value;">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--border);">
+                    <button onclick="pasoAnteriorAsistente()" style="flex: 1; ${pasoActual === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">← Anterior</button>
+                    <button onclick="pasoSiguienteAsistente()" style="flex: 1;">Siguiente →</button>
+                </div>
+            `;
+
+            document.getElementById('asistenteContent').innerHTML = html;
+        }
+
+        function seleccionarOpcion(seqNum, tipo, valor) {
+            if (!respuestasAsistente[seqNum]) {
+                respuestasAsistente[seqNum] = {};
+            }
+            respuestasAsistente[seqNum][tipo] = valor;
+            mostrarPasoAsistente();
+        }
+
+        function pasoSiguienteAsistente() {
+            pasoActual++;
+            mostrarPasoAsistente();
+        }
+
+        function pasoAnteriorAsistente() {
+            if (pasoActual > 0) {
+                pasoActual--;
+                mostrarPasoAsistente();
+            }
+        }
+
+        function generarGuiaoTecnico() {
+            let guiaoTecnico = '';
+
+            secuenciasParseadas.forEach(seq => {
+                const respuesta = respuestasAsistente[seq.numero] || {};
+                const plano = respuesta.plano || 'A definir';
+                const angulo = respuesta.angulo || 'A definir';
+                const movimiento = respuesta.movimiento || 'Ninguno';
+                const notas = respuesta.notas || '';
+
+                guiaoTecnico += `SEQUÊNCIA ${seq.numero} | PLANO: ${plano} | ÁNGULO: ${angulo} | MOVIMENTO: ${movimiento}${notas ? ` | NOTAS: ${notas}` : ''}\n`;
+            });
+
+            document.getElementById('guiaoTecnico').value = guiaoTecnico;
+            document.getElementById('modoManualTecnico').style.display = 'block';
+            document.getElementById('asistenteModal').style.display = 'none';
+
+            atualizarStoryboard(guiaoTecnico);
+        }
+
+        function cerrarAsistente() {
+            document.getElementById('asistenteModal').style.display = 'none';
+        }
+
+        function atualizarStoryboard(guiaoTecnico) {
+            const lineas = guiaoTecnico.split('\n').filter(l => l.trim());
+            let html = '';
+
+            lineas.forEach(linea => {
+                const partes = linea.split('|').map(p => p.trim());
+                const seqMatch = partes[0].match(/\d+/);
+                if (!seqMatch) return;
+
+                const seqNum = parseInt(seqMatch[0]);
+
+                const plano = extraerValor(partes, 'PLANO');
+                const angulo = extraerValor(partes, 'ÁNGULO');
+                const movimiento = extraerValor(partes, 'MOVIMENTO');
+                const notas = extraerValor(partes, 'NOTAS');
+
+                html += `
+                    <div class="storyboard-card">
+                        <div style="font-size: 11px;">
+                            <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
+                                <strong style="font-size: 14px;">SEQ ${seqNum}</strong>
+                            </div>
+                            ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
+                            ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
+                            ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
+                        </div>
+                        <div class="storyboard-canvas">🎨 Espacio para ilustrar</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('storyboardContainer').innerHTML = html || '<p style="color: #999;">Sin storyboard</p>';
+        }
+
+        function extraerValor(partes, clave) {
+            const parte = partes.find(p => p.includes(clave));
+            return parte ? parte.split(':')[1]?.trim() || '' : '';
+        }
+
+        function salvarPaleta() {
+            const paleta = {
+                primary: document.getElementById('colorPrimarioText').value,
+                secondary: document.getElementById('colorSecundarioText').value
+            };
+            localStorage.setItem('paleta', JSON.stringify(paleta));
+            alert('✓ Paleta guardada');
+        }
+
+        function salvarGuiaoTecnico() {
+            const texto = document.getElementById('guiaoTecnico').value;
+            localStorage.setItem('guiaoTecnico', texto);
+            atualizarStoryboard(texto);
+            alert('✓ Guião Técnico salvo');
+        }
+
+        function exportarDesglocesPDF() {
+            alert('Función en desarrollo');
+        }
+
+        function exportarStoryboardPDF() {
+            alert('Función en desarrollo');
+        }
+
+        window.addEventListener('load', () => {
+            document.getElementById('guiaoLiterario').value = localStorage.getItem('guiaoLiterario') || guiaoPadrao;
+            document.getElementById('guiaoTecnico').value = localStorage.getItem('guiaoTecnico') || guiaoTecnicoPredefinido;
+            salvarGuiaoLiterario();
+            atualizarStoryboard(guiaoTecnicoPredefinido);
+
+            const paleta = JSON.parse(localStorage.getItem('paleta') || '{}');
+            if (paleta.primary) document.documentElement.style.setProperty('--primary', paleta.primary);
+            if (paleta.secondary) document.documentElement.style.setProperty('--secondary', paleta.secondary);
+        });
+    </script>
+</body>
+</html>
