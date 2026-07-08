@@ -75,6 +75,16 @@
 
         textarea:focus { outline: none; border-color: var(--primary); }
 
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        input[type="text"]:focus { outline: none; border-color: var(--primary); }
+
         button {
             background: var(--primary);
             color: var(--accent);
@@ -103,6 +113,53 @@
         }
 
         .card strong { color: var(--primary); display: block; margin-bottom: 3px; }
+
+        .campo-idea {
+            margin-bottom: 14px;
+        }
+
+        .campo-idea label {
+            display: block;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .campo-idea .hint {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .mic-btn {
+            background: var(--secondary);
+            font-size: 13px;
+        }
+
+        .mic-btn.grabando {
+            background: #e74c3c;
+            animation: pulso 1s infinite;
+        }
+
+        @keyframes pulso {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .ade-titulo {
+            font-size: 26px;
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-weight: 800;
+        }
+
+        .ade-sub {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 18px;
+        }
 
         .modal {
             position: fixed;
@@ -161,6 +218,42 @@
             color: #ccc;
             font-style: italic;
             font-size: 11px;
+        }
+
+        .rodaje-dia {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 15px;
+            border-radius: 6px 6px 0 0;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rodaje-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+
+        .rodaje-seq {
+            background: var(--bg-light);
+            border-left: 3px solid var(--primary);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 10px;
+            margin: 2px;
         }
 
         .asistente-step {
@@ -353,26 +446,91 @@
                 min-height: 140px;
                 font-size: 10px;
             }
+
+            .ade-titulo { font-size: 20px; }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>🎬 Você é - Plataforma Ade</h1>
-        <p>Asistencia en todos los pasos • Desgloces automáticos • Storyboard generado</p>
+        <p>De la idea al plan de rodaje • Asistencia en todos los pasos • Desgloces automáticos</p>
     </header>
 
     <div class="layout">
         <!-- Panel Izquierdo -->
         <div class="panel">
             <div class="tabs">
-                <button class="tab-button active" onclick="abrirTab('literario', event)">✍️ Literário</button>
+                <button class="tab-button active" onclick="abrirTab('idea', event)">💡 Idea</button>
+                <button class="tab-button" onclick="abrirTab('literario', event)">✍️ Literário</button>
                 <button class="tab-button" onclick="abrirTab('tecnico', event)">⚙️ Técnico</button>
                 <button class="tab-button" onclick="abrirTab('paleta', event)">🎨 Paleta</button>
             </div>
 
+            <!-- Tab: Idea (NUEVO - punto de partida) -->
+            <div id="idea-tab" class="tab-content active">
+                <div class="ade-titulo">✍️ Asistente de Escritura Ade</div>
+                <div class="ade-sub">Cuéntame tu idea — escribiendo o hablando — y yo la estructuro en un guión literario profesional.</div>
+
+                <div class="campo-idea">
+                    <label>💭 Tu idea (libre)</label>
+                    <textarea id="ideaLibre" style="height: 120px; font-family: inherit; font-size: 13px;" placeholder="Ej: Quiero contar la historia de una artista que borra todos sus dibujos porque intenta copiar estilos de moda, hasta que su madre le trae un juguete de la infancia y ella recuerda quién es..."></textarea>
+                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button class="mic-btn" id="micBtn" onclick="toggleDictado()" style="flex: 1;">🎤 Hablar (dictar idea)</button>
+                        <button class="secondary" onclick="limpiarIdea()" style="flex: 1;">🗑️ Limpiar</button>
+                    </div>
+                    <span class="hint" id="micHint">El dictado por voz funciona en Chrome. Toca el micrófono y habla; tu voz se convierte en texto.</span>
+                </div>
+
+                <div style="background: #fffef7; border-left: 3px solid #f39c12; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+                    <strong style="color: #f39c12; font-size: 13px;">💡 Preguntas guiadas (opcional pero recomendado)</strong>
+                    <p style="font-size: 11px; margin-top: 5px;">Cuanto más respondas, mejor quedará la estructura. Lo que dejes vacío, Ade lo dejará marcado para que lo completes después.</p>
+                </div>
+
+                <div class="campo-idea">
+                    <label>🎬 Título del cortometraje</label>
+                    <input type="text" id="ideaTitulo" placeholder="Ej: Você é">
+                </div>
+
+                <div class="campo-idea">
+                    <label>👤 ¿Quién es tu protagonista?</label>
+                    <input type="text" id="ideaProtagonista" placeholder="Ej: Una artista joven, 20-25 años">
+                    <span class="hint">Nombre o descripción corta. Se convertirá en el personaje principal.</span>
+                </div>
+
+                <div class="campo-idea">
+                    <label>🔥 ¿Qué quiere o qué problema tiene?</label>
+                    <input type="text" id="ideaDeseo" placeholder="Ej: Quiere ganar un concurso pero no encuentra su estilo propio">
+                </div>
+
+                <div class="campo-idea">
+                    <label>🧱 ¿Qué obstáculo enfrenta?</label>
+                    <input type="text" id="ideaObstaculo" placeholder="Ej: La presión de las redes y la comparación con otros la paralizan">
+                </div>
+
+                <div class="campo-idea">
+                    <label>💫 ¿Qué descubre o qué la hace cambiar?</label>
+                    <input type="text" id="ideaGiro" placeholder="Ej: Un objeto de su infancia le recuerda quién era antes">
+                </div>
+
+                <div class="campo-idea">
+                    <label>🏁 ¿Cómo termina la historia?</label>
+                    <input type="text" id="ideaFinal" placeholder="Ej: Crea algo auténtico y lo envía al concurso, en paz consigo misma">
+                </div>
+
+                <div class="campo-idea">
+                    <label>📍 Locación principal</label>
+                    <input type="text" id="ideaLocacion" placeholder="Ej: El cuarto de la artista">
+                </div>
+
+                <button onclick="generarGuionDesdeIdea()" style="width: 100%; padding: 15px; font-size: 15px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); margin-top: 5px;">
+                    ✨ Generar Guión Literario Profesional
+                </button>
+                <span class="hint" style="display: block; text-align: center; margin-top: 8px;">Ade genera: guión en 10 secuencias (3 actos) + guión técnico + storyboard + desgloces + plan de rodaje. Después solo editas.</span>
+            </div>
+
             <!-- Tab: Literário con Asistencia -->
-            <div id="literario-tab" class="tab-content active">
+            <div id="literario-tab" class="tab-content">
                 <button class="asistencia-toggle active" id="asistLiterarioBtn" onclick="toggleAsistencia('literario')">💡 Asistencia ON</button>
                 <div style="clear: both;"></div>
 
@@ -381,9 +539,9 @@
                     <p style="font-size: 11px; margin-top: 8px; line-height: 1.6;">
                         ✓ Usa <strong>SEQUÊNCIA [nº]: [título]</strong> para cada acto<br>
                         ✓ Escribe narrativa pura (sin direcciones de cámara)<br>
-                        ✓ Agrega <strong>PLANOS:</strong>, <strong>SOM:</strong>, <strong>ANIMAÇÃO:</strong> al final<br>
-                        ✓ Dos personajes vivos: <strong>ARTISTA</strong> y <strong>MÃE</strong><br>
-                        ✓ Los otros son visuales/digitales (K-POP, POP ART, GRAFITE)
+                        ✓ Agrega <strong>SOM:</strong> y <strong>ANIMAÇÃO:</strong> al final de cada secuencia<br>
+                        ✓ Los diálogos van como <strong>NOMBRE: texto</strong><br>
+                        ✓ Al guardar, se actualizan desgloces, storyboard y plan de rodaje
                     </p>
                 </div>
 
@@ -398,14 +556,14 @@
 
                 <div id="asistenciaTecnicoDiv" style="background: #fffef7; border-left: 3px solid #f39c12; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
                     <strong style="color: #f39c12; font-size: 13px;">💡 Asistencia:</strong>
-                    <p style="font-size: 11px; margin-top: 8px;">El asistente te guía secuencia por secuencia eligiendo planos, ángulos y movimientos.</p>
+                    <p style="font-size: 11px; margin-top: 8px;">Ya hay un guión técnico predefinido. Puedes editarlo directamente abajo o usar el asistente para refinarlo secuencia por secuencia.</p>
                 </div>
 
                 <button onclick="iniciarAsistenteTecnico()" style="width: 100%; padding: 12px; margin-bottom: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 13px;">
                     🚀 Iniciar Asistente Técnico
                 </button>
 
-                <div id="modoManualTecnico" style="display: none;">
+                <div id="modoManualTecnico">
                     <p style="font-size: 11px; color: #666; margin-bottom: 10px;">Edita manualmente el guião técnico:</p>
                     <textarea id="guiaoTecnico" style="height: 300px; font-family: 'Courier New', monospace;"></textarea>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -441,16 +599,17 @@
             </div>
         </div>
 
-        <!-- Panel Derecho: Desgloces y Storyboard -->
+        <!-- Panel Derecho: Desgloces, Storyboard y Rodaje -->
         <div class="panel right">
             <div class="tabs">
                 <button class="tab-button active" onclick="abrirTab('desgloces', event)">📋 Desgloces</button>
                 <button class="tab-button" onclick="abrirTab('storyboard', event)">🎬 Storyboard</button>
+                <button class="tab-button" onclick="abrirTab('rodaje', event)">📅 Rodaje</button>
             </div>
 
             <!-- Tab: Desgloces -->
             <div id="desgloces-tab" class="tab-content active">
-                <button onclick="exportarDesglocesPDF()" style="width: 100%; margin-bottom: 15px;">📥 Exportar PDF</button>
+                <button onclick="exportarPDF('desglocesContainer', 'desgloces')" style="width: 100%; margin-bottom: 15px;">📥 Exportar PDF</button>
                 <div id="desglocesContainer">
                     <p style="color: #999; text-align: center; padding: 40px 20px;">Cargando desgloces...</p>
                 </div>
@@ -458,9 +617,17 @@
 
             <!-- Tab: Storyboard -->
             <div id="storyboard-tab" class="tab-content">
-                <button onclick="exportarStoryboardPDF()" style="width: 100%; margin-bottom: 15px;">📥 Exportar Storyboard PDF</button>
+                <button onclick="exportarPDF('storyboardContainer', 'storyboard')" style="width: 100%; margin-bottom: 15px;">📥 Exportar Storyboard PDF</button>
                 <div id="storyboardContainer">
                     <p style="color: #999; text-align: center; padding: 40px 20px;">Completa el guião técnico para ver storyboard</p>
+                </div>
+            </div>
+
+            <!-- Tab: Plan de Rodaje (NUEVO) -->
+            <div id="rodaje-tab" class="tab-content">
+                <button onclick="exportarPDF('rodajeContainer', 'plan-de-rodaje')" style="width: 100%; margin-bottom: 15px;">📥 Exportar Plan de Rodaje PDF</button>
+                <div id="rodajeContainer">
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guião literário para generar el plan de rodaje</p>
                 </div>
             </div>
         </div>
@@ -650,7 +817,7 @@ Ella se senta lentamente. Lo mira.
 
 Ella sorri. Pela primeira vez em todo el cortometraje. De verdad.
 
-Ella lo pega com cuidado. Observa cada detalhe. Sus dedos sienten la textura gasatada por los años.
+Ella lo pega con cuidado. Observa cada detalhe. Sus dedos sienten la textura gasatada por los años.
 
 Lembra de quem era antes de pensar em likes, seguidores, algoritmos, concursos.
 
@@ -774,7 +941,6 @@ FIM.
 ANIMAÇÃO: Formulário apareciendo. Cursor animado. Barra de progresso subindo lentamente. Upload 100%. Transiciones finales suaves y ceremoniales.
 SOM: Respiracion profunda (antes de clicar). Click del mouse. Sonido de upload (minimalista, suave). Silêncio final absoluto. Música desaparece gradualmente, dejando only el sonido del silencio.`;
 
-        // Guión técnico predefinido para las 10 secuencias
         const guiaoTecnicoPredefinido = `SEQUÊNCIA 1 | PLANO: Wide shot | ÁNGULO: Nivel | MOVIMENTO: Ninguno | NOTAS: Iniciar en tela negra, revelación del quarto
 SEQUÊNCIA 2 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom in | NOTAS: Foco en monitor, luego en cara frustrada
 SEQUÊNCIA 3 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Pan | NOTAS: Tres ventanas en pantalla, alternancia entre personajes
@@ -790,11 +956,309 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
         let secuenciasParseadas = [];
         let respuestasAsistente = {};
         let pasoActual = 0;
+        let reconocimiento = null;
+        let dictando = false;
 
         const opcionesPlano = ['Wide shot', 'Medium shot', 'Close-up', 'Extreme close-up', 'Over the shoulder', 'Two-shot'];
         const opcionesAngulo = ['Nivel', 'Frontal', 'Perfil', '45°', 'Superior', 'Inferior', 'Holandés'];
         const opcionesMovimiento = ['Ninguno', 'Zoom in', 'Zoom out', 'Pan', 'Dolly', 'Tilt', 'Tracking'];
 
+        // Palabras que NO son props aunque estén en mayúsculas
+        const stopProps = ['INT', 'EXT', 'NOITE', 'DIA', 'DÍA', 'TELA', 'PRETA', 'TELA PRETA', 'SOM', 'FIM',
+            'UPLOAD', 'ENVIAR', 'SEQUÊNCIA', 'ARTISTA', 'MÃE', 'JANELA', 'PERSONAGEM', 'PROTAGONISTA',
+            'REJEITADA', 'FRACASSO', 'ESTRANHA', 'INVISÍVEL', 'IGNORADA', 'FRACASSADA', 'DESCONHECIDA',
+            'K-POP', 'POP', 'ART', 'POP ART', 'GRAFITE', 'IDENTIDADE', 'O.S', 'V.O'];
+
+        // ==================== DICTADO POR VOZ ====================
+        function toggleDictado() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                alert('Tu navegador no soporta dictado por voz. Usa Google Chrome (celular o PC).');
+                return;
+            }
+
+            if (dictando) {
+                reconocimiento.stop();
+                return;
+            }
+
+            reconocimiento = new SpeechRec();
+            reconocimiento.lang = 'es-ES';
+            reconocimiento.continuous = true;
+            reconocimiento.interimResults = false;
+
+            reconocimiento.onstart = () => {
+                dictando = true;
+                const btn = document.getElementById('micBtn');
+                btn.classList.add('grabando');
+                btn.textContent = '⏹️ Detener dictado';
+                document.getElementById('micHint').textContent = '🔴 Escuchando... Habla tu idea. Toca "Detener" cuando termines.';
+            };
+
+            reconocimiento.onresult = (event) => {
+                let texto = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        texto += event.results[i][0].transcript + ' ';
+                    }
+                }
+                if (texto) {
+                    const area = document.getElementById('ideaLibre');
+                    area.value = (area.value ? area.value + ' ' : '') + texto.trim();
+                }
+            };
+
+            reconocimiento.onerror = (e) => {
+                if (e.error === 'not-allowed') {
+                    alert('Permite el acceso al micrófono en tu navegador para dictar.');
+                }
+            };
+
+            reconocimiento.onend = () => {
+                dictando = false;
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('grabando');
+                btn.textContent = '🎤 Hablar (dictar idea)';
+                document.getElementById('micHint').textContent = 'El dictado por voz funciona en Chrome. Toca el micrófono y habla; tu voz se convierte en texto.';
+            };
+
+            reconocimiento.start();
+        }
+
+        function limpiarIdea() {
+            if (confirm('¿Borrar la idea escrita?')) {
+                document.getElementById('ideaLibre').value = '';
+            }
+        }
+
+        // ==================== GENERADOR: IDEA → GUIÓN ====================
+        function generarGuionDesdeIdea() {
+            const idea = document.getElementById('ideaLibre').value.trim();
+            const titulo = document.getElementById('ideaTitulo').value.trim() || 'MI CORTOMETRAJE';
+            const protRaw = document.getElementById('ideaProtagonista').value.trim() || 'la protagonista';
+            const deseo = document.getElementById('ideaDeseo').value.trim() || '[¿Qué quiere el personaje? — completa aquí]';
+            const obstaculo = document.getElementById('ideaObstaculo').value.trim() || '[¿Qué obstáculo enfrenta? — completa aquí]';
+            const giro = document.getElementById('ideaGiro').value.trim() || '[¿Qué la hace cambiar? — completa aquí]';
+            const final = document.getElementById('ideaFinal').value.trim() || '[¿Cómo termina? — completa aquí]';
+            const loc = (document.getElementById('ideaLocacion').value.trim() || 'LOCACIÓN PRINCIPAL').toUpperCase();
+
+            if (!idea && !document.getElementById('ideaProtagonista').value.trim()) {
+                alert('Escribe (o dicta) tu idea, o responde al menos quién es tu protagonista.');
+                return;
+            }
+
+            // Nombre corto del protagonista en mayúsculas (primera palabra significativa)
+            const protNombre = extraerNombreProtagonista(protRaw);
+            const logline = idea || `${protRaw} ${deseo.toLowerCase()}, pero ${obstaculo.toLowerCase()}. Cuando ${giro.toLowerCase()}, todo cambia.`;
+
+            // Guardar idea original
+            localStorage.setItem('ideaCorto', JSON.stringify({ idea, titulo, protRaw, deseo, obstaculo, giro, final, loc }));
+
+            const g = [];
+            g.push(`Título: ${titulo}`);
+            g.push('');
+            g.push(`Logline: ${logline}`);
+            g.push('');
+            g.push(`Idea original: ${idea || '(escrita con preguntas guiadas)'}`);
+            g.push('');
+
+            const secs = [
+                {
+                    t: 'APRESENTAÇÃO',
+                    cuerpo: `INT. ${loc} - DIA
+
+Conocemos a ${protNombre}, ${protRaw}.
+
+Su mundo cotidiano: aquí mostramos cómo vive, qué hace cada día, antes de que todo cambie.
+
+Detalle visual importante: un objeto o gesto que define quién es ${protNombre} por dentro.
+
+SOM: Ambiente cotidiano. Música: tema principal, suave.
+ANIMAÇÃO: [Elementos visuales de la vida diaria de ${protNombre}]`
+                },
+                {
+                    t: 'O DESEJO',
+                    cuerpo: `INT. ${loc} - DIA
+
+Vemos claramente lo que ${protNombre} quiere: ${deseo}.
+
+Algo aparece (una noticia, una oportunidad, una fecha límite) que hace ese deseo urgente.
+
+${protNombre} reacciona. Todavía no sabemos si va a intentarlo.
+
+SOM: Un sonido que marca la oportunidad (notificación, carta, voz). Música sube levemente.
+ANIMAÇÃO: [Cómo se visualiza el deseo/oportunidad]`
+                },
+                {
+                    t: 'O PRIMEIRO OBSTÁCULO',
+                    cuerpo: `INT. ${loc} - DIA
+
+${protNombre} lo intenta por primera vez.
+
+Pero aparece el obstáculo: ${obstaculo}.
+
+El primer intento falla. ${protNombre} no se rinde todavía, pero la duda ya está sembrada.
+
+SOM: Música tensa, contenida.
+ANIMAÇÃO: [Visualización del obstáculo]`
+                },
+                {
+                    t: 'A CRISE CRESCE',
+                    cuerpo: `INT. ${loc} - NOITE
+
+Los intentos se acumulan. Los fracasos también.
+
+El obstáculo (${obstaculo}) crece y se vuelve abrumador.
+
+Todo lo que ${protNombre} intenta parece empeorar la situación. El caos aumenta.
+
+SOM: Sonidos que se acumulan, se distorsionan. Música llega a un clímax incómodo.
+ANIMAÇÃO: [El caos visual en su punto máximo]`
+                },
+                {
+                    t: 'O FUNDO DO POÇO',
+                    cuerpo: `INT. ${loc} - NOITE
+
+${protNombre} se quiebra.
+
+Silêncio absoluto.
+
+Por primera vez, ${protNombre} dice (o muestra) su verdad más honesta. El momento más vulnerable del cortometraje.
+
+${protNombre}: [Escribe aquí la frase más honesta de tu personaje]
+
+SOM: Silencio casi total. Respiración. La música desaparece.
+ANIMAÇÃO: [Mínima o ninguna — este momento es íntimo]`
+                },
+                {
+                    t: 'O GIRO',
+                    cuerpo: `INT. ${loc} - NOITE
+
+Algo inesperado sucede: ${giro}.
+
+Puede ser pequeño — un objeto, una persona, un recuerdo — pero cambia la forma en que ${protNombre} ve todo.
+
+SOM: Música regresa, mínima, cálida, esperanzadora.
+ANIMAÇÃO: [Cambio sutil de luz/color que acompaña el giro]`
+                },
+                {
+                    t: 'A DESCOBERTA',
+                    cuerpo: `INT. ${loc} - NOITE
+
+${protNombre} entiende algo que antes no podía ver.
+
+Momento de reconocimiento interior: la solución no estaba afuera, estaba en aceptar/cambiar algo propio.
+
+${protNombre} sonríe (o respira distinto) por primera vez.
+
+SOM: Música sube con esperanza genuina.
+ANIMAÇÃO: [Flashback breve o cambio de iluminación]`
+                },
+                {
+                    t: 'A AÇÃO',
+                    cuerpo: `INT. ${loc} - NOITE
+
+${protNombre} actúa — pero ahora de forma diferente, auténtica.
+
+Montaje: paso a paso, vemos a ${protNombre} haciendo lo que siempre debió hacer, a su manera.
+
+Los viejos miedos aparecen brevemente... y se desvanecen.
+
+SOM: Sonidos de la acción (manos, herramientas, pasos). Música: crescendo positivo.
+ANIMAÇÃO: [La nueva creación/acción tomando forma progresivamente]`
+                },
+                {
+                    t: 'CLÍMAX',
+                    cuerpo: `INT. ${loc} - NOITE
+
+El momento decisivo.
+
+${protNombre} enfrenta el resultado de su cambio. Todo lo que construyó la historia se concentra aquí.
+
+No hacen falta muchas palabras. La imagen lo dice todo.
+
+SOM: Música resuelve en paz (o en el tono emocional de tu final).
+ANIMAÇÃO: [El momento culminante en imagen]`
+                },
+                {
+                    t: 'RESOLUÇÃO',
+                    cuerpo: `INT. ${loc} - NOITE
+
+El desenlace: ${final}.
+
+Cierre visual: retomamos un detalle del inicio (objeto, gesto, lugar) que ahora significa algo distinto.
+
+Corte a negro.
+
+FIM.
+
+SOM: Sonido final significativo. Silencio. Música desaparece gradualmente.
+ANIMAÇÃO: [Transiciones finales suaves]`
+                }
+            ];
+
+            secs.forEach((s, i) => {
+                g.push('=====');
+                g.push('');
+                g.push(`SEQUÊNCIA ${i + 1}: ${s.t}`);
+                g.push('');
+                g.push(s.cuerpo);
+                g.push('');
+            });
+
+            const guionGenerado = g.join('\n');
+
+            // Cargar en el editor literario y guardar
+            document.getElementById('guiaoLiterario').value = guionGenerado;
+            localStorage.setItem('guiaoLiterario', guionGenerado);
+            secuenciasParseadas = parseGuiaoLiterario(guionGenerado);
+            atualizarDesgloces();
+            atualizarPlanRodaje();
+
+            // Generar guión técnico sugerido para la nueva estructura
+            const tecnicoGenerado = generarTecnicoSugerido(secs.length);
+            document.getElementById('guiaoTecnico').value = tecnicoGenerado;
+            localStorage.setItem('guiaoTecnico', tecnicoGenerado);
+            atualizarStoryboard(tecnicoGenerado);
+
+            // Llevar al usuario al tab Literário para revisar
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel:not(.right) .tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById('literario-tab').classList.add('active');
+            document.querySelectorAll('.panel:not(.right) .tab-button')[1].classList.add('active');
+
+            alert('✨ ¡Listo! Ade generó:\n\n✓ Guión literario (10 secuencias, 3 actos)\n✓ Guión técnico sugerido\n✓ Storyboard\n✓ Desgloces\n✓ Plan de rodaje\n\nAhora revisa el guión y edita lo que quieras. Los textos entre [corchetes] son para que los completes.');
+        }
+
+        function extraerNombreProtagonista(texto) {
+            // Toma la primera palabra "significativa" como nombre del personaje
+            const limpio = texto.replace(/^(una?|el|la|los|las|um|uma|o|a)\s+/i, '');
+            const primera = limpio.split(/[\s,]+/)[0] || 'PROTAGONISTA';
+            return primera.toUpperCase();
+        }
+
+        function generarTecnicoSugerido(n) {
+            const defaults = [
+                { p: 'Wide shot', a: 'Nivel', m: 'Ninguno', n: 'Plano de presentación, establecer el mundo' },
+                { p: 'Close-up', a: 'Frontal', m: 'Zoom in', n: 'Foco en el deseo/oportunidad' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Ninguno', n: 'Primer intento y primer obstáculo' },
+                { p: 'Wide shot', a: 'Holandés', m: 'Tilt + Zoom', n: 'Caos creciente, ángulo inestable' },
+                { p: 'Close-up', a: 'Inferior', m: 'Ninguno', n: 'Momento de verdad, máxima intimidad' },
+                { p: 'Two-shot', a: 'Perfil', m: 'Dolly', n: 'El giro entra en escena suavemente' },
+                { p: 'Extreme close-up', a: 'Superior', m: 'Ninguno', n: 'Descubrimiento, detalle emocional' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Tracking', n: 'Montaje de acción, energía renovada' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Zoom in', n: 'Clímax, contacto directo' },
+                { p: 'Close-up', a: 'Frontal', m: 'Zoom out', n: 'Resolución ceremonial, cierre' }
+            ];
+            const lineas = [];
+            for (let i = 0; i < n; i++) {
+                const d = defaults[i] || defaults[defaults.length - 1];
+                lineas.push(`SEQUÊNCIA ${i + 1} | PLANO: ${d.p} | ÁNGULO: ${d.a} | MOVIMENTO: ${d.m} | NOTAS: ${d.n}`);
+            }
+            return lineas.join('\n');
+        }
+
+        // ==================== PARSER ====================
         function parseGuiaoLiterario(texto) {
             const lineas = texto.split('\n');
             const sequencias = [];
@@ -826,26 +1290,60 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
                         secActual.animacoes = anim;
                     } else if (linea.match(/^(INT\.|EXT\.)/)) {
                         secActual.locaciones.push(linea.trim());
-                    } else if (linea.match(/^(ARTISTA|MÃE|GATO DE BRINQUEDO)/i)) {
-                        const nome = linea.trim();
-                        if (!secActual.personajes.includes(nome)) {
-                            secActual.personajes.push(nome);
+                    } else {
+                        // Detectar diálogo: NOMBRE: texto (o NOMBRE (O.S.): texto)
+                        const dialogo = linea.match(/^([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ\s\-]{1,25}?)(\s*\((?:O\.S\.|V\.O\.)\))?:\s*.+/);
+                        if (dialogo) {
+                            const nome = dialogo[1].trim();
+                            if (!secActual.personajes.includes(nome)) {
+                                secActual.personajes.push(nome);
+                            }
                         }
-                    } else if (linea.trim()) {
-                        secActual.descripcion += (secActual.descripcion ? ' ' : '') + linea.trim();
+                        if (linea.trim()) {
+                            secActual.descripcion += (secActual.descripcion ? ' ' : '') + linea.trim();
+                        }
                     }
                 }
             });
 
             if (secActual) sequencias.push(secActual);
+
+            // Detectar personajes mencionados en la descripción (sin diálogo) y props en mayúsculas
+            sequencias.forEach(seq => {
+                ['ARTISTA', 'MÃE'].forEach(n => {
+                    if (new RegExp('\\b' + n + '\\b').test(seq.descripcion) && !seq.personajes.includes(n)) {
+                        seq.personajes.push(n);
+                    }
+                });
+                seq.props = extraerProps(seq.descripcion, seq.personajes);
+            });
+
             return sequencias;
         }
 
+        function extraerProps(descripcion, personajes) {
+            const props = new Set();
+            const regex = /\b([A-ZÁÉÍÓÚÂÊÔÃÕÇ]{3,}(?:\s+(?:DE|DO|DA)\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{3,}|\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{4,})*)\b/g;
+            let m;
+            while ((m = regex.exec(descripcion)) !== null) {
+                const candidato = m[1].trim();
+                const esStop = stopProps.some(s => candidato === s || candidato.startsWith(s + ' ') || s === candidato.split(' ')[0]);
+                const esPersonaje = personajes.some(p => candidato.includes(p) || p.includes(candidato));
+                if (!esStop && !esPersonaje && candidato.length >= 4) {
+                    props.add(candidato);
+                }
+            }
+            return [...props];
+        }
+
+        // ==================== UI ====================
         function abrirTab(tab, event) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            const boton = event.target;
+            const panel = boton.closest('.panel');
+            panel.querySelectorAll(':scope > .tab-content, :scope .tab-content').forEach(t => t.classList.remove('active'));
+            panel.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById(tab + '-tab').classList.add('active');
-            event.target.classList.add('active');
+            boton.classList.add('active');
         }
 
         function toggleAsistencia(tipo) {
@@ -863,26 +1361,43 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             localStorage.setItem('guiaoLiterario', texto);
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
-            alert('✓ Guião Literário salvo');
+            atualizarPlanRodaje();
+            alert('✓ Guião Literário salvo. Desgloces y plan de rodaje actualizados.');
         }
 
+        // ==================== DESGLOCES ====================
         function atualizarDesgloces() {
             let html = '';
+
+            const personajesUnicos = [...new Set(secuenciasParseadas.flatMap(s => s.personajes))];
+            const vivos = personajesUnicos.filter(p => !['K-POP', 'POP ART', 'GRAFITE'].includes(p));
+            const digitales = personajesUnicos.filter(p => ['K-POP', 'POP ART', 'GRAFITE'].includes(p));
 
             html += `
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">${secuenciasParseadas.length}</strong><div style="font-size: 10px; color: #999;">Secuencias</div></div>
-                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">2</strong><div style="font-size: 10px; color: #999;">Personajes</div></div>
+                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">${vivos.length}</strong><div style="font-size: 10px; color: #999;">Personajes vivos</div></div>
                 </div>
             `;
 
-            // Personajes
-            html += `<div class="card"><strong>👥 Personajes Vivos</strong>
-                <div style="background: var(--accent); padding: 8px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>ARTISTA</strong><br><span style="color: #999;">Protagonista • Presente en todas las secuencias</span></div>
-                <div style="background: var(--accent); padding: 8px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>MÃE</strong><br><span style="color: #999;">Apoyo emocional • Secuencia 6</span></div>
-            </div>`;
+            if (vivos.length > 0) {
+                html += `<div class="card"><strong>👥 Personajes Vivos (elenco real)</strong>`;
+                vivos.forEach(p => {
+                    const seqs = secuenciasParseadas.filter(s => s.personajes.includes(p)).map(s => s.numero).join(', ');
+                    html += `<div style="background: var(--accent); padding: 8px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>${p}</strong><br><span style="color: #999;">Secuencias: ${seqs}</span></div>`;
+                });
+                html += `</div>`;
+            }
 
-            // Locaciones
+            if (digitales.length > 0) {
+                html += `<div class="card"><strong>🎨 Personajes Digitales (animación, no elenco)</strong>`;
+                digitales.forEach(p => {
+                    const seqs = secuenciasParseadas.filter(s => s.personajes.includes(p)).map(s => s.numero).join(', ');
+                    html += `<div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>${p}</strong> <span style="color: #999;">— Seq: ${seqs}</span></div>`;
+                });
+                html += `</div>`;
+            }
+
             const locacionesUnicas = [...new Set(secuenciasParseadas.flatMap(s => s.locaciones))];
             if (locacionesUnicas.length > 0) {
                 html += `<div class="card"><strong>📍 Locaciones</strong>`;
@@ -892,23 +1407,113 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
                 html += `</div>`;
             }
 
-            // Elementos visuales
-            html += `<div class="card"><strong>🎬 Elementos Visuales</strong>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">🎁 GATO DE BRINQUEDO</div>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">🖥️ MONITOR / LAPTOP</div>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">📁 LIXEIRA (llena al inicio, vacía al final)</div>
-            </div>`;
+            const propsUnicos = [...new Set(secuenciasParseadas.flatMap(s => s.props))];
+            if (propsUnicos.length > 0) {
+                html += `<div class="card"><strong>🎁 Arte / Props detectados</strong>`;
+                propsUnicos.forEach(p => {
+                    const seqs = secuenciasParseadas.filter(s => s.props.includes(p)).map(s => s.numero).join(', ');
+                    html += `<div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">🎁 ${p} <span style="color: #999;">— Seq: ${seqs}</span></div>`;
+                });
+                html += `</div>`;
+            }
 
-            // Visuales digitales
-            html += `<div class="card"><strong>🎨 Personajes Digitales (NO VIVOS)</strong>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE K-POP • Anime brilhante</div>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE POP ART • Estilo Warhol</div>
-                <div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;">PERSONAJE GRAFITE • Street art</div>
-            </div>`;
+            const animSecs = secuenciasParseadas.filter(s => s.animacoes.length > 0);
+            if (animSecs.length > 0) {
+                html += `<div class="card"><strong>🎨 Animación por secuencia</strong>`;
+                animSecs.forEach(s => {
+                    html += `<div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>Seq ${s.numero}:</strong> ${s.animacoes.join('. ')}</div>`;
+                });
+                html += `</div>`;
+            }
 
-            document.getElementById('desglocesContainer').innerHTML = html;
+            const somSecs = secuenciasParseadas.filter(s => s.son);
+            if (somSecs.length > 0) {
+                html += `<div class="card"><strong>🎵 Sonido/Música por secuencia</strong>`;
+                somSecs.forEach(s => {
+                    html += `<div style="background: var(--accent); padding: 6px; border-radius: 3px; margin-top: 5px; font-size: 11px;"><strong>Seq ${s.numero}:</strong> ${s.son}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('desglocesContainer').innerHTML = html || '<p style="color: #999;">Sin desgloces</p>';
         }
 
+        // ==================== PLAN DE RODAJE ====================
+        function atualizarPlanRodaje() {
+            if (secuenciasParseadas.length === 0) {
+                document.getElementById('rodajeContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guião literário primero</p>';
+                return;
+            }
+
+            // Agrupar secuencias por locación (misma locación = mismo día de rodaje)
+            const grupos = {};
+            secuenciasParseadas.forEach(seq => {
+                const loc = seq.locaciones[0] || 'LOCACIÓN A DEFINIR';
+                if (!grupos[loc]) grupos[loc] = [];
+                grupos[loc].push(seq);
+            });
+
+            const tecnicoTexto = document.getElementById('guiaoTecnico').value;
+            const tecnicoPorSeq = {};
+            tecnicoTexto.split('\n').forEach(linea => {
+                const m = linea.match(/SEQUÊNCIA\s+(\d+)/i);
+                if (m) tecnicoPorSeq[parseInt(m[1])] = linea;
+            });
+
+            let html = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">${Object.keys(grupos).length}</strong><div style="font-size: 10px; color: #999;">Días de rodaje (est.)</div></div>
+                    <div class="card" style="border-left: none; text-align: center;"><strong style="color: var(--primary); font-size: 18px;">${secuenciasParseadas.length}</strong><div style="font-size: 10px; color: #999;">Secuencias totales</div></div>
+                </div>
+                <p style="font-size: 10px; color: #999; margin-bottom: 15px;">📌 Criterio: secuencias en la misma locación se agrupan en el mismo día para optimizar producción. Ajusta según tu equipo.</p>
+            `;
+
+            let dia = 1;
+            for (const [loc, seqs] of Object.entries(grupos)) {
+                const cast = [...new Set(seqs.flatMap(s => s.personajes.filter(p => !['K-POP', 'POP ART', 'GRAFITE'].includes(p))))];
+                const castDigital = [...new Set(seqs.flatMap(s => s.personajes.filter(p => ['K-POP', 'POP ART', 'GRAFITE'].includes(p))))];
+                const props = [...new Set(seqs.flatMap(s => s.props))];
+                const conAnimacion = seqs.filter(s => s.animacoes.length > 0).map(s => s.numero);
+                const conSom = seqs.filter(s => s.son).map(s => s.numero);
+
+                html += `<div class="rodaje-dia">📅 DÍA ${dia} — ${loc}</div>`;
+                html += `<div class="rodaje-body">`;
+
+                html += `<div style="margin-bottom: 10px;"><strong style="color: var(--primary); font-size: 11px;">🎬 Secuencias a rodar (${seqs.length}):</strong></div>`;
+                seqs.forEach(s => {
+                    const tec = tecnicoPorSeq[s.numero] ? tecnicoPorSeq[s.numero].split('|').slice(1).map(p => p.trim()).join(' • ') : 'Técnico a definir';
+                    html += `<div class="rodaje-seq"><strong>SEQ ${s.numero}: ${s.titulo}</strong><br><span style="color: #666; font-size: 10px;">${tec}</span></div>`;
+                });
+
+                html += `<div style="margin-top: 12px;"><strong style="color: var(--primary); font-size: 11px;">👥 Elenco necesario:</strong><br>`;
+                html += cast.length ? cast.map(c => `<span class="tag">👤 ${c}</span>`).join('') : '<span class="tag">Sin elenco (solo pantalla/animación)</span>';
+                html += `</div>`;
+
+                if (props.length > 0) {
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">🎁 Arte / Props preparar:</strong><br>`;
+                    html += props.map(p => `<span class="tag">🎁 ${p}</span>`).join('');
+                    html += `</div>`;
+                }
+
+                if (castDigital.length > 0 || conAnimacion.length > 0) {
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">🎨 Post-producción / Animación:</strong><br>`;
+                    castDigital.forEach(c => { html += `<span class="tag">🎨 ${c}</span>`; });
+                    if (conAnimacion.length > 0) html += `<span class="tag">✨ Animación en Seq: ${conAnimacion.join(', ')}</span>`;
+                    html += `</div>`;
+                }
+
+                if (conSom.length > 0) {
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">🎵 Sonido:</strong><br><span class="tag">🎵 Diseño de sonido en Seq: ${conSom.join(', ')}</span></div>`;
+                }
+
+                html += `</div>`;
+                dia++;
+            }
+
+            document.getElementById('rodajeContainer').innerHTML = html;
+        }
+
+        // ==================== ASISTENTE TÉCNICO ====================
         function iniciarAsistenteTecnico() {
             const texto = document.getElementById('guiaoLiterario').value;
             if (!texto.trim()) {
@@ -923,8 +1528,24 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
 
             secuenciasParseadas = parseGuiaoLiterario(texto);
             respuestasAsistente = {};
-            pasoActual = 0;
 
+            // Pre-cargar respuestas desde el guión técnico actual (para modificar, no empezar de cero)
+            const tecnicoActual = document.getElementById('guiaoTecnico').value;
+            tecnicoActual.split('\n').forEach(linea => {
+                const m = linea.match(/SEQUÊNCIA\s+(\d+)/i);
+                if (m) {
+                    const num = parseInt(m[1]);
+                    const partes = linea.split('|').map(p => p.trim());
+                    respuestasAsistente[num] = {
+                        plano: extraerValor(partes, 'PLANO'),
+                        angulo: extraerValor(partes, 'ÁNGULO'),
+                        movimiento: extraerValor(partes, 'MOVIMENTO'),
+                        notas: extraerValor(partes, 'NOTAS')
+                    };
+                }
+            });
+
+            pasoActual = 0;
             document.getElementById('asistenteModal').style.display = 'flex';
             mostrarPasoAsistente();
         }
@@ -983,7 +1604,7 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
                 <div style="margin-bottom: 20px;">
                     <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">📝 Notas técnicas</div>
                     <input type="text" placeholder="Notas, detalles..." style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 4px; font-size: 12px;"
-                        value="${respuestasAsistente[seq.numero]?.notas || ''}"
+                        value="${(respuestasAsistente[seq.numero]?.notas || '').replace(/"/g, '&quot;')}"
                         onchange="respuestasAsistente[${seq.numero}] = respuestasAsistente[${seq.numero}] || {}; respuestasAsistente[${seq.numero}].notas = this.value;">
                 </div>
 
@@ -1030,16 +1651,19 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             });
 
             document.getElementById('guiaoTecnico').value = guiaoTecnico;
+            localStorage.setItem('guiaoTecnico', guiaoTecnico);
             document.getElementById('modoManualTecnico').style.display = 'block';
             document.getElementById('asistenteModal').style.display = 'none';
 
             atualizarStoryboard(guiaoTecnico);
+            atualizarPlanRodaje();
         }
 
         function cerrarAsistente() {
             document.getElementById('asistenteModal').style.display = 'none';
         }
 
+        // ==================== STORYBOARD ====================
         function atualizarStoryboard(guiaoTecnico) {
             const lineas = guiaoTecnico.split('\n').filter(l => l.trim());
             let html = '';
@@ -1050,17 +1674,18 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
                 if (!seqMatch) return;
 
                 const seqNum = parseInt(seqMatch[0]);
+                const seq = secuenciasParseadas.find(s => s.numero === seqNum);
 
                 const plano = extraerValor(partes, 'PLANO');
                 const angulo = extraerValor(partes, 'ÁNGULO');
                 const movimiento = extraerValor(partes, 'MOVIMENTO');
-                const notas = extraerValor(partes, 'NOTAS');
 
                 html += `
                     <div class="storyboard-card">
                         <div style="font-size: 11px;">
                             <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
                                 <strong style="font-size: 14px;">SEQ ${seqNum}</strong>
+                                ${seq ? `<div style="font-size: 9px; margin-top: 3px; opacity: 0.9;">${seq.titulo}</div>` : ''}
                             </div>
                             ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
                             ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
@@ -1079,12 +1704,15 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             return parte ? parte.split(':')[1]?.trim() || '' : '';
         }
 
+        // ==================== PALETA / GUARDAR / PDF ====================
         function salvarPaleta() {
             const paleta = {
                 primary: document.getElementById('colorPrimarioText').value,
                 secondary: document.getElementById('colorSecundarioText').value
             };
             localStorage.setItem('paleta', JSON.stringify(paleta));
+            document.documentElement.style.setProperty('--primary', paleta.primary);
+            document.documentElement.style.setProperty('--secondary', paleta.secondary);
             alert('✓ Paleta guardada');
         }
 
@@ -1092,26 +1720,59 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             const texto = document.getElementById('guiaoTecnico').value;
             localStorage.setItem('guiaoTecnico', texto);
             atualizarStoryboard(texto);
-            alert('✓ Guião Técnico salvo');
+            atualizarPlanRodaje();
+            alert('✓ Guião Técnico salvo. Storyboard y plan de rodaje actualizados.');
         }
 
-        function exportarDesglocesPDF() {
-            alert('Función en desarrollo');
+        function exportarPDF(containerId, nombre) {
+            const elemento = document.getElementById(containerId);
+            if (!elemento || !elemento.innerText.trim() || elemento.innerText.includes('Cargando')) {
+                alert('No hay contenido para exportar todavía.');
+                return;
+            }
+            const opt = {
+                margin: 10,
+                filename: `${nombre}-voce-e.pdf`,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(elemento).save();
         }
 
-        function exportarStoryboardPDF() {
-            alert('Función en desarrollo');
-        }
-
+        // ==================== INICIALIZACIÓN ====================
         window.addEventListener('load', () => {
             document.getElementById('guiaoLiterario').value = localStorage.getItem('guiaoLiterario') || guiaoPadrao;
             document.getElementById('guiaoTecnico').value = localStorage.getItem('guiaoTecnico') || guiaoTecnicoPredefinido;
-            salvarGuiaoLiterario();
-            atualizarStoryboard(guiaoTecnicoPredefinido);
+
+            const texto = document.getElementById('guiaoLiterario').value;
+            secuenciasParseadas = parseGuiaoLiterario(texto);
+            atualizarDesgloces();
+            atualizarStoryboard(document.getElementById('guiaoTecnico').value);
+            atualizarPlanRodaje();
+
+            // Restaurar idea guardada
+            const ideaGuardada = JSON.parse(localStorage.getItem('ideaCorto') || '{}');
+            if (ideaGuardada.idea) document.getElementById('ideaLibre').value = ideaGuardada.idea;
+            if (ideaGuardada.titulo) document.getElementById('ideaTitulo').value = ideaGuardada.titulo;
+            if (ideaGuardada.protRaw) document.getElementById('ideaProtagonista').value = ideaGuardada.protRaw;
+            if (ideaGuardada.deseo) document.getElementById('ideaDeseo').value = ideaGuardada.deseo;
+            if (ideaGuardada.obstaculo) document.getElementById('ideaObstaculo').value = ideaGuardada.obstaculo;
+            if (ideaGuardada.giro) document.getElementById('ideaGiro').value = ideaGuardada.giro;
+            if (ideaGuardada.final) document.getElementById('ideaFinal').value = ideaGuardada.final;
+            if (ideaGuardada.loc) document.getElementById('ideaLocacion').value = ideaGuardada.loc;
 
             const paleta = JSON.parse(localStorage.getItem('paleta') || '{}');
-            if (paleta.primary) document.documentElement.style.setProperty('--primary', paleta.primary);
-            if (paleta.secondary) document.documentElement.style.setProperty('--secondary', paleta.secondary);
+            if (paleta.primary) {
+                document.documentElement.style.setProperty('--primary', paleta.primary);
+                document.getElementById('colorPrimario').value = paleta.primary;
+                document.getElementById('colorPrimarioText').value = paleta.primary;
+            }
+            if (paleta.secondary) {
+                document.documentElement.style.setProperty('--secondary', paleta.secondary);
+                document.getElementById('colorSecundario').value = paleta.secondary;
+                document.getElementById('colorSecundarioText').value = paleta.secondary;
+            }
         });
     </script>
 </body>
