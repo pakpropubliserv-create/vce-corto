@@ -216,8 +216,8 @@
             align-items: center;
             justify-content: center;
             color: #ccc;
-            font-style: italic;
             font-size: 11px;
+            padding: 8px;
         }
 
         .rodaje-dia {
@@ -1684,6 +1684,156 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== STORYBOARD ====================
+        // ==================== BOCETO AUTOMÁTICO (ilustração básica) ====================
+        function detectarElementosEscena(texto) {
+            const t = (texto || '').toLowerCase();
+            const mapa = [
+                ['cama', /\bcama\b/],
+                ['lixeira', /\blixeira\b/],
+                ['monitor', /\b(monitor|computador|laptop|notebook|pantalla|tela do)\b/],
+                ['brinquedo', /\b(brinquedo|peluche|juguete)\b/],
+                ['porta', /\b(porta|puerta)\b/],
+                ['prateleira', /\b(prateleira|estante|repisa)\b/],
+                ['janela', /\b(janela|ventana)\b/],
+                ['formulario', /\b(formulário|formulario|upload|concurso)\b/]
+            ];
+            const encontrados = [];
+            mapa.forEach(([key, re]) => { if (re.test(t)) encontrados.push(key); });
+            return encontrados;
+        }
+
+        function svgPersona(cx, groundY, s) {
+            s = s || 1;
+            const headR = 7 * s, headCy = groundY - 62 * s, neckY = headCy + headR, hipY = groundY - 20 * s;
+            return `<circle cx="${cx}" cy="${headCy}" r="${headR}" fill="none" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${neckY}" x2="${cx}" y2="${hipY}" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${neckY + 10 * s}" x2="${cx - 15 * s}" y2="${neckY + 22 * s}" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${neckY + 10 * s}" x2="${cx + 15 * s}" y2="${neckY + 22 * s}" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${hipY}" x2="${cx - 12 * s}" y2="${groundY}" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${hipY}" x2="${cx + 12 * s}" y2="${groundY}" stroke="#555" stroke-width="2"/>`;
+        }
+
+        function svgRostro(cx, cy, r) {
+            return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#555" stroke-width="2.5"/>
+                <circle cx="${cx - r * 0.35}" cy="${cy - r * 0.15}" r="${r * 0.08}" fill="#555"/>
+                <circle cx="${cx + r * 0.35}" cy="${cy - r * 0.15}" r="${r * 0.08}" fill="#555"/>
+                <path d="M ${cx - r * 0.3} ${cy + r * 0.35} Q ${cx} ${cy + r * 0.45} ${cx + r * 0.3} ${cy + r * 0.35}" fill="none" stroke="#555" stroke-width="2"/>`;
+        }
+
+        function svgMonitor(cx, groundY, s) {
+            const w = 36 * s, h = 24 * s, x = cx - w / 2, y = groundY - 40 * s, standW = 10 * s, standH = 8 * s;
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>
+                <line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${y + h + standH}" stroke="#555" stroke-width="2"/>
+                <line x1="${cx - standW}" y1="${y + h + standH}" x2="${cx + standW}" y2="${y + h + standH}" stroke="#555" stroke-width="2"/>`;
+        }
+
+        function svgCama(cx, groundY, s) {
+            const w = 70 * s, h = 18 * s, x = cx - w / 2, y = groundY - h;
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>
+                <line x1="${x}" y1="${y - 14 * s}" x2="${x}" y2="${y}" stroke="#555" stroke-width="2"/>
+                <ellipse cx="${x + 14 * s}" cy="${y + 6 * s}" rx="${10 * s}" ry="${5 * s}" fill="none" stroke="#555" stroke-width="1.5"/>`;
+        }
+
+        function svgLixeira(cx, groundY, s) {
+            const topW = 26 * s, botW = 18 * s, h = 26 * s, topY = groundY - h;
+            return `<path d="M ${cx - topW / 2} ${topY} L ${cx + topW / 2} ${topY} L ${cx + botW / 2} ${groundY} L ${cx - botW / 2} ${groundY} Z" fill="none" stroke="#555" stroke-width="2"/>
+                <line x1="${cx - topW / 2 - 2 * s}" y1="${topY}" x2="${cx + topW / 2 + 2 * s}" y2="${topY}" stroke="#555" stroke-width="2"/>`;
+        }
+
+        function svgBrinquedo(cx, groundY, s) {
+            const headR = 8 * s, bodyRx = 12 * s, bodyRy = 8 * s, bodyCy = groundY - bodyRy, headCy = bodyCy - bodyRy - headR + 2 * s;
+            return `<ellipse cx="${cx}" cy="${bodyCy}" rx="${bodyRx}" ry="${bodyRy}" fill="none" stroke="#555" stroke-width="2"/>
+                <circle cx="${cx}" cy="${headCy}" r="${headR}" fill="none" stroke="#555" stroke-width="2"/>
+                <path d="M ${cx - headR * 0.7} ${headCy - headR * 0.7} L ${cx - headR * 0.2} ${headCy - headR * 1.3} L ${cx - headR * 0.1} ${headCy - headR * 0.5} Z" fill="none" stroke="#555" stroke-width="1.5"/>
+                <path d="M ${cx + headR * 0.7} ${headCy - headR * 0.7} L ${cx + headR * 0.2} ${headCy - headR * 1.3} L ${cx + headR * 0.1} ${headCy - headR * 0.5} Z" fill="none" stroke="#555" stroke-width="1.5"/>`;
+        }
+
+        function svgPorta(cx, groundY, s) {
+            const w = 26 * s, h = 60 * s, x = cx - w / 2, y = groundY - h;
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2"/>
+                <circle cx="${x + w - 6 * s}" cy="${y + h / 2}" r="${2 * s}" fill="#555"/>`;
+        }
+
+        function svgPrateleira(cx, groundY, s) {
+            const w = 50 * s, y = groundY - 30 * s;
+            return `<line x1="${cx - w / 2}" y1="${y}" x2="${cx + w / 2}" y2="${y}" stroke="#555" stroke-width="2"/>
+                <rect x="${cx - w / 2 + 4 * s}" y="${y - 14 * s}" width="${10 * s}" height="${14 * s}" fill="none" stroke="#555" stroke-width="1.5"/>
+                <rect x="${cx - w / 2 + 18 * s}" y="${y - 10 * s}" width="${8 * s}" height="${10 * s}" fill="none" stroke="#555" stroke-width="1.5"/>`;
+        }
+
+        function svgJanela(cx, groundY, s) {
+            const w = 34 * s, h = 34 * s, x = cx - w / 2, y = groundY - h - 10 * s;
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2"/>
+                <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="#555" stroke-width="1.5"/>
+                <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="#555" stroke-width="1.5"/>`;
+        }
+
+        function svgFormulario(cx, groundY, s) {
+            const w = 30 * s, h = 38 * s, x = cx - w / 2, y = groundY - h;
+            let linhas = '';
+            for (let i = 1; i <= 3; i++) {
+                linhas += `<line x1="${x + 5 * s}" y1="${y + i * 9 * s}" x2="${x + w - 5 * s}" y2="${y + i * 9 * s}" stroke="#555" stroke-width="1.2"/>`;
+            }
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>${linhas}`;
+        }
+
+        function svgGenerico(cx, groundY, s) {
+            const size = 20 * s, x = cx - size / 2, y = groundY - size;
+            return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="3" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+        }
+
+        function dibujarElementoEscala(tipo, cx, groundY, s) {
+            switch (tipo) {
+                case 'monitor': return svgMonitor(cx, groundY, s);
+                case 'cama': return svgCama(cx, groundY, s);
+                case 'lixeira': return svgLixeira(cx, groundY, s);
+                case 'brinquedo': return svgBrinquedo(cx, groundY, s);
+                case 'porta': return svgPorta(cx, groundY, s);
+                case 'prateleira': return svgPrateleira(cx, groundY, s);
+                case 'janela': return svgJanela(cx, groundY, s);
+                case 'formulario': return svgFormulario(cx, groundY, s);
+                default: return svgGenerico(cx, groundY, s);
+            }
+        }
+
+        function generarBocetoSVG(seq, planoTexto) {
+            const groundY = 122;
+            const plano = (planoTexto || '').toLowerCase();
+            let inner = '';
+
+            if (!seq) {
+                inner = svgGenerico(100, groundY, 1.5);
+            } else {
+                const vivos = (seq.personajes || []).filter(p => !['K-POP', 'POP ART', 'GRAFITE'].includes(p));
+                const elementos = detectarElementosEscena(seq.descripcion);
+
+                if (plano.includes('close')) {
+                    if (vivos.length > 0) {
+                        inner = svgRostro(100, 68, plano.includes('extreme') ? 56 : 44);
+                    } else if (elementos.length > 0) {
+                        inner = dibujarElementoEscala(elementos[0], 100, 96, 2.2);
+                    } else {
+                        inner = svgRostro(100, 68, 40);
+                    }
+                } else {
+                    const items = [];
+                    const maxPersonas = plano.includes('two-shot') ? Math.min(Math.max(vivos.length, 2), 2) : Math.min(vivos.length, 2);
+                    for (let i = 0; i < maxPersonas; i++) items.push({ tipo: 'persona' });
+                    elementos.slice(0, Math.max(0, 3 - items.length)).forEach(e => items.push({ tipo: 'elemento', key: e }));
+                    if (items.length === 0) items.push({ tipo: 'elemento', key: 'generico' });
+
+                    const n = items.length;
+                    inner += `<line x1="14" y1="${groundY}" x2="186" y2="${groundY}" stroke="#e0e0e0" stroke-width="1.5"/>`;
+                    items.forEach((item, i) => {
+                        const cx = (200 / (n + 1)) * (i + 1);
+                        inner += item.tipo === 'persona' ? svgPersona(cx, groundY, 0.9) : dibujarElementoEscala(item.key, cx, groundY, 1);
+                    });
+                }
+            }
+
+            return `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${inner}</svg>`;
+        }
+
         function atualizarStoryboard(guiaoTecnico) {
             const lineas = guiaoTecnico.split('\n').filter(l => l.trim());
             let html = '';
@@ -1711,7 +1861,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                             ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
                             ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
                         </div>
-                        <div class="storyboard-canvas">🎨 Espacio para ilustrar</div>
+                        <div class="storyboard-canvas">${generarBocetoSVG(seq, plano)}</div>
                     </div>
                 `;
             });
