@@ -1344,6 +1344,26 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             panel.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById(tab + '-tab').classList.add('active');
             boton.classList.add('active');
+
+            // Regenerar salidas al abrir su tab (siempre actualizadas, nunca vacías)
+            if (tab === 'desgloces' || tab === 'storyboard' || tab === 'rodaje') {
+                secuenciasParseadas = parseGuiaoLiterario(document.getElementById('guiaoLiterario').value);
+                if (tab === 'desgloces') atualizarDesgloces();
+                if (tab === 'storyboard') atualizarStoryboard(obtenerTecnicoActual());
+                if (tab === 'rodaje') atualizarPlanRodaje();
+            }
+        }
+
+        function obtenerTecnicoActual() {
+            // Si el guión técnico está vacío o en formato viejo sin datos, usar el predefinido
+            let tecnico = document.getElementById('guiaoTecnico').value.trim();
+            if (!tecnico || !tecnico.match(/SEQUÊNCIA\s+\d+/i)) {
+                tecnico = generarTecnicoSugerido(Math.max(secuenciasParseadas.length, 1));
+                document.getElementById('guiaoTecnico').value = tecnico;
+                localStorage.setItem('guiaoTecnico', tecnico);
+            }
+            // Compatibilidad con formato antiguo (ÂNGULO con acento circunflejo)
+            return tecnico.replace(/ÂNGULO/g, 'ÁNGULO');
         }
 
         function toggleAsistencia(tipo) {
@@ -1748,7 +1768,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const texto = document.getElementById('guiaoLiterario').value;
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
-            atualizarStoryboard(document.getElementById('guiaoTecnico').value);
+            atualizarStoryboard(obtenerTecnicoActual());
             atualizarPlanRodaje();
 
             // Restaurar idea guardada
