@@ -1841,24 +1841,45 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${inner}</svg>`;
         }
 
+        function getMoodColor(seqNum, totalSeqs) {
+            const ratio = seqNum / totalSeqs;
+            if (ratio < 0.25) return '#404040'; // oscuro: tensión inicial
+            if (ratio < 0.5) return '#505050';  // gris oscuro: conflicto
+            if (ratio < 0.75) return '#606060'; // gris: clímax
+            return '#707070'; // gris claro: resolución
+        }
+
         function atualizarStoryboard(guiaoTecnico) {
             const lineas = guiaoTecnico.split('\n').filter(l => l.trim());
             let html = '';
+            const totalSeqs = lineas.length;
 
-            lineas.forEach(linea => {
+            lineas.forEach((linea, idx) => {
                 const partes = linea.split('|').map(p => p.trim());
                 const seqMatch = partes[0].match(/\d+/);
                 if (!seqMatch) return;
 
                 const seqNum = parseInt(seqMatch[0]);
                 const seq = secuenciasParseadas.find(s => s.numero === seqNum);
-
                 const plano = extraerValor(partes, 'PLANO');
                 const angulo = extraerValor(partes, 'ÁNGULO');
                 const movimiento = extraerValor(partes, 'MOVIMENTO');
+                const moodColor = getMoodColor(seqNum, totalSeqs);
+
+                // Planos alternativos según el plano principal
+                const planosAlternos = {
+                    'Wide shot': ['Medium shot', 'Close-up'],
+                    'Medium shot': ['Wide shot', 'Close-up'],
+                    'Close-up': ['Medium shot', 'Extreme close-up'],
+                    'Extreme close-up': ['Close-up', 'Medium shot'],
+                    'Over the shoulder': ['Two-shot', 'Medium shot'],
+                    'Two-shot': ['Medium shot', 'Wide shot']
+                };
+                const alternos = planosAlternos[plano] || ['Wide shot', 'Close-up'];
 
                 html += `
                     <div class="storyboard-card">
+                        <div style="height: 8px; background: linear-gradient(90deg, #1A1A1A, ${moodColor}, #1A1A1A); margin: -12px -12px 10px -12px; border-radius: 6px 6px 0 0;"></div>
                         <div style="font-size: 11px;">
                             <div style="background: linear-gradient(135deg, #1A1A1A, #333333); color: var(--secondary); padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
                                 <strong style="font-size: 14px;">SEQ ${seqNum}</strong>
@@ -1867,13 +1888,40 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                             ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
                             ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
                             ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
+
+                            <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
+                                ${alternos.map(alt => `
+                                    <button onclick="cambiarPlano(${seqNum}, '${alt}')" style="flex: 1; min-width: 50px; padding: 4px 6px; font-size: 9px; background: #E8E8E8; border: 1px solid #D0D0D0; border-radius: 3px; cursor: pointer; transition: all 0.2s;">
+                                        ${alt === plano ? '✓ ' : ''}${alt.split(' ')[0]}
+                                    </button>
+                                `).join('')}
+                            </div>
                         </div>
-                        <div class="storyboard-canvas">${generarBocetoSVG(seq, plano)}</div>
+                        <div class="storyboard-canvas" id="canvas-${seqNum}">${generarBocetoSVG(seq, plano)}</div>
                     </div>
                 `;
             });
 
             document.getElementById('storyboardContainer').innerHTML = html || '<p style="color: #999;">Sin storyboard</p>';
+        }
+
+        function cambiarPlano(seqNum, nuevoPlano) {
+            const tecnicoActual = document.getElementById('guiaoTecnico').value;
+            const lineas = tecnicoActual.split('\n');
+
+            for (let i = 0; i < lineas.length; i++) {
+                if (lineas[i].includes(`SEQUÊNCIA ${seqNum}`)) {
+                    lineas[i] = lineas[i].replace(/PLANO: [^|]*/, `PLANO: ${nuevoPlano}`);
+                    break;
+                }
+            }
+
+            document.getElementById('guiaoTecnico').value = lineas.join('\n');
+            localStorage.setItem('guiaoTecnico', lineas.join('\n'));
+
+            // Redibujar solo este canvas
+            const seq = secuenciasParseadas.find(s => s.numero === seqNum);
+            document.getElementById(`canvas-${seqNum}`).innerHTML = generarBocetoSVG(seq, nuevoPlano);
         }
 
         function extraerValor(partes, clave) {
