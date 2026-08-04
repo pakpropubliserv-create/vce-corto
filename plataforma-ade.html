@@ -227,6 +227,59 @@
             padding: 8px;
         }
 
+        .sb-panel-wrap { display: flex; flex-direction: column; gap: 8px; }
+
+        .sb-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+
+        .sb-chip-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #999;
+            letter-spacing: 1px;
+            width: 42px;
+            flex-shrink: 0;
+        }
+
+        .sb-chip {
+            padding: 5px 8px;
+            font-size: 9px;
+            font-weight: 700;
+            background: #FFFFFF;
+            color: #555;
+            border: 1.5px solid #D0D0D0;
+            border-radius: 3px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            width: auto;
+            min-height: 0;
+        }
+
+        .sb-chip:hover { border-color: #1A1A1A; background: #FFFFFF; color: #1A1A1A; transform: none; }
+        .sb-chip.on { background: #1A1A1A; color: #FFFFFF; border-color: #1A1A1A; }
+
+        .sb-meta {
+            font-size: 9px;
+            color: #777;
+            line-height: 1.45;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #E4E4E4;
+        }
+
+        .sb-meta b { color: #444; font-size: 9px; display: block; margin-top: 4px; }
+
+        .sb-nota {
+            width: 100%;
+            font-size: 10px;
+            padding: 6px 8px;
+            border: 1px solid #D0D0D0;
+            border-radius: 3px;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .sb-nota:focus { outline: none; border-color: #1A1A1A; }
+
         .rodaje-dia {
             background: linear-gradient(135deg, #1A1A1A, #333333);
             color: white;
@@ -347,6 +400,13 @@
                 gap: 10px;
             }
 
+            .sb-chip {
+                padding: 8px 10px;
+                font-size: 10px;
+                min-height: 32px;
+                width: auto;
+            }
+
             .modal-content {
                 padding: 20px;
                 margin: 20px;
@@ -448,6 +508,15 @@
                 gap: 8px;
                 padding: 10px;
             }
+
+            .sb-chip {
+                padding: 9px 11px;
+                font-size: 10px;
+                min-height: 34px;
+                width: auto;
+            }
+
+            .sb-nota { font-size: 13px; padding: 9px; }
 
             .storyboard-canvas {
                 min-height: 140px;
@@ -1691,154 +1760,316 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== STORYBOARD ====================
-        // ==================== BOCETO AUTOMÁTICO (ilustração básica) ====================
+        // ==================== PANEL DE STORYBOARD (dibujo automático) ====================
+        const SB_W = 320, SB_H = 180;
+        const SB_TRAZO = '#3a3a3a';
+        const SB_SUAVE = '#b8b8b8';
+        const SB_MOV = '#8a8a8a';
+
         function detectarElementosEscena(texto) {
             const t = (texto || '').toLowerCase();
             const mapa = [
-                ['cama', /\bcama\b/],
-                ['lixeira', /\blixeira\b/],
-                ['monitor', /\b(monitor|computador|laptop|notebook|pantalla|tela do)\b/],
-                ['brinquedo', /\b(brinquedo|peluche|juguete)\b/],
-                ['porta', /\b(porta|puerta)\b/],
-                ['prateleira', /\b(prateleira|estante|repisa)\b/],
-                ['janela', /\b(janela|ventana)\b/],
-                ['formulario', /\b(formulário|formulario|upload|concurso)\b/]
+                ['cama', /\bcamas?\b/],
+                ['lixeira', /\b(lixeiras?|papeleras?|basura)\b/],
+                ['monitor', /\b(monitor|computador|computadora|laptop|notebook|pantalla|tela do|escritorio|mesa)\b/],
+                ['brinquedo', /\b(brinquedos?|peluche|juguete|gato)\b/],
+                ['palavras', /\b(palavras?|palabras?)\b/],
+                ['porta', /\b(portas?|puertas?)\b/],
+                ['prateleira', /\b(prateleiras?|estantes?|repisas?)\b/],
+                ['janela', /\b(janelas?|ventanas?)\b/],
+                ['formulario', /\b(formul[áa]rio|formulario|upload|concurso|inscri)\b/]
             ];
             const encontrados = [];
-            mapa.forEach(([key, re]) => { if (re.test(t)) encontrados.push(key); });
+            mapa.forEach(function (par) { if (par[1].test(t)) encontrados.push(par[0]); });
             return encontrados;
         }
 
-        function svgPersona(cx, groundY, s) {
+        function estaDeitado(texto) {
+            return /(acostad|deitad|na cama|en la cama|se deja caer|cai na cama)/i.test(texto || '');
+        }
+
+        // ---------- utilidades de trazo ----------
+        function sbFlecha(x1, y1, x2, y2, color) {
+            color = color || SB_MOV;
+            const ang = Math.atan2(y2 - y1, x2 - x1), s = 7;
+            const ax = x2 - s * Math.cos(ang - 0.42), ay = y2 - s * Math.sin(ang - 0.42);
+            const bx = x2 - s * Math.cos(ang + 0.42), by = y2 - s * Math.sin(ang + 0.42);
+            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" stroke-linecap="round"/>`
+                + `<path d="M ${x2} ${y2} L ${ax} ${ay} M ${x2} ${y2} L ${bx} ${by}" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+        }
+
+        function sbMarcasEncuadre() {
+            const m = 8, o = 5;
+            function esquina(x, y, dx, dy) {
+                return `<path d="M ${x + dx * m} ${y} L ${x} ${y} L ${x} ${y + dy * m}" stroke="${SB_SUAVE}" stroke-width="1.6" fill="none"/>`;
+            }
+            return esquina(o, o, 1, 1) + esquina(SB_W - o, o, -1, 1) + esquina(o, SB_H - o, 1, -1) + esquina(SB_W - o, SB_H - o, -1, -1);
+        }
+
+        function sbHabitacion(groundY, vpx) {
+            return `<line x1="0" y1="${groundY}" x2="${SB_W}" y2="${groundY}" stroke="${SB_SUAVE}" stroke-width="1.6"/>`
+                + `<line x1="0" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="#e8e8e8" stroke-width="1.2"/>`
+                + `<line x1="${SB_W}" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="#e8e8e8" stroke-width="1.2"/>`;
+        }
+
+        // ---------- figuras ----------
+        function sbFigura(cx, baseY, h) {
+            const headR = h * 0.10;
+            const headCy = baseY - h + headR;
+            const shY = headCy + headR * 2.1;
+            const hipY = baseY - h * 0.45;
+            const shW = h * 0.15, hipW = h * 0.10;
+            return `<circle cx="${cx}" cy="${headCy}" r="${headR}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>
+                <line x1="${cx}" y1="${headCy + headR}" x2="${cx}" y2="${shY}" stroke="${SB_TRAZO}" stroke-width="1.7"/>
+                <path d="M ${cx - shW} ${shY} L ${cx + shW} ${shY} L ${cx + hipW} ${hipY} L ${cx - hipW} ${hipY} Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>
+                <path d="M ${cx - shW} ${shY} L ${cx - shW - h * 0.045} ${hipY + h * 0.04}" stroke="${SB_TRAZO}" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                <path d="M ${cx + shW} ${shY} L ${cx + shW + h * 0.045} ${hipY + h * 0.04}" stroke="${SB_TRAZO}" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                <path d="M ${cx - hipW * 0.6} ${hipY} L ${cx - hipW * 1.1} ${baseY}" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M ${cx + hipW * 0.6} ${hipY} L ${cx + hipW * 1.1} ${baseY}" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linecap="round"/>`;
+        }
+
+        function sbFiguraDeitada(cx, y, w) {
+            const headR = w * 0.08;
+            return `<circle cx="${cx - w * 0.34}" cy="${y - headR}" r="${headR}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>
+                <path d="M ${cx - w * 0.25} ${y - headR * 1.7} L ${cx + w * 0.28} ${y - headR * 1.2} L ${cx + w * 0.42} ${y} L ${cx - w * 0.25} ${y} Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>`;
+        }
+
+        function sbRostro(cx, cy, r, perfil) {
+            if (perfil) {
+                return `<path d="M ${cx + r * 0.45} ${cy - r * 0.95} Q ${cx - r * 0.8} ${cy - r} ${cx - r * 0.72} ${cy - r * 0.05}
+                    L ${cx - r * 0.98} ${cy + r * 0.2} L ${cx - r * 0.66} ${cy + r * 0.28}
+                    Q ${cx - r * 0.58} ${cy + r * 0.9} ${cx + r * 0.3} ${cy + r}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.8" stroke-linejoin="round"/>
+                    <circle cx="${cx - r * 0.36}" cy="${cy - r * 0.06}" r="${r * 0.07}" fill="${SB_TRAZO}"/>
+                    <path d="M ${cx - r * 0.52} ${cy - r * 0.26} q ${r * 0.2} ${-r * 0.12} ${r * 0.36} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>`;
+            }
+            return `<ellipse cx="${cx}" cy="${cy}" rx="${r * 0.78}" ry="${r}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.8"/>
+                <path d="M ${cx - r * 0.79} ${cy - r * 0.22} Q ${cx} ${cy - r * 1.18} ${cx + r * 0.79} ${cy - r * 0.22}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.6"/>
+                <path d="M ${cx - r * 0.54} ${cy - r * 0.3} q ${r * 0.2} ${-r * 0.13} ${r * 0.38} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>
+                <path d="M ${cx + r * 0.16} ${cy - r * 0.3} q ${r * 0.2} ${-r * 0.13} ${r * 0.38} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>
+                <circle cx="${cx - r * 0.35}" cy="${cy - r * 0.07}" r="${r * 0.075}" fill="${SB_TRAZO}"/>
+                <circle cx="${cx + r * 0.35}" cy="${cy - r * 0.07}" r="${r * 0.075}" fill="${SB_TRAZO}"/>
+                <path d="M ${cx} ${cy - r * 0.04} L ${cx - r * 0.1} ${cy + r * 0.27} L ${cx + r * 0.04} ${cy + r * 0.29}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.4"/>
+                <path d="M ${cx - r * 0.28} ${cy + r * 0.54} q ${r * 0.28} ${r * 0.17} ${r * 0.56} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.6"/>`;
+        }
+
+        function sbHombros(cx, y, w) {
+            return `<path d="M ${cx - w} ${SB_H} Q ${cx - w * 0.5} ${y} ${cx} ${y} Q ${cx + w * 0.5} ${y} ${cx + w} ${SB_H}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>`;
+        }
+
+        function sbOjos(cx, cy, w) {
+            function ojo(ox) {
+                return `<path d="M ${ox - w * 0.19} ${cy} q ${w * 0.19} ${-w * 0.16} ${w * 0.38} 0 q ${-w * 0.19} ${w * 0.16} ${-w * 0.38} 0 Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="2"/>
+                    <circle cx="${ox}" cy="${cy}" r="${w * 0.085}" fill="${SB_TRAZO}"/>
+                    <path d="M ${ox - w * 0.21} ${cy - w * 0.24} q ${w * 0.21} ${-w * 0.11} ${w * 0.42} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.8"/>`;
+            }
+            return ojo(cx - w * 0.4) + ojo(cx + w * 0.4)
+                + `<path d="M ${cx} ${cy + w * 0.12} L ${cx - w * 0.05} ${cy + w * 0.5}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>`;
+        }
+
+        function sbHombroFrente(lado) {
+            const x = lado === 'der' ? SB_W : 0;
+            const d = lado === 'der' ? -1 : 1;
+            return `<path d="M ${x} ${SB_H} L ${x} ${SB_H * 0.5} q ${d * 24} ${-34} ${d * 54} ${-6} q ${d * 20} ${20} ${d * 24} ${SB_H * 0.42} Z" fill="#ededed" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>`;
+        }
+
+        // ---------- objetos ----------
+        function sbProp(tipo, cx, groundY, s) {
             s = s || 1;
-            const headR = 7 * s, headCy = groundY - 62 * s, neckY = headCy + headR, hipY = groundY - 20 * s;
-            return `<circle cx="${cx}" cy="${headCy}" r="${headR}" fill="none" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${neckY}" x2="${cx}" y2="${hipY}" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${neckY + 10 * s}" x2="${cx - 15 * s}" y2="${neckY + 22 * s}" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${neckY + 10 * s}" x2="${cx + 15 * s}" y2="${neckY + 22 * s}" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${hipY}" x2="${cx - 12 * s}" y2="${groundY}" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${hipY}" x2="${cx + 12 * s}" y2="${groundY}" stroke="#555" stroke-width="2"/>`;
-        }
-
-        function svgRostro(cx, cy, r) {
-            return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#555" stroke-width="2.5"/>
-                <circle cx="${cx - r * 0.35}" cy="${cy - r * 0.15}" r="${r * 0.08}" fill="#555"/>
-                <circle cx="${cx + r * 0.35}" cy="${cy - r * 0.15}" r="${r * 0.08}" fill="#555"/>
-                <path d="M ${cx - r * 0.3} ${cy + r * 0.35} Q ${cx} ${cy + r * 0.45} ${cx + r * 0.3} ${cy + r * 0.35}" fill="none" stroke="#555" stroke-width="2"/>`;
-        }
-
-        function svgMonitor(cx, groundY, s) {
-            const w = 36 * s, h = 24 * s, x = cx - w / 2, y = groundY - 40 * s, standW = 10 * s, standH = 8 * s;
-            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>
-                <line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${y + h + standH}" stroke="#555" stroke-width="2"/>
-                <line x1="${cx - standW}" y1="${y + h + standH}" x2="${cx + standW}" y2="${y + h + standH}" stroke="#555" stroke-width="2"/>`;
-        }
-
-        function svgCama(cx, groundY, s) {
-            const w = 70 * s, h = 18 * s, x = cx - w / 2, y = groundY - h;
-            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>
-                <line x1="${x}" y1="${y - 14 * s}" x2="${x}" y2="${y}" stroke="#555" stroke-width="2"/>
-                <ellipse cx="${x + 14 * s}" cy="${y + 6 * s}" rx="${10 * s}" ry="${5 * s}" fill="none" stroke="#555" stroke-width="1.5"/>`;
-        }
-
-        function svgLixeira(cx, groundY, s) {
-            const topW = 26 * s, botW = 18 * s, h = 26 * s, topY = groundY - h;
-            return `<path d="M ${cx - topW / 2} ${topY} L ${cx + topW / 2} ${topY} L ${cx + botW / 2} ${groundY} L ${cx - botW / 2} ${groundY} Z" fill="none" stroke="#555" stroke-width="2"/>
-                <line x1="${cx - topW / 2 - 2 * s}" y1="${topY}" x2="${cx + topW / 2 + 2 * s}" y2="${topY}" stroke="#555" stroke-width="2"/>`;
-        }
-
-        function svgBrinquedo(cx, groundY, s) {
-            const headR = 8 * s, bodyRx = 12 * s, bodyRy = 8 * s, bodyCy = groundY - bodyRy, headCy = bodyCy - bodyRy - headR + 2 * s;
-            return `<ellipse cx="${cx}" cy="${bodyCy}" rx="${bodyRx}" ry="${bodyRy}" fill="none" stroke="#555" stroke-width="2"/>
-                <circle cx="${cx}" cy="${headCy}" r="${headR}" fill="none" stroke="#555" stroke-width="2"/>
-                <path d="M ${cx - headR * 0.7} ${headCy - headR * 0.7} L ${cx - headR * 0.2} ${headCy - headR * 1.3} L ${cx - headR * 0.1} ${headCy - headR * 0.5} Z" fill="none" stroke="#555" stroke-width="1.5"/>
-                <path d="M ${cx + headR * 0.7} ${headCy - headR * 0.7} L ${cx + headR * 0.2} ${headCy - headR * 1.3} L ${cx + headR * 0.1} ${headCy - headR * 0.5} Z" fill="none" stroke="#555" stroke-width="1.5"/>`;
-        }
-
-        function svgPorta(cx, groundY, s) {
-            const w = 26 * s, h = 60 * s, x = cx - w / 2, y = groundY - h;
-            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2"/>
-                <circle cx="${x + w - 6 * s}" cy="${y + h / 2}" r="${2 * s}" fill="#555"/>`;
-        }
-
-        function svgPrateleira(cx, groundY, s) {
-            const w = 50 * s, y = groundY - 30 * s;
-            return `<line x1="${cx - w / 2}" y1="${y}" x2="${cx + w / 2}" y2="${y}" stroke="#555" stroke-width="2"/>
-                <rect x="${cx - w / 2 + 4 * s}" y="${y - 14 * s}" width="${10 * s}" height="${14 * s}" fill="none" stroke="#555" stroke-width="1.5"/>
-                <rect x="${cx - w / 2 + 18 * s}" y="${y - 10 * s}" width="${8 * s}" height="${10 * s}" fill="none" stroke="#555" stroke-width="1.5"/>`;
-        }
-
-        function svgJanela(cx, groundY, s) {
-            const w = 34 * s, h = 34 * s, x = cx - w / 2, y = groundY - h - 10 * s;
-            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2"/>
-                <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="#555" stroke-width="1.5"/>
-                <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="#555" stroke-width="1.5"/>`;
-        }
-
-        function svgFormulario(cx, groundY, s) {
-            const w = 30 * s, h = 38 * s, x = cx - w / 2, y = groundY - h;
-            let linhas = '';
-            for (let i = 1; i <= 3; i++) {
-                linhas += `<line x1="${x + 5 * s}" y1="${y + i * 9 * s}" x2="${x + w - 5 * s}" y2="${y + i * 9 * s}" stroke="#555" stroke-width="1.2"/>`;
-            }
-            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#555" stroke-width="2" rx="2"/>${linhas}`;
-        }
-
-        function svgGenerico(cx, groundY, s) {
-            const size = 20 * s, x = cx - size / 2, y = groundY - size;
-            return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="3" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3,2"/>`;
-        }
-
-        function dibujarElementoEscala(tipo, cx, groundY, s) {
+            const T = SB_TRAZO;
             switch (tipo) {
-                case 'monitor': return svgMonitor(cx, groundY, s);
-                case 'cama': return svgCama(cx, groundY, s);
-                case 'lixeira': return svgLixeira(cx, groundY, s);
-                case 'brinquedo': return svgBrinquedo(cx, groundY, s);
-                case 'porta': return svgPorta(cx, groundY, s);
-                case 'prateleira': return svgPrateleira(cx, groundY, s);
-                case 'janela': return svgJanela(cx, groundY, s);
-                case 'formulario': return svgFormulario(cx, groundY, s);
-                default: return svgGenerico(cx, groundY, s);
+                case 'monitor': {
+                    const w = 54 * s, h = 36 * s, x = cx - w / 2, y = groundY - h - 14 * s;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <rect x="${x + 5 * s}" y="${y + 5 * s}" width="${w - 10 * s}" height="${h - 10 * s}" fill="none" stroke="#e2e2e2" stroke-width="1.2"/>
+                        <line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${groundY - 4 * s}" stroke="${T}" stroke-width="1.7"/>
+                        <line x1="${cx - 14 * s}" y1="${groundY - 4 * s}" x2="${cx + 14 * s}" y2="${groundY - 4 * s}" stroke="${T}" stroke-width="1.7"/>`;
+                }
+                case 'cama': {
+                    const w = 118 * s, h = 26 * s, x = cx - w / 2, y = groundY - h;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <line x1="${x}" y1="${y - 24 * s}" x2="${x}" y2="${y}" stroke="${T}" stroke-width="1.7"/>
+                        <ellipse cx="${x + 22 * s}" cy="${y + 9 * s}" rx="${15 * s}" ry="${7 * s}" fill="none" stroke="${T}" stroke-width="1.4"/>`;
+                }
+                case 'lixeira': {
+                    const tw = 34 * s, bw = 24 * s, h = 36 * s, ty = groundY - h;
+                    return `<path d="M ${cx - tw / 2} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx - bw / 2} ${groundY} Z" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <line x1="${cx - tw / 2 - 3 * s}" y1="${ty}" x2="${cx + tw / 2 + 3 * s}" y2="${ty}" stroke="${T}" stroke-width="1.7"/>
+                        <line x1="${cx - tw * 0.2}" y1="${ty + 6 * s}" x2="${cx - tw * 0.15}" y2="${groundY - 5 * s}" stroke="#dcdcdc" stroke-width="1.2"/>`;
+                }
+                case 'brinquedo': {
+                    const hr = 11 * s, brx = 15 * s, bry = 10 * s;
+                    const bcy = groundY - bry, hcy = bcy - bry - hr + 3 * s;
+                    return `<ellipse cx="${cx}" cy="${bcy}" rx="${brx}" ry="${bry}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <circle cx="${cx}" cy="${hcy}" r="${hr}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <path d="M ${cx - hr * 0.75} ${hcy - hr * 0.6} L ${cx - hr * 0.25} ${hcy - hr * 1.45} L ${cx - hr * 0.05} ${hcy - hr * 0.5} Z" fill="#fff" stroke="${T}" stroke-width="1.5"/>
+                        <path d="M ${cx + hr * 0.75} ${hcy - hr * 0.6} L ${cx + hr * 0.25} ${hcy - hr * 1.45} L ${cx + hr * 0.05} ${hcy - hr * 0.5} Z" fill="#fff" stroke="${T}" stroke-width="1.5"/>
+                        <circle cx="${cx - hr * 0.35}" cy="${hcy}" r="${hr * 0.11}" fill="${T}"/>
+                        <circle cx="${cx + hr * 0.35}" cy="${hcy}" r="${hr * 0.11}" fill="${T}"/>
+                        <path d="M ${cx + brx * 0.9} ${bcy} q ${10 * s} ${-8 * s} ${4 * s} ${-16 * s}" fill="none" stroke="${T}" stroke-width="1.5"/>`;
+                }
+                case 'porta': {
+                    const w = 40 * s, h = 92 * s, x = cx - w / 2, y = groundY - h;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <rect x="${x + 5 * s}" y="${y + 6 * s}" width="${w - 10 * s}" height="${h - 12 * s}" fill="none" stroke="#e4e4e4" stroke-width="1.2"/>
+                        <circle cx="${x + w - 8 * s}" cy="${y + h / 2}" r="${2.6 * s}" fill="${T}"/>`;
+                }
+                case 'prateleira': {
+                    const w = 72 * s, y = groundY - 52 * s;
+                    return `<line x1="${cx - w / 2}" y1="${y}" x2="${cx + w / 2}" y2="${y}" stroke="${T}" stroke-width="2"/>
+                        <rect x="${cx - w / 2 + 6 * s}" y="${y - 20 * s}" width="${13 * s}" height="${20 * s}" fill="#fff" stroke="${T}" stroke-width="1.5"/>
+                        <rect x="${cx - w / 2 + 24 * s}" y="${y - 15 * s}" width="${10 * s}" height="${15 * s}" fill="#fff" stroke="${T}" stroke-width="1.5"/>`;
+                }
+                case 'janela': {
+                    const w = 52 * s, h = 52 * s, x = cx - w / 2, y = groundY - h - 34 * s;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
+                        <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="${T}" stroke-width="1.4"/>
+                        <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="${T}" stroke-width="1.4"/>`;
+                }
+                case 'palavras': {
+                    const w = 56 * s;
+                    function bloque(bx, by, bw, bh, rot) {
+                        return `<g transform="rotate(${rot} ${bx + bw / 2} ${by + bh / 2})">
+                            <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.6"/>
+                            <line x1="${bx + 5 * s}" y1="${by + bh / 2}" x2="${bx + bw - 5 * s}" y2="${by + bh / 2}" stroke="#c9c9c9" stroke-width="${2.6 * s}"/>
+                        </g>`;
+                    }
+                    return bloque(cx - w * 0.85, groundY - 100 * s, w, 15 * s, -8)
+                        + bloque(cx - w * 0.15, groundY - 74 * s, w * 0.85, 14 * s, 7)
+                        + bloque(cx - w * 0.7, groundY - 46 * s, w * 0.7, 13 * s, -4);
+                }
+                case 'formulario': {
+                    const w = 44 * s, h = 56 * s, x = cx - w / 2, y = groundY - h;
+                    let l = '';
+                    for (let i = 1; i <= 4; i++) {
+                        l += `<line x1="${x + 7 * s}" y1="${y + i * 11 * s}" x2="${x + w - 7 * s}" y2="${y + i * 11 * s}" stroke="#d2d2d2" stroke-width="1.3"/>`;
+                    }
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>${l}`;
+                }
+                default: {
+                    const w = 34 * s, y = groundY - w;
+                    return `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${w}" rx="3" fill="none" stroke="#cfcfcf" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+                }
             }
         }
 
-        function generarBocetoSVG(seq, planoTexto) {
-            const groundY = 122;
+        // ---------- ángulo y movimiento ----------
+        function sbConfigAngulo(ang) {
+            const a = (ang || '').toLowerCase();
+            if (a.indexOf('holand') >= 0) return { rot: -11, ground: 0.80, escala: 1, etiqueta: 'DUTCH' };
+            if (a.indexOf('superior') >= 0) return { rot: 0, ground: 0.97, escala: 0.7, alto: true, etiqueta: 'HIGH ANGLE' };
+            if (a.indexOf('inferior') >= 0) return { rot: 0, ground: 1.0, escala: 1.2, bajo: true, etiqueta: 'LOW ANGLE' };
+            if (a.indexOf('45') >= 0) return { rot: -5, ground: 0.82, escala: 1 };
+            if (a.indexOf('perfil') >= 0) return { rot: 0, ground: 0.82, escala: 1, perfil: true, etiqueta: 'PERFIL' };
+            return { rot: 0, ground: 0.82, escala: 1 };
+        }
+
+        function sbMovimiento(mov) {
+            const m = (mov || '').toLowerCase();
+            let o = '', etiqueta = '';
+            const marco = `<rect x="74" y="44" width="172" height="96" fill="none" stroke="${SB_MOV}" stroke-width="1.3" stroke-dasharray="6,4"/>`;
+
+            if (m.indexOf('zoom in') >= 0) {
+                etiqueta = 'ZOOM IN';
+                o += marco + sbFlecha(30, 26, 64, 42) + sbFlecha(290, 26, 256, 42) + sbFlecha(30, 154, 64, 138) + sbFlecha(290, 154, 256, 138);
+            } else if (m.indexOf('zoom out') >= 0) {
+                etiqueta = 'ZOOM OUT';
+                o += marco + sbFlecha(64, 42, 30, 26) + sbFlecha(256, 42, 290, 26) + sbFlecha(64, 138, 30, 154) + sbFlecha(256, 138, 290, 154);
+            } else if (m.indexOf('tilt') >= 0) {
+                etiqueta = m.indexOf('zoom') >= 0 ? 'TILT + ZOOM' : 'TILT';
+                o += sbFlecha(302, 142, 302, 40);
+                if (m.indexOf('zoom') >= 0) o += marco;
+            } else if (m.indexOf('pan') >= 0) {
+                etiqueta = 'PAN';
+                o += sbFlecha(72, 166, 248, 166);
+            } else if (m.indexOf('dolly') >= 0) {
+                etiqueta = 'DOLLY IN';
+                o += sbFlecha(160, 174, 160, 126);
+            } else if (m.indexOf('tracking') >= 0) {
+                etiqueta = 'TRACKING';
+                o += `<line x1="58" y1="171" x2="262" y2="171" stroke="${SB_MOV}" stroke-width="1.2" stroke-dasharray="4,4"/>`
+                    + sbFlecha(150, 164, 258, 164) + sbFlecha(170, 164, 62, 164);
+            }
+            if (etiqueta) {
+                o += `<text x="${SB_W - 10}" y="18" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9" fill="${SB_MOV}" letter-spacing="1">${etiqueta}</text>`;
+            }
+            return o;
+        }
+
+        // ---------- generador principal ----------
+        function generarBocetoSVG(seq, planoTexto, anguloTexto, movimientoTexto) {
             const plano = (planoTexto || '').toLowerCase();
-            let inner = '';
+            const cfg = sbConfigAngulo(anguloTexto);
+            const groundY = Math.round(SB_H * cfg.ground);
 
-            if (!seq) {
-                inner = svgGenerico(100, groundY, 1.5);
+            const vivos = seq ? (seq.personajes || []).filter(function (p) { return ['K-POP', 'POP ART', 'GRAFITE'].indexOf(p) < 0; }) : [];
+            const elementos = seq ? detectarElementosEscena(seq.descripcion) : [];
+            const deitado = seq ? estaDeitado(seq.descripcion) : false;
+
+            const esExtremo = plano.indexOf('extreme') >= 0;
+            const esCerca = plano.indexOf('close') >= 0;
+            const esOTS = plano.indexOf('shoulder') >= 0;
+            const esTwo = plano.indexOf('two') >= 0;
+            const esMedium = plano.indexOf('medium') >= 0;
+
+            let esc = '';
+
+            if (esExtremo) {
+                esc += vivos.length ? sbOjos(160, 86, 150) : sbProp(elementos[0] || 'generico', 160, 158, 3.2);
+            } else if (esCerca) {
+                if (vivos.length) {
+                    esc += sbHombros(160, 152, 118) + sbRostro(160, 76, 54, cfg.perfil);
+                } else {
+                    esc += sbProp(elementos[0] || 'generico', 160, 160, 2.4);
+                }
+            } else if (esOTS) {
+                esc += sbHabitacion(groundY, 195);
+                esc += sbFigura(218, groundY, SB_H * 1.15 * cfg.escala);
+                esc += sbHombroFrente('izq');
             } else {
-                const vivos = (seq.personajes || []).filter(p => !['K-POP', 'POP ART', 'GRAFITE'].includes(p));
-                const elementos = detectarElementosEscena(seq.descripcion);
+                esc += sbHabitacion(groundY, 165);
+                if (cfg.bajo) esc += `<path d="M 0 10 L 118 44 M 320 10 L 202 44" stroke="#ececec" stroke-width="1.2" fill="none"/>`;
+                if (cfg.alto) esc += `<ellipse cx="160" cy="${groundY - 6}" rx="126" ry="20" fill="none" stroke="#efefef" stroke-width="1.2"/>`;
 
-                if (plano.includes('close')) {
-                    if (vivos.length > 0) {
-                        inner = svgRostro(100, 68, plano.includes('extreme') ? 56 : 44);
-                    } else if (elementos.length > 0) {
-                        inner = dibujarElementoEscala(elementos[0], 100, 96, 2.2);
+                if (esMedium || esTwo) {
+                    const h = SB_H * 1.3 * cfg.escala;
+                    const base = SB_H + h * 0.42;
+                    if (esTwo || vivos.length >= 2) {
+                        esc += sbFigura(106, base, h) + sbFigura(214, base, h);
                     } else {
-                        inner = svgRostro(100, 68, 40);
+                        esc += sbFigura(122, base, h);
+                        esc += sbProp(elementos[0] || 'monitor', 250, groundY, 1.1);
                     }
                 } else {
-                    const items = [];
-                    const maxPersonas = plano.includes('two-shot') ? Math.min(Math.max(vivos.length, 2), 2) : Math.min(vivos.length, 2);
-                    for (let i = 0; i < maxPersonas; i++) items.push({ tipo: 'persona' });
-                    elementos.slice(0, Math.max(0, 3 - items.length)).forEach(e => items.push({ tipo: 'elemento', key: e }));
-                    if (items.length === 0) items.push({ tipo: 'elemento', key: 'generico' });
-
-                    const n = items.length;
-                    inner += `<line x1="14" y1="${groundY}" x2="186" y2="${groundY}" stroke="#e0e0e0" stroke-width="1.5"/>`;
-                    items.forEach((item, i) => {
-                        const cx = (200 / (n + 1)) * (i + 1);
-                        inner += item.tipo === 'persona' ? svgPersona(cx, groundY, 0.9) : dibujarElementoEscala(item.key, cx, groundY, 1);
-                    });
+                    const h = SB_H * 0.6 * cfg.escala;
+                    if (deitado && elementos.indexOf('cama') >= 0) {
+                        esc += sbProp('cama', 112, groundY, 1.2) + sbFiguraDeitada(112, groundY - 28, 104);
+                        const otros = elementos.filter(function (e) { return e !== 'cama'; });
+                        if (vivos.length > 1) esc += sbFigura(252, groundY, h);
+                        else if (otros.length) esc += sbProp(otros[0], 252, groundY, 1.1);
+                    } else {
+                        const piezas = [];
+                        const nPer = Math.min(vivos.length, 2);
+                        for (let i = 0; i < nPer; i++) piezas.push({ t: 'p' });
+                        elementos.slice(0, Math.max(1, 3 - piezas.length)).forEach(function (e) { piezas.push({ t: 'e', k: e }); });
+                        if (!piezas.length) piezas.push({ t: 'e', k: 'generico' });
+                        const n = piezas.length;
+                        piezas.forEach(function (pz, i) {
+                            const cx = (SB_W / (n + 1)) * (i + 1);
+                            esc += pz.t === 'p' ? sbFigura(cx, groundY, h) : sbProp(pz.k, cx, groundY, 1.1);
+                        });
+                    }
                 }
             }
 
-            return `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${inner}</svg>`;
+            const grupo = `<g transform="rotate(${cfg.rot} 160 90)">${esc}</g>`;
+            const etiquetaAng = cfg.etiqueta
+                ? `<text x="10" y="18" font-family="Helvetica, Arial, sans-serif" font-size="9" fill="${SB_MOV}" letter-spacing="1">${cfg.etiqueta}</text>`
+                : '';
+
+            return `<svg viewBox="0 0 ${SB_W} ${SB_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`
+                + `<rect x="0.8" y="0.8" width="${SB_W - 1.6}" height="${SB_H - 1.6}" fill="#ffffff" stroke="#dcdcdc" stroke-width="1.2"/>`
+                + grupo + sbMarcasEncuadre() + sbMovimiento(movimientoTexto) + etiquetaAng
+                + `</svg>`;
         }
 
         function getMoodColor(seqNum, totalSeqs) {
@@ -1849,12 +2080,50 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return '#707070'; // gris claro: resolución
         }
 
+        const SB_PLANOS = [
+            ['Wide shot', 'WIDE'],
+            ['Medium shot', 'MED'],
+            ['Close-up', 'CU'],
+            ['Extreme close-up', 'ECU'],
+            ['Over the shoulder', 'OTS'],
+            ['Two-shot', '2-SHOT']
+        ];
+
+        const SB_ANGULOS = [
+            ['Nivel', 'NIVEL'],
+            ['Perfil', 'PERFIL'],
+            ['45°', '45°'],
+            ['Superior', 'ALTO'],
+            ['Inferior', 'BAJO'],
+            ['Holandés', 'DUTCH']
+        ];
+
+        let notasStoryboard = {};
+
+        function datosTecnicosSeq(seqNum) {
+            const lineas = document.getElementById('guiaoTecnico').value.split('\n');
+            const re = new RegExp('SEQU[ÊE]NCIA\\s+' + seqNum + '(\\D|$)', 'i');
+            const linea = lineas.find(l => re.test(l)) || '';
+            const partes = linea.replace(/ÂNGULO/g, 'ÁNGULO').split('|').map(p => p.trim());
+            return {
+                plano: extraerValor(partes, 'PLANO'),
+                angulo: extraerValor(partes, 'ÁNGULO'),
+                movimiento: extraerValor(partes, 'MOVIMENTO'),
+                notas: extraerValor(partes, 'NOTAS')
+            };
+        }
+
+        function recortarTexto(t, n) {
+            if (!t) return '';
+            return t.length > n ? t.substring(0, n).trim() + '…' : t;
+        }
+
         function atualizarStoryboard(guiaoTecnico) {
             const lineas = guiaoTecnico.split('\n').filter(l => l.trim());
             let html = '';
             const totalSeqs = lineas.length;
 
-            lineas.forEach((linea, idx) => {
+            lineas.forEach(linea => {
                 const partes = linea.split('|').map(p => p.trim());
                 const seqMatch = partes[0].match(/\d+/);
                 if (!seqMatch) return;
@@ -1864,40 +2133,44 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 const plano = extraerValor(partes, 'PLANO');
                 const angulo = extraerValor(partes, 'ÁNGULO');
                 const movimiento = extraerValor(partes, 'MOVIMENTO');
+                const notasTec = extraerValor(partes, 'NOTAS');
                 const moodColor = getMoodColor(seqNum, totalSeqs);
 
-                // Planos alternativos según el plano principal
-                const planosAlternos = {
-                    'Wide shot': ['Medium shot', 'Close-up'],
-                    'Medium shot': ['Wide shot', 'Close-up'],
-                    'Close-up': ['Medium shot', 'Extreme close-up'],
-                    'Extreme close-up': ['Close-up', 'Medium shot'],
-                    'Over the shoulder': ['Two-shot', 'Medium shot'],
-                    'Two-shot': ['Medium shot', 'Wide shot']
-                };
-                const alternos = planosAlternos[plano] || ['Wide shot', 'Close-up'];
+                const som = seq && seq.son ? seq.son : '';
+                const anim = seq && seq.animacoes.length ? seq.animacoes.join('. ') : '';
+                const notaUser = notasStoryboard[seqNum] || '';
+
+                const chipsPlano = SB_PLANOS.map(op =>
+                    `<button class="sb-chip ${op[0] === plano ? 'on' : ''}" title="${op[0]}" onclick="cambiarPlano(${seqNum}, '${op[0]}')">${op[1]}</button>`
+                ).join('');
+
+                const chipsAngulo = SB_ANGULOS.map(op =>
+                    `<button class="sb-chip ${op[0] === angulo ? 'on' : ''}" title="${op[0]}" onclick="cambiarAngulo(${seqNum}, '${op[0]}')">${op[1]}</button>`
+                ).join('');
 
                 html += `
                     <div class="storyboard-card">
-                        <div style="height: 8px; background: linear-gradient(90deg, #1A1A1A, ${moodColor}, #1A1A1A); margin: -12px -12px 10px -12px; border-radius: 6px 6px 0 0;"></div>
+                        <div style="height: 8px; background: linear-gradient(90deg, #1A1A1A, ${moodColor}, #1A1A1A); margin: -12px -12px 10px -12px; border-radius: 6px 6px 0 0; grid-column: 1 / -1;"></div>
                         <div style="font-size: 11px;">
-                            <div style="background: linear-gradient(135deg, #1A1A1A, #333333); color: var(--secondary); padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
+                            <div style="background: linear-gradient(135deg, #1A1A1A, #333333); color: #FFFFFF; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
                                 <strong style="font-size: 14px;">SEQ ${seqNum}</strong>
                                 ${seq ? `<div style="font-size: 9px; margin-top: 3px; opacity: 0.9;">${seq.titulo}</div>` : ''}
                             </div>
                             ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
                             ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
                             ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: #666; font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
-
-                            <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
-                                ${alternos.map(alt => `
-                                    <button onclick="cambiarPlano(${seqNum}, '${alt}')" style="flex: 1; min-width: 50px; padding: 4px 6px; font-size: 9px; background: #E8E8E8; border: 1px solid #D0D0D0; border-radius: 3px; cursor: pointer; transition: all 0.2s;">
-                                        ${alt === plano ? '✓ ' : ''}${alt.split(' ')[0]}
-                                    </button>
-                                `).join('')}
+                            <div class="sb-meta">
+                                ${notasTec ? `<b>NOTAS</b>${notasTec}` : ''}
+                                ${som ? `<b>🎵 SOM</b><span title="${som.replace(/"/g, '&quot;')}">${recortarTexto(som, 80)}</span>` : ''}
+                                ${anim ? `<b>🎨 ANIM</b><span title="${anim.replace(/"/g, '&quot;')}">${recortarTexto(anim, 80)}</span>` : ''}
                             </div>
                         </div>
-                        <div class="storyboard-canvas" id="canvas-${seqNum}">${generarBocetoSVG(seq, plano)}</div>
+                        <div class="sb-panel-wrap">
+                            <div class="storyboard-canvas" id="canvas-${seqNum}">${generarBocetoSVG(seq, plano, angulo, movimiento)}</div>
+                            <div class="sb-chips"><span class="sb-chip-label">PLANO</span>${chipsPlano}</div>
+                            <div class="sb-chips"><span class="sb-chip-label">ÁNGULO</span>${chipsAngulo}</div>
+                            <input class="sb-nota" placeholder="Nota del ilustrador para esta viñeta..." value="${notaUser.replace(/"/g, '&quot;')}" onchange="guardarNotaPanel(${seqNum}, this.value)">
+                        </div>
                     </div>
                 `;
             });
@@ -1905,23 +2178,64 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('storyboardContainer').innerHTML = html || '<p style="color: #999;">Sin storyboard</p>';
         }
 
-        function cambiarPlano(seqNum, nuevoPlano) {
-            const tecnicoActual = document.getElementById('guiaoTecnico').value;
-            const lineas = tecnicoActual.split('\n');
+        function guardarNotaPanel(seqNum, valor) {
+            notasStoryboard[seqNum] = valor;
+            localStorage.setItem('storyboardNotas', JSON.stringify(notasStoryboard));
+        }
+
+        function actualizarCampoTecnico(seqNum, campo, valor) {
+            const lineas = document.getElementById('guiaoTecnico').value.split('\n');
+            const re = new RegExp('SEQU[ÊE]NCIA\\s+' + seqNum + '(\\D|$)', 'i');
 
             for (let i = 0; i < lineas.length; i++) {
-                if (lineas[i].includes(`SEQUÊNCIA ${seqNum}`)) {
-                    lineas[i] = lineas[i].replace(/PLANO: [^|]*/, `PLANO: ${nuevoPlano}`);
+                if (re.test(lineas[i])) {
+                    lineas[i] = lineas[i].replace(/ÂNGULO/g, 'ÁNGULO');
+                    const patron = new RegExp(campo + ': [^|]*');
+                    if (patron.test(lineas[i])) {
+                        lineas[i] = lineas[i].replace(patron, campo + ': ' + valor + ' ');
+                    } else {
+                        lineas[i] = lineas[i].trim() + ' | ' + campo + ': ' + valor;
+                    }
+                    lineas[i] = lineas[i].replace(/\s+\|/g, ' |').replace(/\s+$/, '');
                     break;
                 }
             }
 
-            document.getElementById('guiaoTecnico').value = lineas.join('\n');
-            localStorage.setItem('guiaoTecnico', lineas.join('\n'));
+            const texto = lineas.join('\n');
+            document.getElementById('guiaoTecnico').value = texto;
+            localStorage.setItem('guiaoTecnico', texto);
+            return texto;
+        }
 
-            // Redibujar solo este canvas
+        function redibujarPanel(seqNum) {
+            const d = datosTecnicosSeq(seqNum);
             const seq = secuenciasParseadas.find(s => s.numero === seqNum);
-            document.getElementById(`canvas-${seqNum}`).innerHTML = generarBocetoSVG(seq, nuevoPlano);
+            const canvas = document.getElementById(`canvas-${seqNum}`);
+            if (canvas) canvas.innerHTML = generarBocetoSVG(seq, d.plano, d.angulo, d.movimiento);
+
+            const wrap = canvas ? canvas.parentElement : null;
+            if (wrap) {
+                const filas = wrap.querySelectorAll('.sb-chips');
+                if (filas[0]) filas[0].querySelectorAll('.sb-chip').forEach((b, i) => b.classList.toggle('on', SB_PLANOS[i][0] === d.plano));
+                if (filas[1]) filas[1].querySelectorAll('.sb-chip').forEach((b, i) => b.classList.toggle('on', SB_ANGULOS[i][0] === d.angulo));
+            }
+
+            const info = canvas ? canvas.closest('.storyboard-card').querySelector('div[style*="font-size: 11px"]') : null;
+            if (info) {
+                const spans = info.querySelectorAll('span');
+                if (spans[0]) spans[0].textContent = d.plano;
+                if (spans[1]) spans[1].textContent = d.angulo;
+            }
+        }
+
+        function cambiarPlano(seqNum, nuevoPlano) {
+            actualizarCampoTecnico(seqNum, 'PLANO', nuevoPlano);
+            redibujarPanel(seqNum);
+        }
+
+        function cambiarAngulo(seqNum, nuevoAngulo) {
+            actualizarCampoTecnico(seqNum, 'ÁNGULO', nuevoAngulo);
+            redibujarPanel(seqNum);
         }
 
         function extraerValor(partes, clave) {
@@ -1969,6 +2283,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         window.addEventListener('load', () => {
             document.getElementById('guiaoLiterario').value = localStorage.getItem('guiaoLiterario') || guiaoPadrao;
             document.getElementById('guiaoTecnico').value = localStorage.getItem('guiaoTecnico') || guiaoTecnicoPredefinido;
+
+            notasStoryboard = JSON.parse(localStorage.getItem('storyboardNotas') || '{}');
 
             const texto = document.getElementById('guiaoLiterario').value;
             secuenciasParseadas = parseGuiaoLiterario(texto);
