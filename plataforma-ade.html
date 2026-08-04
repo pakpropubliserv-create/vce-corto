@@ -227,6 +227,52 @@
             padding: 8px;
         }
 
+        .mk-barra {
+            height: 4px;
+            background: #E4E4E4;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .mk-barra-fill { height: 100%; background: #1A1A1A; transition: width 0.3s; }
+
+        .mk-bloque {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .mk-pregunta {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #1A1A1A;
+            margin-bottom: 12px;
+        }
+
+        .mk-ayuda {
+            background: #F5F5F5;
+            border-left: 3px solid #1A1A1A;
+            padding: 11px 13px;
+            border-radius: 3px;
+            margin-bottom: 12px;
+        }
+
+        .mk-ayuda b {
+            display: block;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .mk-ayuda p { font-size: 11px; line-height: 1.65; color: #444; }
+
         .sb-panel-wrap { display: flex; flex-direction: column; gap: 8px; }
 
         .sb-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
@@ -621,6 +667,11 @@
                     </p>
                 </div>
 
+                <button onclick="abrirSesionMcKee()" style="width: 100%; padding: 14px; margin-bottom: 8px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #1A1A1A, #333333);">
+                    🎓 Sesión de Preguntas — Método McKee
+                </button>
+                <div id="mckeeNudge" style="font-size: 10px; color: #666; line-height: 1.5; background: #F5F5F5; border-left: 3px solid #808080; padding: 9px 11px; border-radius: 3px; margin-bottom: 14px;"></div>
+
                 <textarea id="guiaoLiterario" style="height: 400px;"></textarea>
                 <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 10px;">💾 Salvar Guião Literário</button>
             </div>
@@ -681,6 +732,7 @@
                 <button class="tab-button active" onclick="abrirTab('desgloces', event)">📋 Desgloces</button>
                 <button class="tab-button" onclick="abrirTab('storyboard', event)">🎬 Storyboard</button>
                 <button class="tab-button" onclick="abrirTab('rodaje', event)">📅 Rodaje</button>
+                <button class="tab-button" onclick="abrirTab('ficha', event)">📐 Ficha</button>
             </div>
 
             <!-- Tab: Desgloces -->
@@ -706,6 +758,28 @@
                     <p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guião literário para generar el plan de rodaje</p>
                 </div>
             </div>
+
+            <!-- Tab: Ficha de Historia (McKee) -->
+            <div id="ficha-tab" class="tab-content">
+                <button onclick="exportarPDF('fichaContainer', 'ficha-historia')" style="width: 100%; margin-bottom: 15px;">📥 Exportar Ficha PDF</button>
+                <div id="fichaContainer">
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Abrí la sesión de preguntas para construir tu ficha de historia</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sesión de Preguntas McKee -->
+    <div id="sesionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #1A1A1A;">
+                <div>
+                    <h2 style="color: #1A1A1A; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">✍️ Asistente Ade</h2>
+                    <p style="font-size: 10px; color: #888; margin: 6px 0 0 0; letter-spacing: .5px;" id="mkProgreso"></p>
+                </div>
+                <button onclick="cerrarSesionMcKee()" style="background: #1A1A1A; padding: 6px 12px; font-size: 14px; width: auto; min-height: 0;">✕</button>
+            </div>
+            <div id="mkContenido"></div>
         </div>
     </div>
 
@@ -1422,12 +1496,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             boton.classList.add('active');
 
             // Regenerar salidas al abrir su tab (siempre actualizadas, nunca vacías)
-            if (tab === 'desgloces' || tab === 'storyboard' || tab === 'rodaje') {
+            if (tab === 'desgloces' || tab === 'storyboard' || tab === 'rodaje' || tab === 'ficha') {
                 secuenciasParseadas = parseGuiaoLiterario(document.getElementById('guiaoLiterario').value);
                 if (tab === 'desgloces') atualizarDesgloces();
                 if (tab === 'storyboard') atualizarStoryboard(obtenerTecnicoActual());
                 if (tab === 'rodaje') atualizarPlanRodaje();
+                if (tab === 'ficha') atualizarFichaMcKee();
             }
+            if (tab === 'literario') actualizarNudgeMcKee();
         }
 
         function obtenerTecnicoActual() {
@@ -1760,6 +1836,564 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== STORYBOARD ====================
+        // ==================== SESIÓN DE PREGUNTAS — MÉTODO McKEE ====================
+        // Estructura de preguntas basada en los principios de "El guión" (Story), de Robert McKee.
+        // Las preguntas y explicaciones son redacción propia de la plataforma.
+
+        let mckeeRespuestas = {};
+        let mkPreguntas = [];
+        let mkIndice = 0;
+        let mkModo = null;
+
+        const MCKEE_BLOQUES = [
+            {
+                id: 'idea', nombre: 'La Idea', icono: '💡',
+                preguntas: [
+                    {
+                        id: 'premisa',
+                        q: '¿Cuál es tu "¿qué pasaría si...?"',
+                        ayuda: 'Toda historia nace de una chispa: una situación que rompe lo normal. Escribila como pregunta, no como resumen. Todavía no es la trama: es la puerta de entrada.',
+                        ph: 'Ej: Qué pasaría si alguien solo pudiera crear algo verdadero al dejar de imitar a los demás'
+                    },
+                    {
+                        id: 'idea_controladora',
+                        q: 'En UNA frase: ¿qué valor cambia al final y por qué causa?',
+                        ayuda: 'McKee la llama idea controladora y tiene dos partes: el valor con el que termina la historia (positivo o negativo) + la causa que lo produce. Formato: "<valor> PORQUE <causa>". Si no podés decirlo en una frase, la historia todavía no está enfocada, y cada escena que escribas va a tirar para un lado distinto.',
+                        ph: 'Ej: La libertad creativa se recupera porque la artista deja de imitar y se acepta',
+                        chips: ['La verdad libera porque ', 'La identidad se recupera porque ', 'El amor se pierde porque ', 'La dignidad se gana porque ']
+                    },
+                    {
+                        id: 'contraidea',
+                        q: '¿Cuál es la contra-idea? La voz que sostiene exactamente lo contrario',
+                        ayuda: 'Una historia viva discute consigo misma. Si tu idea es "aceptarse libera", la contra-idea es "aceptarse te deja afuera". Las secuencias deben alternar entre las dos cargas hasta que el clímax decide. Sin contra-idea la historia se vuelve un sermón.',
+                        ph: 'Ej: Ser uno mismo te vuelve invisible; solo lo que está de moda es visto'
+                    },
+                    {
+                        id: 'publico',
+                        q: '¿Qué querés que sienta el espectador al terminar? ¿Y qué querés que se quede pensando?',
+                        ayuda: 'Emoción y significado no son lo mismo. La emoción es lo que vive durante la proyección; el significado es lo que se lleva. Definí los dos: te van a servir para decidir qué escenas sobran.',
+                        ph: 'Ej: Que sienta alivio y que piense en lo que dejó de hacer por miedo al juicio ajeno'
+                    }
+                ]
+            },
+            {
+                id: 'protagonista', nombre: 'El Protagonista', icono: '👤',
+                preguntas: [
+                    {
+                        id: 'deseo_consciente',
+                        q: '¿Qué quiere tu protagonista de forma consciente? El objeto de deseo',
+                        ayuda: 'Debe ser concreto y perseguible: algo que podríamos filmar persiguiendo. "Ser feliz" no sirve; "ganar el concurso" sí. De este deseo nace la línea de acción.',
+                        ph: 'Ej: Ganar el concurso con una obra que impresione a todos'
+                    },
+                    {
+                        id: 'deseo_inconsciente',
+                        q: '¿Qué necesita en realidad, sin saberlo?',
+                        ayuda: 'Los personajes más ricos quieren una cosa y necesitan otra, y esas dos fuerzas se contradicen. El clímax suele darle lo que necesita, muchas veces a costa de lo que quería.',
+                        ph: 'Ej: Dejar de necesitar aprobación externa para existir'
+                    },
+                    {
+                        id: 'voluntad',
+                        q: '¿Hasta dónde está dispuesto a llegar? ¿Qué está dispuesto a perder?',
+                        ayuda: 'La fuerza de voluntad es lo que sostiene la historia. Si el personaje puede abandonar sin consecuencias, no hay presión y no hay drama.',
+                        ph: 'Ej: A quedarse sin trabajo, sin seguidores y sin la aprobación de su entorno'
+                    },
+                    {
+                        id: 'capacidad',
+                        q: '¿Por qué es creíble que ESTE personaje pueda llegar hasta el final?',
+                        ayuda: 'El protagonista necesita las cualidades mínimas para tener una chance real. Si es evidente que no puede, el espectador deja de apostar por él.',
+                        ph: 'Ej: Tiene talento técnico real; lo que le falta no es capacidad sino confianza'
+                    },
+                    {
+                        id: 'caracterizacion',
+                        q: '¿Qué aparenta ser (caracterización) y quién es de verdad (carácter)?',
+                        ayuda: 'La caracterización es la superficie observable: edad, ropa, oficio, modo de hablar. El carácter verdadero solo se revela en las elecciones bajo presión. La historia existe para cavar de una capa a la otra.',
+                        ph: 'Ej: Aparenta ser una artista segura y prolífica; en verdad no soporta que no la elijan'
+                    },
+                    {
+                        id: 'empatia',
+                        q: '¿Por qué el espectador va a querer que le vaya bien?',
+                        ayuda: 'La empatía no es simpatía. No necesitás que el personaje caiga bien: necesitás que el espectador reconozca algo humano suyo en él. Encontrá ese punto y no lo sueltes.',
+                        ph: 'Ej: Porque todos alguna vez fingimos ser otra cosa para que nos acepten'
+                    }
+                ]
+            },
+            {
+                id: 'antagonismo', nombre: 'Antagonismo', icono: '⚔️',
+                preguntas: [
+                    {
+                        id: 'antag_interior',
+                        q: 'Conflicto INTERIOR: ¿qué parte de sí mismo lo frena?',
+                        ayuda: 'Primer nivel de antagonismo: mente, cuerpo, emociones. Dudas, vergüenza, adicción, cansancio, miedo. En un cortometraje suele ser el nivel más potente.',
+                        ph: 'Ej: La certeza de que lo que ella hace de verdad no le interesa a nadie'
+                    },
+                    {
+                        id: 'antag_personal',
+                        q: 'Conflicto PERSONAL: ¿qué relaciones lo complican?',
+                        ayuda: 'Segundo nivel: familia, amigos, pareja, colegas. No hace falta que sean enemigos; a veces el que más aprieta es el que más quiere ayudar.',
+                        ph: 'Ej: La madre, que la apoya sin entender qué le pasa'
+                    },
+                    {
+                        id: 'antag_extra',
+                        q: 'Conflicto EXTRA-PERSONAL: ¿qué fuerzas sociales, físicas o del tiempo se le oponen?',
+                        ayuda: 'Tercer nivel: instituciones, sistemas, el reloj, el lugar, la época, el algoritmo. Una historia sólida trabaja los tres niveles a la vez; si usás solo uno, se aplana.',
+                        ph: 'Ej: El plazo del concurso y la lógica de las redes que premia lo que ya funciona'
+                    },
+                    {
+                        id: 'antag_fuerza',
+                        q: '¿Por qué las fuerzas contrarias son MÁS fuertes que tu protagonista?',
+                        ayuda: 'Principio del antagonismo: una historia solo es tan buena como las fuerzas que se le oponen. Si el protagonista puede ganar fácil, no hay historia. Subí la presión hasta que parezca imposible.',
+                        ph: 'Ej: Ella pelea contra un criterio de éxito que ya interiorizó; está peleando contra sí misma'
+                    },
+                    {
+                        id: 'antag_razon',
+                        q: '¿Cuál es el MEJOR argumento del lado contrario?',
+                        ayuda: 'Si el lado opuesto no tiene razón en algo, la historia es propaganda. Escribí el argumento contrario en su versión más convincente: eso vuelve honesto el final.',
+                        ph: 'Ej: Adaptarse a lo que el público quiere también es una forma legítima de trabajar'
+                    }
+                ]
+            },
+            {
+                id: 'estructura', nombre: 'Estructura', icono: '🏛️',
+                preguntas: [
+                    {
+                        id: 'incidente',
+                        q: 'INCIDENTE INCITADOR: ¿qué acontecimiento rompe el equilibrio de su vida?',
+                        ayuda: 'Un solo hecho, concreto y radical, que desbalancea la vida del protagonista para bien o para mal. En un corto tiene que ocurrir casi enseguida. De acá nace todo lo demás.',
+                        ph: 'Ej: Ve que el concurso cierra hoy y el tema es justamente IDENTIDAD'
+                    },
+                    {
+                        id: 'pregunta_dramatica',
+                        q: '¿Qué pregunta abre ese incidente? ("¿Conseguirá...?")',
+                        ayuda: 'El incidente incitador planta la pregunta dramática que el clímax va a responder. Si no podés formularla, la historia no tiene columna vertebral.',
+                        ph: 'Ej: ¿Va a lograr crear algo verdadero antes de que cierre el plazo?'
+                    },
+                    {
+                        id: 'complicaciones',
+                        q: 'COMPLICACIONES PROGRESIVAS: enumerá cómo cada intento EMPEORA la situación',
+                        ayuda: 'No alcanza con repetir obstáculos: cada uno debe cerrar una puerta y obligar a arriesgar más. Si dos escenas ejercen la misma presión, una sobra. Escribilas como escalera ascendente.',
+                        ph: 'Ej: 1) Borra todo lo que hizo. 2) Sus propias obras la acusan. 3) El ataque la deja sin lugar donde esconderse.'
+                    },
+                    {
+                        id: 'crisis',
+                        q: 'CRISIS: ¿cuál es la decisión imposible? ¿Entre qué dos cosas tiene que elegir?',
+                        ayuda: 'La crisis es un dilema real: elegir entre dos bienes irreconciliables, o entre el menor de dos males. Si la elección es obvia, no es una crisis. Este es el momento de mayor presión de toda la historia.',
+                        ph: 'Ej: Presentar algo que gusta y traicionarse, o presentar lo suyo y arriesgarse al rechazo'
+                    },
+                    {
+                        id: 'climax',
+                        q: 'CLÍMAX: ¿qué elección irreversible toma y cómo queda cargado el valor?',
+                        ayuda: 'El clímax es acción, no diálogo explicativo: la elección que ya no se puede deshacer. Ahí se responde la pregunta dramática y se confirma tu idea controladora.',
+                        ph: 'Ej: Envía su propio dibujo, sabiendo que puede no gustar. El valor pasa de negativo a positivo.'
+                    },
+                    {
+                        id: 'resolucion',
+                        q: 'RESOLUCIÓN: ¿qué quedó distinto en el mundo y en el personaje?',
+                        ayuda: 'Después del clímax queda poco por decir: mostrar el nuevo equilibrio. Un objeto, un gesto o un lugar del inicio que ahora significa otra cosa vale más que cualquier explicación.',
+                        ph: 'Ej: El juguete ya no está olvidado en la estantería; la papelera está vacía'
+                    },
+                    {
+                        id: 'escena_obligatoria',
+                        q: '¿Cuál es la escena que el espectador espera desde el principio? ¿Está escrita?',
+                        ayuda: 'Si tu historia promete un enfrentamiento (con otro, con uno mismo o con una verdad), no podés esquivarlo: sería una estafa. La escena obligatoria tiene que ocurrir, y de un modo que igual sorprenda.',
+                        ph: 'Ej: El momento en que ella enfrenta cara a cara las voces que la juzgan'
+                    }
+                ]
+            },
+            {
+                id: 'dialogo', nombre: 'Imagen, Diálogo y Exposición', icono: '💬',
+                preguntas: [
+                    {
+                        id: 'exposicion',
+                        q: '¿Cómo entregás la información del pasado sin explicarla?',
+                        ayuda: 'La exposición funciona como munición: los personajes sueltan lo que sabemos del pasado para conseguir algo, en medio del conflicto. Nunca como informe. Y siempre a cuentagotas: lo que el espectador todavía no sabe lo mantiene mirando.',
+                        ph: 'Ej: La madre no cuenta la infancia: trae el juguete y lo deja en la cama'
+                    },
+                    {
+                        id: 'subtexto',
+                        q: 'Elegí un diálogo clave: ¿qué DICE el personaje y qué está pasando DEBAJO?',
+                        ayuda: 'Texto es lo que se dice; subtexto es lo que de verdad ocurre. Si coinciden, la escena se vuelve plana. Los personajes casi nunca dicen exactamente lo que quieren.',
+                        ph: 'Ej: Dice "voy a dejarlo acá con vos". Debajo: "vuelvo a ser tu madre, no la que te evalúa"'
+                    },
+                    {
+                        id: 'visual',
+                        q: 'Si borrás TODO el diálogo, ¿la historia se sigue entendiendo en imágenes?',
+                        ayuda: 'Prueba de cine puro: el guión audiovisual se cuenta con comportamiento e imagen. Si necesitás que alguien explique lo que sentimos, todavía falta una imagen.',
+                        ph: 'Ej: Sí — borrar, caer en la cama, tomar el juguete, dibujar, enviar'
+                    }
+                ]
+            },
+            {
+                id: 'prueba', nombre: 'Prueba Final', icono: '🧪',
+                preguntas: [
+                    {
+                        id: 'inevitable',
+                        q: '¿El final es a la vez INEVITABLE e INESPERADO? Explicá por qué',
+                        ayuda: 'Inesperado en la forma, inevitable en el fondo: cuando llega, el espectador siente que no podía terminar de otro modo. Si podés predecirlo desde el minuto uno, falta giro; si sale de la nada, falta siembra.',
+                        ph: 'Ej: Sabíamos que tenía que enviar algo; no sabíamos que iba a ser el dibujo que ama'
+                    },
+                    {
+                        id: 'test_escenas',
+                        q: '¿Hay alguna escena que puedas BORRAR sin romper la historia? ¿Cuál?',
+                        ayuda: 'Si una escena se puede sacar y nada se rompe, esa escena no está trabajando. Sacala o hacé que gire un valor.',
+                        ph: 'Ej: La secuencia 2 podría fundirse con la 1'
+                    },
+                    {
+                        id: 'riesgo',
+                        q: '¿Qué se pierde si el protagonista fracasa?',
+                        ayuda: 'Sin riesgo no hay valor en juego. Si al fallar no pierde nada importante, subí la apuesta hasta que perder duela.',
+                        ph: 'Ej: Pierde la última prueba de que todavía es artista'
+                    },
+                    {
+                        id: 'titulo_final',
+                        q: 'Después de todo esto: ¿el título sigue siendo el correcto?',
+                        ayuda: 'El título es la primera promesa de la idea controladora. Si tu historia cambió durante el proceso, quizá el título quedó atrás.',
+                        ph: 'Ej: Sí — "Você é" nombra exactamente el valor final'
+                    }
+                ]
+            }
+        ];
+
+        const MK_CHIPS_VALOR = ['Esperanza: + → −', 'Esperanza: − → +', 'Verdad: − → +', 'Libertad: + → −', 'Confianza: − → +', 'Soledad: + → −'];
+
+        function bloqueEscenas() {
+            const preguntas = [];
+            secuenciasParseadas.forEach(s => {
+                preguntas.push({
+                    id: 's' + s.numero + '_valor',
+                    q: 'SEQ ' + s.numero + ' — ' + s.titulo + ': ¿qué valor está en juego y cómo cambia?',
+                    ayuda: 'Toda escena que funciona gira una carga de valor: algo pasa de positivo a negativo o al revés. Si al final de la escena todo está igual que al principio, es un no-acontecimiento: no es escena, es relleno.',
+                    ph: 'Ej: Esperanza: de positivo a negativo',
+                    chips: MK_CHIPS_VALOR
+                });
+                preguntas.push({
+                    id: 's' + s.numero + '_objetivo',
+                    q: 'SEQ ' + s.numero + ': ¿qué quiere el personaje EN esta escena?',
+                    ayuda: 'Cada escena tiene su propio objetivo, más chico que el deseo general de la historia pero al servicio de él. Sin objetivo de escena no hay dirección.',
+                    ph: 'Ej: Terminar un dibujo que le sirva para el concurso'
+                });
+                preguntas.push({
+                    id: 's' + s.numero + '_conflicto',
+                    q: 'SEQ ' + s.numero + ': ¿qué se lo impide?',
+                    ayuda: 'Ley del conflicto: nada avanza si no hay algo que se opone. Puede ser interior, personal o del entorno, pero tiene que estar en escena.',
+                    ph: 'Ej: Nada de lo que hace le parece propio'
+                });
+                preguntas.push({
+                    id: 's' + s.numero + '_giro',
+                    q: 'SEQ ' + s.numero + ': ¿cuál es el punto de giro? El momento exacto en que cambia',
+                    ayuda: 'El giro es la brecha entre lo que el personaje esperaba y lo que realmente pasa. Marcá el instante: suele ser una acción o una imagen, no una frase.',
+                    ph: 'Ej: Cuando ve el juguete a su lado en la cama'
+                });
+            });
+            return { id: 'escenas', nombre: 'Escena por Escena', icono: '🎬', preguntas: preguntas };
+        }
+
+        function construirPreguntas(modo) {
+            const lista = [];
+            const agregar = bloque => bloque.preguntas.forEach(p => lista.push(Object.assign({}, p, { bloque: bloque.nombre, icono: bloque.icono, bloqueId: bloque.id })));
+
+            if (modo === 'rapida') {
+                const clave = ['idea_controladora', 'deseo_consciente', 'antag_fuerza', 'incidente', 'crisis', 'climax'];
+                MCKEE_BLOQUES.forEach(b => b.preguntas.forEach(p => {
+                    if (clave.indexOf(p.id) >= 0) lista.push(Object.assign({}, p, { bloque: b.nombre, icono: b.icono, bloqueId: b.id }));
+                }));
+                return lista;
+            }
+
+            if (modo === 'escenas') { agregar(bloqueEscenas()); return lista; }
+
+            MCKEE_BLOQUES.forEach(b => {
+                if (b.id === 'dialogo' || b.id === 'prueba') return;
+                agregar(b);
+            });
+            if (modo === 'completa') agregar(bloqueEscenas());
+            MCKEE_BLOQUES.forEach(b => { if (b.id === 'dialogo' || b.id === 'prueba') agregar(b); });
+            return lista;
+        }
+
+        function abrirSesionMcKee() {
+            secuenciasParseadas = parseGuiaoLiterario(document.getElementById('guiaoLiterario').value);
+            mkModo = null;
+            document.getElementById('sesionModal').style.display = 'flex';
+            mostrarSelectorModo();
+        }
+
+        function mostrarSelectorModo() {
+            document.getElementById('mkProgreso').textContent = 'Elegí cómo querés trabajar hoy';
+            const opciones = [
+                ['completa', '📚 Sesión completa', 'Historia + escena por escena. ' + (26 + secuenciasParseadas.length * 4) + ' preguntas. Para desarrollar el guión a fondo.'],
+                ['historia', '🏛️ Solo la historia', '26 preguntas sobre idea, personaje, antagonismo, estructura y final. Sin entrar escena por escena.'],
+                ['escenas', '🎬 Escena por escena', (secuenciasParseadas.length * 4) + ' preguntas: valor, objetivo, conflicto y giro en cada una de tus ' + secuenciasParseadas.length + ' secuencias.'],
+                ['rapida', '⚡ Diagnóstico rápido', '6 preguntas esenciales. Para saber en 5 minutos si la historia se sostiene.']
+            ];
+
+            document.getElementById('mkContenido').innerHTML = `
+                <div style="background: #F5F5F5; border-left: 3px solid #1A1A1A; padding: 12px; border-radius: 4px; margin-bottom: 18px;">
+                    <p style="font-size: 11px; line-height: 1.6; color: #444;">
+                        Ade te va a hacer preguntas siguiendo los principios de <strong>El guión</strong>, de Robert McKee.
+                        No hay respuestas correctas: el objetivo es que <strong>vos</strong> descubras qué le falta a tu historia.
+                        Podés saltar cualquier pregunta y volver después — todo se guarda.
+                    </p>
+                </div>
+                ${opciones.map(o => `
+                    <button onclick="elegirModoSesion('${o[0]}')" style="width: 100%; text-align: left; background: #FFFFFF; color: #1A1A1A; border: 2px solid #D0D0D0; padding: 14px; margin-bottom: 10px; border-radius: 5px;">
+                        <div style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">${o[1]}</div>
+                        <div style="font-size: 10px; color: #777; font-weight: 500; line-height: 1.5;">${o[2]}</div>
+                    </button>
+                `).join('')}
+            `;
+        }
+
+        function elegirModoSesion(modo) {
+            mkModo = modo;
+            mkPreguntas = construirPreguntas(modo);
+            mkIndice = 0;
+            const primeraSinResponder = mkPreguntas.findIndex(p => !(mckeeRespuestas[p.id] || '').trim());
+            if (primeraSinResponder > 0) mkIndice = primeraSinResponder;
+            mostrarPreguntaMcKee();
+        }
+
+        function mostrarPreguntaMcKee() {
+            if (mkIndice >= mkPreguntas.length) { mostrarFinSesion(); return; }
+
+            const p = mkPreguntas[mkIndice];
+            const respondidas = mkPreguntas.filter(x => (mckeeRespuestas[x.id] || '').trim()).length;
+            const pct = Math.round((mkIndice / mkPreguntas.length) * 100);
+
+            document.getElementById('mkProgreso').textContent =
+                'Pregunta ' + (mkIndice + 1) + ' de ' + mkPreguntas.length + ' · ' + respondidas + ' respondidas';
+
+            const chips = (p.chips || []).map(c =>
+                `<button class="sb-chip" onclick="insertarChipMcKee('${c.replace(/'/g, "\\'")}')">${c}</button>`
+            ).join('');
+
+            document.getElementById('mkContenido').innerHTML = `
+                <div class="mk-barra"><div class="mk-barra-fill" style="width: ${pct}%"></div></div>
+                <div class="mk-bloque">${p.icono} ${p.bloque}</div>
+                <div class="mk-pregunta">${p.q}</div>
+                <div class="mk-ayuda">
+                    <b>Principio McKee</b>
+                    <p>${p.ayuda}</p>
+                </div>
+                ${chips ? `<div class="sb-chips" style="margin-bottom: 8px;">${chips}</div>` : ''}
+                <textarea id="mkRespuesta" placeholder="${p.ph}" style="height: 110px; font-family: inherit; font-size: 13px;">${(mckeeRespuestas[p.id] || '').replace(/</g, '&lt;')}</textarea>
+                <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+                    <button class="secondary" onclick="navMcKee(-1)" style="flex: 1; ${mkIndice === 0 ? 'opacity: .4;' : ''}">← Anterior</button>
+                    <button class="secondary" onclick="saltarBloqueMcKee()" style="flex: 1;">Saltar bloque ⏭</button>
+                    <button onclick="navMcKee(1)" style="flex: 1.4;">Siguiente →</button>
+                </div>
+                <button class="secondary" onclick="cerrarSesionMcKee()" style="width: 100%; margin-top: 8px; border: none; color: #888;">Guardar y salir</button>
+            `;
+        }
+
+        function insertarChipMcKee(texto) {
+            const ta = document.getElementById('mkRespuesta');
+            ta.value = ta.value.trim() ? ta.value.trim() + ' ' + texto : texto;
+            ta.focus();
+        }
+
+        function guardarRespuestaActual() {
+            const ta = document.getElementById('mkRespuesta');
+            if (!ta || mkIndice >= mkPreguntas.length) return;
+            mckeeRespuestas[mkPreguntas[mkIndice].id] = ta.value;
+            localStorage.setItem('mckeeRespuestas', JSON.stringify(mckeeRespuestas));
+        }
+
+        function navMcKee(delta) {
+            guardarRespuestaActual();
+            mkIndice = Math.max(0, mkIndice + delta);
+            mostrarPreguntaMcKee();
+            atualizarFichaMcKee();
+            actualizarNudgeMcKee();
+        }
+
+        function saltarBloqueMcKee() {
+            guardarRespuestaActual();
+            const actual = mkPreguntas[mkIndice].bloqueId;
+            let i = mkIndice;
+            while (i < mkPreguntas.length && mkPreguntas[i].bloqueId === actual) i++;
+            mkIndice = i;
+            mostrarPreguntaMcKee();
+            atualizarFichaMcKee();
+        }
+
+        function mostrarFinSesion() {
+            const respondidas = mkPreguntas.filter(x => (mckeeRespuestas[x.id] || '').trim()).length;
+            document.getElementById('mkProgreso').textContent = 'Sesión terminada';
+            document.getElementById('mkContenido').innerHTML = `
+                <div style="text-align: center; padding: 20px 10px;">
+                    <div style="font-size: 40px;">🎬</div>
+                    <h3 style="margin: 12px 0 6px 0; font-size: 20px;">Sesión completada</h3>
+                    <p style="font-size: 12px; color: #666; line-height: 1.6;">
+                        Respondiste <strong>${respondidas} de ${mkPreguntas.length}</strong> preguntas.<br>
+                        Tus respuestas quedaron en la <strong>Ficha de Historia</strong>, con un diagnóstico de lo que todavía falta.
+                    </p>
+                    <button onclick="irAFicha()" style="width: 100%; margin-top: 18px; padding: 14px;">📐 Ver Ficha de Historia y diagnóstico</button>
+                    <button class="secondary" onclick="mkIndice = 0; mostrarPreguntaMcKee();" style="width: 100%; margin-top: 8px;">↺ Repasar desde el inicio</button>
+                </div>
+            `;
+            atualizarFichaMcKee();
+        }
+
+        function irAFicha() {
+            cerrarSesionMcKee();
+            const btn = [...document.querySelectorAll('.panel.right .tab-button')].find(b => b.textContent.indexOf('Ficha') >= 0);
+            if (btn) btn.click();
+        }
+
+        function cerrarSesionMcKee() {
+            guardarRespuestaActual();
+            document.getElementById('sesionModal').style.display = 'none';
+            atualizarFichaMcKee();
+            actualizarNudgeMcKee();
+        }
+
+        // ---------- Ficha de historia + diagnóstico ----------
+        function mkTiene(id) {
+            return (mckeeRespuestas[id] || '').trim().length > 3;
+        }
+
+        function diagnosticoMcKee() {
+            const d = [];
+            const push = (nivel, texto) => d.push({ nivel: nivel, texto: texto });
+
+            // Idea
+            if (!mkTiene('idea_controladora')) push('falta', 'Falta la idea controladora: en una frase, qué valor cambia y por qué causa. Sin ella, cada escena tira para un lado distinto.');
+            else if (!/porque|porqu[eê]|pois|debido/i.test(mckeeRespuestas.idea_controladora)) push('aviso', 'Tu idea controladora no expresa la causa. Probá reescribirla como "<valor final> PORQUE <causa>".');
+            else push('ok', 'Idea controladora definida con valor y causa.');
+
+            if (!mkTiene('contraidea')) push('aviso', 'Sin contra-idea la historia corre riesgo de volverse un sermón: definí la voz que sostiene lo contrario.');
+            else push('ok', 'Hay contra-idea: la historia puede discutir consigo misma.');
+
+            // Protagonista
+            if (mkTiene('deseo_consciente') && mkTiene('deseo_inconsciente')) push('ok', 'Deseo consciente e inconsciente definidos: el clímax tiene material para elegir entre lo que quiere y lo que necesita.');
+            else if (mkTiene('deseo_consciente')) push('aviso', 'Definiste lo que el personaje quiere, pero no lo que necesita sin saberlo. Ese segundo deseo es el que da profundidad al final.');
+            else push('falta', 'Falta el objeto de deseo: qué persigue el protagonista de forma concreta y filmable.');
+
+            if (!mkTiene('caracterizacion')) push('aviso', 'No está separado lo que el personaje aparenta de quién es de verdad. La historia existe para cavar de una capa a la otra.');
+
+            // Antagonismo
+            const niveles = ['antag_interior', 'antag_personal', 'antag_extra'].filter(mkTiene).length;
+            if (niveles === 3) push('ok', 'Antagonismo trabajado en los tres niveles (interior, personal y extra-personal).');
+            else if (niveles === 0) push('falta', 'No hay fuerzas antagónicas definidas. Una historia solo es tan buena como aquello que se opone al protagonista.');
+            else push('aviso', 'Antagonismo en ' + niveles + ' de 3 niveles. Con un solo nivel de conflicto la historia se aplana: sumá los que faltan.');
+
+            if (!mkTiene('antag_fuerza')) push('aviso', 'No está justificado por qué las fuerzas contrarias son más fuertes que el protagonista. Si puede ganar fácil, no hay drama.');
+
+            // Estructura
+            if (!mkTiene('incidente')) push('falta', 'Falta el incidente incitador: el hecho concreto que rompe el equilibrio y abre la pregunta dramática.');
+            else push('ok', 'Incidente incitador identificado.');
+
+            if (!mkTiene('crisis')) push('falta', 'Falta la crisis: la decisión imposible entre dos bienes o entre dos males. Sin dilema real no hay clímax que valga.');
+            else if (!/(o |ó |entre|contra|vs)/i.test(mckeeRespuestas.crisis)) push('aviso', 'Tu crisis no parece plantear una disyuntiva. Escribila como "elegir entre A o B", donde ninguna opción sea obviamente mejor.');
+            else push('ok', 'Crisis planteada como dilema.');
+
+            if (!mkTiene('climax')) push('falta', 'Falta el clímax: la elección irreversible que responde la pregunta dramática.');
+            if (!mkTiene('escena_obligatoria')) push('aviso', 'No está identificada la escena obligatoria: aquella que el espectador espera desde el principio y no podés esquivar.');
+
+            // Diálogo / imagen
+            if (!mkTiene('visual')) push('aviso', 'Todavía no probaste si la historia se entiende sin diálogo. En cine, si hace falta explicar lo que sentimos, falta una imagen.');
+
+            // Análisis del guión (independiente de respuestas)
+            const total = secuenciasParseadas.length;
+            if (total) {
+                const sinValor = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_valor')).map(s => s.numero);
+                const sinConflicto = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_conflicto')).map(s => s.numero);
+                const cortas = secuenciasParseadas.filter(s => (s.descripcion || '').length < 160).map(s => s.numero);
+
+                if (sinValor.length === 0) push('ok', 'Todas las secuencias tienen declarado su cambio de valor.');
+                else if (sinValor.length < total) push('aviso', 'Secuencias sin cambio de valor declarado: ' + sinValor.join(', ') + '. Una escena donde nada cambia es un no-acontecimiento.');
+                else push('falta', 'Ninguna secuencia tiene declarado su cambio de valor. Corré la sesión "Escena por escena".');
+
+                if (sinConflicto.length && sinConflicto.length < total) push('aviso', 'Secuencias sin conflicto declarado: ' + sinConflicto.join(', ') + '. Ley del conflicto: nada avanza si nada se opone.');
+                if (cortas.length) push('aviso', 'Secuencias poco desarrolladas en el texto: ' + cortas.join(', ') + '. Revisá si están cumpliendo una función o se pueden fundir con otras.');
+
+                const conDialogo = secuenciasParseadas.filter(s => s.personajes.length).length;
+                if (conDialogo === 0) push('aviso', 'No se detectan diálogos. Está perfecto si es una decisión (cine visual puro), pero confirmá que sea intencional.');
+            }
+
+            return d;
+        }
+
+        function atualizarFichaMcKee() {
+            const cont = document.getElementById('fichaContainer');
+            if (!cont) return;
+
+            const diag = diagnosticoMcKee();
+            const faltas = diag.filter(x => x.nivel === 'falta').length;
+            const avisos = diag.filter(x => x.nivel === 'aviso').length;
+            const oks = diag.filter(x => x.nivel === 'ok').length;
+
+            let html = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                    <div class="card" style="border-left: none; text-align: center; border-left: 4px solid #1A1A1A;"><strong style="font-size: 18px;">${oks}</strong><div style="font-size: 9px; color: #999;">Sólido</div></div>
+                    <div class="card" style="border-left: none; text-align: center; border-left: 4px solid #808080;"><strong style="font-size: 18px;">${avisos}</strong><div style="font-size: 9px; color: #999;">Revisar</div></div>
+                    <div class="card" style="border-left: none; text-align: center; border-left: 4px solid #C0C0C0;"><strong style="font-size: 18px;">${faltas}</strong><div style="font-size: 9px; color: #999;">Falta</div></div>
+                </div>
+                <button onclick="abrirSesionMcKee()" style="width: 100%; margin-bottom: 15px;">🎓 Continuar sesión de preguntas</button>
+            `;
+
+            html += `<div class="card"><strong>🩺 Diagnóstico McKee</strong>`;
+            diag.forEach(x => {
+                const icono = x.nivel === 'ok' ? '✓' : (x.nivel === 'aviso' ? '!' : '×');
+                const borde = x.nivel === 'ok' ? '#1A1A1A' : (x.nivel === 'aviso' ? '#808080' : '#C0C0C0');
+                html += `<div style="background: #FFFFFF; border-left: 3px solid ${borde}; padding: 7px 9px; border-radius: 3px; margin-top: 6px; font-size: 10px; line-height: 1.5;"><strong style="display: inline; color: ${borde};">${icono}</strong> ${x.texto}</div>`;
+            });
+            html += `</div>`;
+
+            // Ficha con las respuestas por bloque
+            MCKEE_BLOQUES.forEach(b => {
+                const conRespuesta = b.preguntas.filter(p => mkTiene(p.id));
+                if (!conRespuesta.length) return;
+                html += `<div class="card"><strong>${b.icono} ${b.nombre}</strong>`;
+                conRespuesta.forEach(p => {
+                    html += `<div style="background: #FFFFFF; padding: 8px; border-radius: 3px; margin-top: 6px; font-size: 10px;">
+                        <div style="color: #999; font-size: 9px; margin-bottom: 3px;">${p.q}</div>
+                        <div style="color: #1A1A1A; line-height: 1.5;">${(mckeeRespuestas[p.id] || '').replace(/</g, '&lt;')}</div>
+                    </div>`;
+                });
+                html += `</div>`;
+            });
+
+            // Escena por escena
+            const escenas = secuenciasParseadas.filter(s =>
+                mkTiene('s' + s.numero + '_valor') || mkTiene('s' + s.numero + '_objetivo') ||
+                mkTiene('s' + s.numero + '_conflicto') || mkTiene('s' + s.numero + '_giro'));
+
+            if (escenas.length) {
+                html += `<div class="card"><strong>🎬 Escena por escena</strong>`;
+                escenas.forEach(s => {
+                    html += `<div style="background: #FFFFFF; padding: 8px; border-radius: 3px; margin-top: 6px; font-size: 10px; line-height: 1.5;">
+                        <div style="font-weight: 700; margin-bottom: 4px;">SEQ ${s.numero} — ${s.titulo}</div>
+                        ${mkTiene('s' + s.numero + '_valor') ? `<div><span style="color: #999;">Valor:</span> ${mckeeRespuestas['s' + s.numero + '_valor']}</div>` : ''}
+                        ${mkTiene('s' + s.numero + '_objetivo') ? `<div><span style="color: #999;">Objetivo:</span> ${mckeeRespuestas['s' + s.numero + '_objetivo']}</div>` : ''}
+                        ${mkTiene('s' + s.numero + '_conflicto') ? `<div><span style="color: #999;">Conflicto:</span> ${mckeeRespuestas['s' + s.numero + '_conflicto']}</div>` : ''}
+                        ${mkTiene('s' + s.numero + '_giro') ? `<div><span style="color: #999;">Giro:</span> ${mckeeRespuestas['s' + s.numero + '_giro']}</div>` : ''}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `<p style="font-size: 9px; color: #aaa; text-align: center; margin-top: 10px; line-height: 1.5;">Preguntas y diagnóstico estructurados según los principios de <em>El guión</em> (Story), de Robert McKee.</p>`;
+
+            cont.innerHTML = html;
+        }
+
+        function actualizarNudgeMcKee() {
+            const el = document.getElementById('mckeeNudge');
+            if (!el) return;
+            const claves = ['idea_controladora', 'deseo_consciente', 'deseo_inconsciente', 'antag_fuerza', 'incidente', 'crisis', 'climax'];
+            const pendiente = claves.find(id => !mkTiene(id));
+
+            if (!pendiente) {
+                el.innerHTML = `<span style="color: #1A1A1A;">✓ Las claves de la historia están definidas.</span> Abrí la <strong>Ficha</strong> para ver el diagnóstico completo.`;
+                return;
+            }
+
+            let texto = '';
+            MCKEE_BLOQUES.forEach(b => b.preguntas.forEach(p => { if (p.id === pendiente) texto = p.q; }));
+            el.innerHTML = `<strong>Próxima pregunta de Ade:</strong> ${texto}`;
+        }
+
         // ==================== PANEL DE STORYBOARD (dibujo automático) ====================
         const SB_W = 320, SB_H = 180;
         const SB_TRAZO = '#3a3a3a';
@@ -2285,12 +2919,15 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('guiaoTecnico').value = localStorage.getItem('guiaoTecnico') || guiaoTecnicoPredefinido;
 
             notasStoryboard = JSON.parse(localStorage.getItem('storyboardNotas') || '{}');
+            mckeeRespuestas = JSON.parse(localStorage.getItem('mckeeRespuestas') || '{}');
 
             const texto = document.getElementById('guiaoLiterario').value;
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
             atualizarStoryboard(obtenerTecnicoActual());
             atualizarPlanRodaje();
+            atualizarFichaMcKee();
+            actualizarNudgeMcKee();
 
             // Restaurar idea guardada
             const ideaGuardada = JSON.parse(localStorage.getItem('ideaCorto') || '{}');
