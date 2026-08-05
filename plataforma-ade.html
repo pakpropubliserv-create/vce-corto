@@ -578,6 +578,14 @@
     <header>
         <h1>🎬 Você é - Plataforma Ade</h1>
         <p>De la idea al plan de rodaje • Asistencia en todos los pasos • Desgloces automáticos</p>
+        <div style="display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gray-mid);">
+            <span>Proyecto</span>
+            <select id="selProyecto" onchange="cambiarProyecto(this.value)" style="font-family:inherit; font-size:12px; letter-spacing:1px; padding:5px 8px; border:1px solid var(--border); border-radius:0; background:var(--secondary); color:var(--text-dark); min-width:190px;"></select>
+            <a onclick="nuevoProyecto()" style="cursor:pointer;">+ Nuevo</a>
+            <a onclick="renombrarProyecto()" style="cursor:pointer;">Renombrar</a>
+            <a onclick="duplicarProyecto()" style="cursor:pointer;">Duplicar</a>
+            <a onclick="borrarProyecto()" style="cursor:pointer;">Borrar</a>
+        </div>
     </header>
 
     <div class="layout">
@@ -818,6 +826,106 @@
     </div>
 
     <script>
+        // ==================== PROYECTOS ====================
+        const CLAVES_PROYECTO = ['guiaoLiterario', 'guiaoTecnico', 'paleta', 'ideaCorto', 'storyboardNotas', 'mckeeRespuestas'];
+        let proyectos = [];
+        let proyectoActivo = '';
+
+        function pk(clave) { return 'proy:' + proyectoActivo + ':' + clave; }
+        function pget(clave) { return localStorage.getItem(pk(clave)); }
+        function pset(clave, valor) { localStorage.setItem(pk(clave), valor); }
+
+        function initProyectos() {
+            proyectos = JSON.parse(localStorage.getItem('proyectos') || '[]');
+            if (!proyectos.length) {
+                // Primera vez: migra el trabajo existente al proyecto inicial
+                const id = 'p' + Date.now();
+                proyectos = [{ id: id, nombre: 'Você é' }];
+                localStorage.setItem('proyectos', JSON.stringify(proyectos));
+                proyectoActivo = id;
+                CLAVES_PROYECTO.forEach(c => {
+                    const v = localStorage.getItem(c);
+                    if (v !== null) { pset(c, v); localStorage.removeItem(c); }
+                });
+            }
+            proyectoActivo = localStorage.getItem('proyectoActivo') || proyectos[0].id;
+            if (!proyectos.some(p => p.id === proyectoActivo)) proyectoActivo = proyectos[0].id;
+            localStorage.setItem('proyectoActivo', proyectoActivo);
+            pintarSelectorProyectos();
+        }
+
+        function pintarSelectorProyectos() {
+            const sel = document.getElementById('selProyecto');
+            sel.innerHTML = proyectos.map(p =>
+                `<option value="${p.id}"${p.id === proyectoActivo ? ' selected' : ''}>${p.nombre}</option>`).join('');
+        }
+
+        function guardarEstadoActual() {
+            const gl = document.getElementById('guiaoLiterario');
+            const gt = document.getElementById('guiaoTecnico');
+            if (gl) pset('guiaoLiterario', gl.value);
+            if (gt) pset('guiaoTecnico', gt.value);
+        }
+
+        function cambiarProyecto(id) {
+            if (id === proyectoActivo) return;
+            guardarEstadoActual();
+            localStorage.setItem('proyectoActivo', id);
+            location.reload();
+        }
+
+        function nuevoProyecto() {
+            const nombre = prompt('Nombre del nuevo proyecto:');
+            if (!nombre || !nombre.trim()) return;
+            guardarEstadoActual();
+            const id = 'p' + Date.now();
+            const conPlantilla = confirm('¿Empezar con el guión de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
+            proyectos.push({ id: id, nombre: nombre.trim() });
+            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            if (!conPlantilla) {
+                localStorage.setItem('proy:' + id + ':guiaoLiterario', '');
+                localStorage.setItem('proy:' + id + ':guiaoTecnico', '');
+            }
+            localStorage.setItem('proyectoActivo', id);
+            location.reload();
+        }
+
+        function renombrarProyecto() {
+            const actual = proyectos.find(p => p.id === proyectoActivo);
+            const nombre = prompt('Nuevo nombre:', actual.nombre);
+            if (!nombre || !nombre.trim()) return;
+            actual.nombre = nombre.trim();
+            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            pintarSelectorProyectos();
+        }
+
+        function duplicarProyecto() {
+            const actual = proyectos.find(p => p.id === proyectoActivo);
+            const nombre = prompt('Nombre de la copia:', actual.nombre + ' (copia)');
+            if (!nombre || !nombre.trim()) return;
+            guardarEstadoActual();
+            const nuevoId = 'p' + Date.now();
+            CLAVES_PROYECTO.forEach(c => {
+                const v = pget(c);
+                if (v !== null) localStorage.setItem('proy:' + nuevoId + ':' + c, v);
+            });
+            proyectos.push({ id: nuevoId, nombre: nombre.trim() });
+            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            localStorage.setItem('proyectoActivo', nuevoId);
+            location.reload();
+        }
+
+        function borrarProyecto() {
+            if (proyectos.length === 1) { alert('No puedes borrar el único proyecto.'); return; }
+            const actual = proyectos.find(p => p.id === proyectoActivo);
+            if (!confirm('¿Borrar "' + actual.nombre + '" y todo su contenido? Esto no se puede deshacer.')) return;
+            CLAVES_PROYECTO.forEach(c => localStorage.removeItem(pk(c)));
+            proyectos = proyectos.filter(p => p.id !== proyectoActivo);
+            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            localStorage.setItem('proyectoActivo', proyectos[0].id);
+            location.reload();
+        }
+
         const guiaoPadrao = `Título: Você é
 
 Logline: Uma artista descobre que só consegue criar algo verdadeiro quando aceita quem ela realmente é.
@@ -1234,7 +1342,7 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             const logline = idea || `${protRaw} ${deseo.toLowerCase()}, pero ${obstaculo.toLowerCase()}. Cuando ${giro.toLowerCase()}, todo cambia.`;
 
             // Guardar idea original
-            localStorage.setItem('ideaCorto', JSON.stringify({ idea, titulo, protRaw, deseo, obstaculo, giro, final, loc }));
+            pset('ideaCorto', JSON.stringify({ idea, titulo, protRaw, deseo, obstaculo, giro, final, loc }));
 
             const g = [];
             g.push(`Título: ${titulo}`);
@@ -1392,7 +1500,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
             // Cargar en el editor literario y guardar
             document.getElementById('guiaoLiterario').value = guionGenerado;
-            localStorage.setItem('guiaoLiterario', guionGenerado);
+            pset('guiaoLiterario', guionGenerado);
             secuenciasParseadas = parseGuiaoLiterario(guionGenerado);
             atualizarDesgloces();
             atualizarPlanRodaje();
@@ -1400,7 +1508,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             // Generar guión técnico sugerido para la nueva estructura
             const tecnicoGenerado = generarTecnicoSugerido(secs.length);
             document.getElementById('guiaoTecnico').value = tecnicoGenerado;
-            localStorage.setItem('guiaoTecnico', tecnicoGenerado);
+            pset('guiaoTecnico', tecnicoGenerado);
             atualizarStoryboard(tecnicoGenerado);
 
             // Llevar al usuario al tab Literário para revisar
@@ -1544,7 +1652,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (!tecnico || !tecnico.match(/SEQUÊNCIA\s+\d+/i)) {
                 tecnico = generarTecnicoSugerido(Math.max(secuenciasParseadas.length, 1));
                 document.getElementById('guiaoTecnico').value = tecnico;
-                localStorage.setItem('guiaoTecnico', tecnico);
+                pset('guiaoTecnico', tecnico);
             }
             // Compatibilidad con formato antiguo (ÂNGULO con acento circunflejo)
             return tecnico.replace(/ÂNGULO/g, 'ÁNGULO');
@@ -1619,7 +1727,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function salvarGuiaoLiterario() {
             const texto = document.getElementById('guiaoLiterario').value;
-            localStorage.setItem('guiaoLiterario', texto);
+            pset('guiaoLiterario', texto);
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
             atualizarPlanRodaje();
@@ -1912,7 +2020,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             });
 
             document.getElementById('guiaoTecnico').value = guiaoTecnico;
-            localStorage.setItem('guiaoTecnico', guiaoTecnico);
+            pset('guiaoTecnico', guiaoTecnico);
             document.getElementById('modoManualTecnico').style.display = 'block';
             document.getElementById('asistenteModal').style.display = 'none';
 
@@ -2284,7 +2392,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const ta = document.getElementById('mkRespuesta');
             if (!ta || mkIndice >= mkPreguntas.length) return;
             mckeeRespuestas[mkPreguntas[mkIndice].id] = ta.value;
-            localStorage.setItem('mckeeRespuestas', JSON.stringify(mckeeRespuestas));
+            pset('mckeeRespuestas', JSON.stringify(mckeeRespuestas));
         }
 
         function navMcKee(delta) {
@@ -2903,7 +3011,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function guardarNotaPanel(seqNum, valor) {
             notasStoryboard[seqNum] = valor;
-            localStorage.setItem('storyboardNotas', JSON.stringify(notasStoryboard));
+            pset('storyboardNotas', JSON.stringify(notasStoryboard));
         }
 
         function actualizarCampoTecnico(seqNum, campo, valor) {
@@ -2926,7 +3034,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
             const texto = lineas.join('\n');
             document.getElementById('guiaoTecnico').value = texto;
-            localStorage.setItem('guiaoTecnico', texto);
+            pset('guiaoTecnico', texto);
             return texto;
         }
 
@@ -2972,7 +3080,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 primary: document.getElementById('colorPrimarioText').value,
                 secondary: document.getElementById('colorSecundarioText').value
             };
-            localStorage.setItem('paleta', JSON.stringify(paleta));
+            pset('paleta', JSON.stringify(paleta));
             document.documentElement.style.setProperty('--primary', paleta.primary);
             document.documentElement.style.setProperty('--secondary', paleta.secondary);
             alert('✓ Paleta guardada');
@@ -2980,7 +3088,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function salvarGuiaoTecnico() {
             const texto = document.getElementById('guiaoTecnico').value;
-            localStorage.setItem('guiaoTecnico', texto);
+            pset('guiaoTecnico', texto);
             atualizarStoryboard(texto);
             atualizarPlanRodaje();
             alert('✓ Guião Técnico salvo. Storyboard y plan de rodaje actualizados.');
@@ -3004,11 +3112,15 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         // ==================== INICIALIZACIÓN ====================
         window.addEventListener('load', () => {
-            document.getElementById('guiaoLiterario').value = localStorage.getItem('guiaoLiterario') || guiaoPadrao;
-            document.getElementById('guiaoTecnico').value = localStorage.getItem('guiaoTecnico') || guiaoTecnicoPredefinido;
+            initProyectos();
 
-            notasStoryboard = JSON.parse(localStorage.getItem('storyboardNotas') || '{}');
-            mckeeRespuestas = JSON.parse(localStorage.getItem('mckeeRespuestas') || '{}');
+            const litGuardado = pget('guiaoLiterario');
+            const tecGuardado = pget('guiaoTecnico');
+            document.getElementById('guiaoLiterario').value = litGuardado !== null ? litGuardado : guiaoPadrao;
+            document.getElementById('guiaoTecnico').value = tecGuardado !== null ? tecGuardado : guiaoTecnicoPredefinido;
+
+            notasStoryboard = JSON.parse(pget('storyboardNotas') || '{}');
+            mckeeRespuestas = JSON.parse(pget('mckeeRespuestas') || '{}');
 
             const texto = document.getElementById('guiaoLiterario').value;
             secuenciasParseadas = parseGuiaoLiterario(texto);
@@ -3019,7 +3131,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             actualizarNudgeMcKee();
 
             // Restaurar idea guardada
-            const ideaGuardada = JSON.parse(localStorage.getItem('ideaCorto') || '{}');
+            const ideaGuardada = JSON.parse(pget('ideaCorto') || '{}');
             if (ideaGuardada.idea) document.getElementById('ideaLibre').value = ideaGuardada.idea;
             if (ideaGuardada.titulo) document.getElementById('ideaTitulo').value = ideaGuardada.titulo;
             if (ideaGuardada.protRaw) document.getElementById('ideaProtagonista').value = ideaGuardada.protRaw;
@@ -3029,7 +3141,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (ideaGuardada.final) document.getElementById('ideaFinal').value = ideaGuardada.final;
             if (ideaGuardada.loc) document.getElementById('ideaLocacion').value = ideaGuardada.loc;
 
-            const paleta = JSON.parse(localStorage.getItem('paleta') || '{}');
+            const paleta = JSON.parse(pget('paleta') || '{}');
             if (paleta.primary) {
                 document.documentElement.style.setProperty('--primary', paleta.primary);
                 document.getElementById('colorPrimario').value = paleta.primary;
