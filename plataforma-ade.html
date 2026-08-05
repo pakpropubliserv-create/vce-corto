@@ -673,7 +673,8 @@
                 <div id="mckeeNudge" style="font-size: 10px; color: #666; line-height: 1.5; background: #F5F5F5; border-left: 3px solid #808080; padding: 9px 11px; border-radius: 3px; margin-bottom: 14px;"></div>
 
                 <textarea id="guiaoLiterario" style="height: 400px;"></textarea>
-                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 10px;">💾 Salvar Guião Literário</button>
+                <button onclick="abrirGuiaoFullscreen()" style="width: 100%; margin-top: 10px; background: #FFFFFF; color: #1A1A1A; border: 2px solid #1A1A1A;">⛶ Ver guión en pantalla completa</button>
+                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 8px;">💾 Salvar Guião Literário</button>
             </div>
 
             <!-- Tab: Técnico -->
@@ -794,6 +795,23 @@
                 <button onclick="cerrarAsistente()" style="background: var(--secondary); padding: 6px 12px; font-size: 14px;">✕</button>
             </div>
             <div id="asistenteContent"></div>
+        </div>
+    </div>
+
+    <!-- Pantalla completa del guión -->
+    <div id="fsGuiao" style="display:none; position:fixed; inset:0; z-index:9999; background:#FFFFFF; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:2px solid #1A1A1A; background:#1A1A1A; color:#FFFFFF; flex-wrap:wrap;">
+            <strong style="font-size:13px; letter-spacing:2px; margin-right:auto;">GUIÃO LITERÁRIO</strong>
+            <button onclick="fsZoom(-1)" title="Alejar (Ctrl -)" style="padding:6px 12px; font-size:14px; font-weight:800; background:#FFFFFF; color:#1A1A1A; border:none; cursor:pointer;">A−</button>
+            <span id="fsZoomLabel" style="font-size:11px; min-width:46px; text-align:center;">18px</span>
+            <button onclick="fsZoom(1)" title="Ampliar (Ctrl +)" style="padding:6px 12px; font-size:14px; font-weight:800; background:#FFFFFF; color:#1A1A1A; border:none; cursor:pointer;">A+</button>
+            <button onclick="fsZoom(0)" title="Tamaño normal" style="padding:6px 10px; font-size:11px; background:transparent; color:#FFFFFF; border:1px solid #666; cursor:pointer;">Reset</button>
+            <button onclick="fsAnchoToggle()" id="fsAnchoBtn" style="padding:6px 10px; font-size:11px; background:transparent; color:#FFFFFF; border:1px solid #666; cursor:pointer;">↔ Ancho</button>
+            <button onclick="fsGuardar()" style="padding:6px 12px; font-size:11px; font-weight:700; background:#FFFFFF; color:#1A1A1A; border:none; cursor:pointer;">💾 Salvar</button>
+            <button onclick="cerrarGuiaoFullscreen()" title="Cerrar (Esc)" style="padding:6px 12px; font-size:14px; font-weight:800; background:transparent; color:#FFFFFF; border:1px solid #666; cursor:pointer;">✕</button>
+        </div>
+        <div id="fsGuiaoWrap" style="flex:1; overflow:auto; display:flex; justify-content:center; background:#FAFAFA;">
+            <textarea id="fsGuiaoTexto" spellcheck="false" style="width:100%; max-width:900px; height:100%; border:none; outline:none; resize:none; padding:40px 48px; background:#FFFFFF; color:#1A1A1A; font-family:'Courier New', monospace; font-size:18px; line-height:1.7; box-shadow:0 0 40px rgba(0,0,0,.06);"></textarea>
         </div>
     </div>
 
@@ -1539,6 +1557,63 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const div = document.getElementById(`asistencia${tipo.charAt(0).toUpperCase() + tipo.slice(1)}Div`);
             if (div) div.style.display = asistencias[tipo] ? 'block' : 'none';
         }
+
+        // ==================== PANTALLA COMPLETA DEL GUIÓN ====================
+        let fsFuente = parseInt(localStorage.getItem('fsGuiaoZoom')) || 18;
+        let fsAncho = localStorage.getItem('fsGuiaoAncho') || 'lectura';
+
+        function abrirGuiaoFullscreen() {
+            document.getElementById('fsGuiaoTexto').value = document.getElementById('guiaoLiterario').value;
+            document.getElementById('fsGuiao').style.display = 'flex';
+            fsAplicar();
+            document.getElementById('fsGuiaoTexto').focus();
+        }
+
+        function cerrarGuiaoFullscreen() {
+            document.getElementById('guiaoLiterario').value = document.getElementById('fsGuiaoTexto').value;
+            document.getElementById('fsGuiao').style.display = 'none';
+        }
+
+        function fsGuardar() {
+            document.getElementById('guiaoLiterario').value = document.getElementById('fsGuiaoTexto').value;
+            salvarGuiaoLiterario();
+        }
+
+        function fsZoom(dir) {
+            if (dir === 0) fsFuente = 18;
+            else fsFuente = Math.min(48, Math.max(10, fsFuente + dir * 2));
+            localStorage.setItem('fsGuiaoZoom', fsFuente);
+            fsAplicar();
+        }
+
+        function fsAnchoToggle() {
+            fsAncho = fsAncho === 'lectura' ? 'completo' : 'lectura';
+            localStorage.setItem('fsGuiaoAncho', fsAncho);
+            fsAplicar();
+        }
+
+        function fsAplicar() {
+            const ta = document.getElementById('fsGuiaoTexto');
+            ta.style.fontSize = fsFuente + 'px';
+            ta.style.maxWidth = fsAncho === 'lectura' ? '900px' : 'none';
+            document.getElementById('fsZoomLabel').textContent = fsFuente + 'px';
+            document.getElementById('fsAnchoBtn').textContent = fsAncho === 'lectura' ? '↔ Ancho' : '↕ Columna';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('fsGuiao').style.display !== 'flex') return;
+            if (e.key === 'Escape') { cerrarGuiaoFullscreen(); return; }
+            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) { e.preventDefault(); fsZoom(1); }
+            if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); fsZoom(-1); }
+            if ((e.ctrlKey || e.metaKey) && e.key === '0') { e.preventDefault(); fsZoom(0); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); fsGuardar(); }
+        });
+
+        document.getElementById('fsGuiaoWrap').addEventListener('wheel', function(e) {
+            if (!(e.ctrlKey || e.metaKey)) return;
+            e.preventDefault();
+            fsZoom(e.deltaY < 0 ? 1 : -1);
+        }, { passive: false });
 
         function salvarGuiaoLiterario() {
             const texto = document.getElementById('guiaoLiterario').value;
