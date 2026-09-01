@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Você é - Plataforma Ade</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Caveat:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2B2622;
@@ -25,12 +28,35 @@
         header {
             background: var(--accent);
             color: var(--text-dark);
-            padding: 22px 20px 16px;
+            padding: 26px 26px 18px;
             border-bottom: 1px solid var(--border);
         }
 
-        header h1 { font-size: 22px; font-weight: 400; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 6px; }
-        header p { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); }
+        .marca { display: flex; align-items: baseline; gap: 14px; }
+        header h1 {
+            font-family: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
+            font-size: 40px; font-weight: 600; letter-spacing: 1px; line-height: 1;
+        }
+        .firma {
+            font-family: 'Caveat', 'Segoe Script', cursive;
+            font-size: 21px; color: var(--gray-mid); transform: rotate(-2deg);
+        }
+        header p { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gray-mid); margin-top: 8px; }
+        header p em { font-style: italic; text-transform: none; letter-spacing: 0.5px; }
+
+        .barra-proyecto {
+            display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap;
+            font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid);
+        }
+        .barra-proyecto a { cursor: pointer; }
+        .barra-proyecto a:hover { color: var(--text-dark); }
+        .barra-proyecto .et { color: var(--gray-light); }
+        .barra-proyecto select {
+            font-family: 'Playfair Display', Georgia, serif; font-size: 14px; letter-spacing: 0.5px;
+            text-transform: none; padding: 3px 6px; border: none; border-bottom: 1px solid var(--border);
+            border-radius: 0; background: transparent; color: var(--text-dark); min-width: 180px; cursor: pointer;
+        }
+        .barra-proyecto .pill { border: 1px solid var(--border); padding: 4px 9px; }
 
         .layout { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 90px); gap: 0; }
         .panel { overflow-y: auto; border-right: 1px solid var(--border); background: var(--accent); padding: 20px; }
@@ -155,18 +181,19 @@
         }
 
         .ade-titulo {
-            font-size: 26px;
+            font-family: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
+            font-size: 30px;
             color: #2B2622;
-            margin-bottom: 4px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 2px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .ade-sub {
-            font-size: 12px;
+            font-family: 'Caveat', 'Segoe Script', cursive;
+            font-size: 18px;
             color: #8C8375;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .modal {
@@ -248,31 +275,43 @@
         }
 
         .mk-pregunta {
-            font-size: 17px;
-            font-weight: 700;
-            line-height: 1.4;
+            font-family: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
+            font-size: 21px;
+            font-weight: 400;
+            line-height: 1.35;
             color: #2B2622;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .mk-ayuda {
-            background: #F4F0E6;
-            border-left: 1px solid #2B2622;
-            padding: 11px 13px;
-            border-radius: 0;
-            margin-bottom: 12px;
+            border-left: 1px solid var(--border);
+            padding: 4px 0 4px 14px;
+            margin-bottom: 14px;
         }
 
         .mk-ayuda b {
             display: block;
             font-size: 9px;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            color: #888;
-            margin-bottom: 5px;
+            color: var(--gray-light);
+            margin-bottom: 6px;
         }
 
-        .mk-ayuda p { font-size: 11px; line-height: 1.65; color: #444; }
+        .mk-ayuda p {
+            font-family: 'Caveat', 'Segoe Script', cursive;
+            font-size: 17px;
+            line-height: 1.45;
+            color: var(--gray-dark);
+        }
+
+        .mk-fuente {
+            margin-top: 8px;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--gray-light);
+        }
 
         .sb-panel-wrap { display: flex; flex-direction: column; gap: 8px; }
 
@@ -576,15 +615,19 @@
 </head>
 <body>
     <header>
-        <h1>🎬 Você é - Plataforma Ade</h1>
-        <p>De la idea al plan de rodaje • Asistencia en todos los pasos • Desgloces automáticos</p>
-        <div style="display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gray-mid);">
-            <span>Proyecto</span>
-            <select id="selProyecto" onchange="cambiarProyecto(this.value)" style="font-family:inherit; font-size:12px; letter-spacing:1px; padding:5px 8px; border:1px solid var(--border); border-radius:0; background:var(--secondary); color:var(--text-dark); min-width:190px;"></select>
-            <a onclick="nuevoProyecto()" style="cursor:pointer;">+ Nuevo</a>
-            <a onclick="renombrarProyecto()" style="cursor:pointer;">Renombrar</a>
-            <a onclick="duplicarProyecto()" style="cursor:pointer;">Duplicar</a>
-            <a onclick="borrarProyecto()" style="cursor:pointer;">Borrar</a>
+        <div class="marca">
+            <h1>Ade</h1>
+            <span class="firma">asistencia de escritura</span>
+        </div>
+        <p>De la idea al plan de rodaje · Método de <em>El guión</em>, de Robert McKee</p>
+        <div class="barra-proyecto">
+            <span class="et">Proyecto</span>
+            <select id="selProyecto" onchange="cambiarProyecto(this.value)"></select>
+            <a id="tipoProyecto" onclick="cambiarTipoProyecto()" title="Cambiar tipo de proyecto" class="pill">Cortometraje</a>
+            <a onclick="nuevoProyecto()">+ Nuevo</a>
+            <a onclick="renombrarProyecto()">Renombrar</a>
+            <a onclick="duplicarProyecto()">Duplicar</a>
+            <a onclick="borrarProyecto()">Borrar</a>
         </div>
     </header>
 
@@ -600,7 +643,7 @@
 
             <!-- Tab: Idea (NUEVO - punto de partida) -->
             <div id="idea-tab" class="tab-content active">
-                <div class="ade-titulo">✍️ Asistente de Escritura Ade</div>
+                <div class="ade-titulo">Asistente de Escritura</div>
                 <div class="ade-sub">Cuéntame tu idea — escribiendo o hablando — y yo la estructuro en un guión literario profesional.</div>
 
                 <div class="campo-idea">
@@ -784,7 +827,7 @@
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #2B2622;">
                 <div>
-                    <h2 style="color: #2B2622; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">✍️ Asistente Ade</h2>
+                    <h2 style="margin:0; font-family:'Playfair Display',Georgia,serif; font-size:26px; font-weight:600;">Asistente Ade</h2>
                     <p style="font-size: 10px; color: #888; margin: 6px 0 0 0; letter-spacing: .5px;" id="mkProgreso"></p>
                 </div>
                 <button onclick="cerrarSesionMcKee()" style="background: #2B2622; padding: 6px 12px; font-size: 14px; width: auto; min-height: 0;">✕</button>
@@ -798,7 +841,7 @@
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--primary);">
                 <div>
-                    <h2 style="color: var(--primary); margin: 0; font-size: 24px;">✍️ Asistente de Escritura Ade</h2>
+                    <h2 style="margin:0; font-family:'Playfair Display',Georgia,serif; font-size:26px; font-weight:600;">Asistente de Escritura</h2>
                     <p style="font-size: 11px; color: #999; margin: 8px 0 0 0;" id="progressText"></p>
                 </div>
                 <button onclick="cerrarAsistente()" style="background: var(--secondary); padding: 6px 12px; font-size: 14px;">✕</button>
@@ -840,7 +883,7 @@
             if (!proyectos.length) {
                 // Primera vez: migra el trabajo existente al proyecto inicial
                 const id = 'p' + Date.now();
-                proyectos = [{ id: id, nombre: 'Você é' }];
+                proyectos = [{ id: id, nombre: 'Você é', tipo: 'corto' }];
                 localStorage.setItem('proyectos', JSON.stringify(proyectos));
                 proyectoActivo = id;
                 CLAVES_PROYECTO.forEach(c => {
@@ -854,10 +897,34 @@
             pintarSelectorProyectos();
         }
 
+        const TIPOS_PROYECTO = { corto: 'Cortometraje', largo: 'Largometraje', serie: 'Serie / piloto' };
+
+        function proyectoActual() {
+            return proyectos.find(p => p.id === proyectoActivo) || { nombre: '', tipo: 'corto' };
+        }
+
+        function esLargometraje() {
+            const t = proyectoActual().tipo;
+            return t === 'largo' || t === 'serie';
+        }
+
         function pintarSelectorProyectos() {
             const sel = document.getElementById('selProyecto');
             sel.innerHTML = proyectos.map(p =>
                 `<option value="${p.id}"${p.id === proyectoActivo ? ' selected' : ''}>${p.nombre}</option>`).join('');
+            const et = document.getElementById('tipoProyecto');
+            if (et) et.textContent = TIPOS_PROYECTO[proyectoActual().tipo] || TIPOS_PROYECTO.corto;
+        }
+
+        function cambiarTipoProyecto() {
+            const actual = proyectoActual();
+            const orden = ['corto', 'largo', 'serie'];
+            const siguiente = orden[(orden.indexOf(actual.tipo || 'corto') + 1) % orden.length];
+            actual.tipo = siguiente;
+            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            pintarSelectorProyectos();
+            atualizarFichaMcKee();
+            actualizarNudgeMcKee();
         }
 
         function guardarEstadoActual() {
@@ -879,8 +946,10 @@
             if (!nombre || !nombre.trim()) return;
             guardarEstadoActual();
             const id = 'p' + Date.now();
-            const conPlantilla = confirm('¿Empezar con el guión de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
-            proyectos.push({ id: id, nombre: nombre.trim() });
+            const resp = (prompt('¿Qué vas a escribir?\n\n1 = Cortometraje\n2 = Largometraje\n3 = Serie / piloto', '1') || '1').trim();
+            const tipo = resp === '2' ? 'largo' : (resp === '3' ? 'serie' : 'corto');
+            const conPlantilla = tipo === 'corto' && confirm('¿Empezar con el guión de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
+            proyectos.push({ id: id, nombre: nombre.trim(), tipo: tipo });
             localStorage.setItem('proyectos', JSON.stringify(proyectos));
             if (!conPlantilla) {
                 localStorage.setItem('proy:' + id + ':guiaoLiterario', '');
@@ -909,7 +978,7 @@
                 const v = pget(c);
                 if (v !== null) localStorage.setItem('proy:' + nuevoId + ':' + c, v);
             });
-            proyectos.push({ id: nuevoId, nombre: nombre.trim() });
+            proyectos.push({ id: nuevoId, nombre: nombre.trim(), tipo: actual.tipo || 'corto' });
             localStorage.setItem('proyectos', JSON.stringify(proyectos));
             localStorage.setItem('proyectoActivo', nuevoId);
             location.reload();
@@ -1711,7 +1780,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         document.addEventListener('keydown', function(e) {
-            if (document.getElementById('fsGuiao').style.display !== 'flex') return;
+            const fsEl = document.getElementById('fsGuiao');
+            if (!fsEl || fsEl.style.display !== 'flex') return;
             if (e.key === 'Escape') { cerrarGuiaoFullscreen(); return; }
             if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) { e.preventDefault(); fsZoom(1); }
             if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); fsZoom(-1); }
@@ -1719,7 +1789,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); fsGuardar(); }
         });
 
-        document.getElementById('fsGuiaoWrap').addEventListener('wheel', function(e) {
+        const fsWrapEl = document.getElementById('fsGuiaoWrap');
+        if (fsWrapEl) fsWrapEl.addEventListener('wheel', function(e) {
             if (!(e.ctrlKey || e.metaKey)) return;
             e.preventDefault();
             fsZoom(e.deltaY < 0 ? 1 : -1);
@@ -2150,6 +2221,89 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 ]
             },
             {
+                id: 'mundo', nombre: 'Mundo y Elenco', icono: '🗺',
+                preguntas: [
+                    {
+                        id: 'limites_mundo',
+                        q: 'Cuales son los limites de tu mundo? Periodo, duracion, lugar y nivel de conflicto',
+                        principio: 'Estructura y ambientacion (cap. 2)',
+                        ayuda: 'McKee define el ambiente por cuatro dimensiones: periodo (cuando), duracion (cuanto tiempo abarca), localizacion (donde) y nivel de conflicto (contra que se pelea en este mundo). Un mundo chico y bien conocido da mas originalidad que uno enorme y generico: cuanto menor el mundo, mayor el dominio del autor.',
+                        ph: 'Ej: Hoy, una noche, un cuarto; el conflicto es interno y contra el criterio de exito de las redes'
+                    },
+                    {
+                        id: 'genero',
+                        q: 'En que genero estas trabajando y que espera el espectador de el?',
+                        principio: 'Estructura y genero (cap. 3)',
+                        ayuda: 'El genero no es una etiqueta comercial: es el contrato de expectativas con el espectador. Dominar las convenciones es lo que te permite cumplirlas de manera inesperada. Escribi tu genero y las tres o cuatro convenciones que el publico da por hechas.',
+                        ph: 'Ej: Drama de madurez. Se espera perdida de una ilusion y ganancia de una verdad'
+                    },
+                    {
+                        id: 'elenco',
+                        q: 'Para que existe cada personaje secundario? Que dimension del protagonista revela?',
+                        principio: 'Personaje (cap. 16)',
+                        ayuda: 'El elenco se disena alrededor del protagonista como un sistema de espejos: cada personaje existe para provocar en el una reaccion distinta y asi revelar otra faceta. Si dos personajes provocan lo mismo, uno sobra.',
+                        ph: 'Ej: La madre saca su lado de hija; las tres obras sacan su lado de impostora'
+                    },
+                    {
+                        id: 'investigacion',
+                        q: 'Que sabes de este mundo por memoria, que por imaginacion y que te falta investigar?',
+                        principio: 'El metodo del escritor (cap. 18)',
+                        ayuda: 'McKee distingue tres fuentes: memoria (lo vivido), imaginacion (lo inventado) y hecho (lo investigado). El bloqueo casi siempre es falta de material, no falta de talento. Separa lo que ya tenes de lo que necesitas ir a buscar.',
+                        ph: 'Ej: Memoria: la frustracion de dibujar. Falta: como funciona de verdad un concurso de ilustracion'
+                    }
+                ]
+            },
+            {
+                id: 'diseno', nombre: 'Diseno de la Historia', icono: '📐',
+                preguntas: [
+                    {
+                        id: 'forma',
+                        q: 'Tu historia es de trama cerrada, minima o fragmentada? Por que esa forma?',
+                        principio: 'El triangulo de la historia (cap. 2)',
+                        ayuda: 'McKee ubica toda historia en un triangulo: arcotrama (final cerrado, causalidad, conflicto externo), minitrama (final abierto, protagonista pasivo, conflicto interno) y antitrama (coincidencia, no linealidad). Ninguna es mejor que otra: lo grave es prometer una y entregar otra.',
+                        ph: 'Ej: Minitrama, final cerrado pero conflicto casi todo interior',
+                        chips: ['Arcotrama porque ', 'Minitrama porque ', 'Antitrama porque ']
+                    },
+                    {
+                        id: 'brecha',
+                        q: 'Elegi una accion clave: que esperaba el personaje que pasara y que paso en realidad?',
+                        principio: 'La sustancia del relato (cap. 6)',
+                        ayuda: 'Para McKee la historia vive en la brecha: el personaje actua esperando una reaccion del mundo, y el mundo responde de un modo mas poderoso o distinto. Esa grieta entre expectativa y resultado lo obliga a arriesgar mas. Si el mundo responde lo esperado, no hubo acontecimiento.',
+                        ph: 'Ej: Borra todo esperando alivio; lo que llega es que sus obras la acusan'
+                    },
+                    {
+                        id: 'arco_valor',
+                        q: 'Como alterna la carga positiva y negativa a lo largo de la historia?',
+                        principio: 'Estructura y significado (cap. 5) / Composicion (cap. 11)',
+                        ayuda: 'Una historia no puede ir siempre para abajo ni siempre para arriba: se disena en olas. Cada secuencia invierte la carga respecto de la anterior, y la amplitud crece hacia el climax. Si tres secuencias seguidas tienen la misma carga, el espectador se anestesia.',
+                        ph: 'Ej: menos / menos menos / menos menos menos / mas / mas mas'
+                    },
+                    {
+                        id: 'progresion',
+                        q: 'Como escalas la presion sin repetir el mismo golpe?',
+                        principio: 'Composicion (cap. 11)',
+                        ayuda: 'La progresion exige ampliar el mundo del conflicto o profundizarlo: llevar la presion a otro nivel (de lo interior a lo personal, de lo personal a lo social) o al mismo nivel pero mas hondo. Repetir la misma intensidad es retroceder.',
+                        ph: 'Ej: Del fastidio privado, a las voces que la acusan, al ataque que ocupa toda la pantalla'
+                    },
+                    {
+                        id: 'subtramas',
+                        soloLargo: true,
+                        q: 'Que subtramas tenes y como se cruzan con la trama central?',
+                        principio: 'Diseno de actos (cap. 8)',
+                        ayuda: 'En un largometraje las subtramas existen para contradecir, complicar o hacer eco de la idea controladora, o para dar la exposicion que la trama central no puede. Una subtrama que no toca la principal es un cuerpo extrano.',
+                        ph: 'Ej: La relacion con la madre contradice la idea: ahi ser uno mismo si alcanza'
+                    },
+                    {
+                        id: 'actos',
+                        soloLargo: true,
+                        q: 'Donde caen los climax de acto? Enumera los momentos de cambio irreversible',
+                        principio: 'Diseno de actos (cap. 8)',
+                        ayuda: 'Un largometraje se sostiene en tres o mas climax de acto, cada uno con una inversion de valor mayor que el anterior. El del final del segundo acto suele ser el mas duro. Marca los tuyos: si no podes ubicarlos, la historia esta plana en el medio.',
+                        ph: 'Ej: Acto 1, acepta el encargo. Acto 2, pierde a quien la sostenia. Acto 3, elige su propia voz'
+                    }
+                ]
+            },
+            {
                 id: 'estructura', nombre: 'Estructura', icono: '🏛️',
                 preguntas: [
                     {
@@ -2220,6 +2374,39 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 ]
             },
             {
+                id: 'escena', nombre: 'Diseno de Escena', icono: '🎞',
+                preguntas: [
+                    {
+                        id: 'beats',
+                        q: 'Toma tu escena mas importante: cuales son sus beats de accion y reaccion?',
+                        principio: 'Diseno de escena (cap. 9) / Analisis de escena (cap. 10)',
+                        ayuda: 'Un beat es un intercambio de comportamiento: el personaje hace algo, el otro (o el mundo) responde, y eso cambia la escena. Los beats se nombran con verbos, no con adjetivos: suplica / rechaza / amenaza / cede. Escribir los beats muestra al instante donde la escena se estanca.',
+                        ph: 'Ej: pide permiso / se niega / insiste / la humilla / se rinde'
+                    },
+                    {
+                        id: 'entrar_salir',
+                        q: 'Entras a cada escena lo mas tarde posible y salis lo mas temprano posible?',
+                        principio: 'Composicion (cap. 11)',
+                        ayuda: 'Entrar tarde y salir temprano: empeza la escena lo mas cerca posible de su punto de giro y corta apenas giro. Los saludos, las llegadas y las despedidas casi nunca hacen falta.',
+                        ph: 'Ej: La secuencia 6 podria empezar con el caderno ya en la cama'
+                    },
+                    {
+                        id: 'giro_escena',
+                        q: 'Cada escena termina con un giro? Nombra las que todavia no lo tienen',
+                        principio: 'Diseno de escena (cap. 9)',
+                        ayuda: 'Toda escena es una historia en miniatura: deseo, conflicto y un giro que invierte la carga en el ultimo beat. Si una escena termina en la misma carga en que empezo, es exposicion disfrazada.',
+                        ph: 'Ej: La 2 y la 3 no giran: las dos terminan en la misma frustracion'
+                    },
+                    {
+                        id: 'texto_subtexto',
+                        q: 'Elegi una escena y escribi en dos columnas: que se dice y que se esta haciendo de verdad',
+                        principio: 'Analisis de escena (cap. 10) / El texto (cap. 17)',
+                        ayuda: 'Analizar una escena es separar el texto (la superficie de palabras y gestos) de la vida interior que corre debajo. Si al escribir las dos columnas te queda lo mismo en las dos, la escena todavia no esta escrita.',
+                        ph: 'Ej: Dice: voy a dejarlo aca. Hace: pedir perdon sin nombrarlo'
+                    }
+                ]
+            },
+            {
                 id: 'prueba', nombre: 'Prueba Final', icono: '🧪',
                 preguntas: [
                     {
@@ -2251,6 +2438,39 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         ];
 
         const MK_CHIPS_VALOR = ['Esperanza: + → −', 'Esperanza: − → +', 'Verdad: − → +', 'Libertad: + → −', 'Confianza: − → +', 'Soledad: + → −'];
+
+        // Referencia de capítulo de "El guión" (Story) para las preguntas del temario base
+        const MK_PRINCIPIOS = {
+            premisa: 'El método del escritor (cap. 18)',
+            idea_controladora: 'Estructura y significado (cap. 5)',
+            contraidea: 'Estructura y significado (cap. 5)',
+            publico: 'La sustancia del relato (cap. 6)',
+            deseo_consciente: 'Estructura y personaje (cap. 4)',
+            deseo_inconsciente: 'Estructura y personaje (cap. 4)',
+            voluntad: 'Personaje (cap. 16)',
+            capacidad: 'Personaje (cap. 16)',
+            caracterizacion: 'Estructura y personaje (cap. 4)',
+            empatia: 'La sustancia del relato (cap. 6)',
+            antag_interior: 'El principio del antagonismo (cap. 13)',
+            antag_personal: 'El principio del antagonismo (cap. 13)',
+            antag_extra: 'El principio del antagonismo (cap. 13)',
+            antag_fuerza: 'El principio del antagonismo (cap. 13)',
+            antag_razon: 'El principio del antagonismo (cap. 13)',
+            incidente: 'El incidente incitador (cap. 7)',
+            pregunta_dramatica: 'El incidente incitador (cap. 7)',
+            complicaciones: 'Diseño de actos (cap. 8)',
+            crisis: 'Crisis, clímax y resolución (cap. 12)',
+            climax: 'Crisis, clímax y resolución (cap. 12)',
+            resolucion: 'Crisis, clímax y resolución (cap. 12)',
+            escena_obligatoria: 'Diseño de actos (cap. 8)',
+            exposicion: 'Exposición (cap. 14)',
+            subtexto: 'El texto (cap. 17)',
+            visual: 'El texto (cap. 17)',
+            inevitable: 'Crisis, clímax y resolución (cap. 12)',
+            test_escenas: 'Composición (cap. 11)',
+            riesgo: 'El principio del antagonismo (cap. 13)',
+            titulo_final: 'Estructura y significado (cap. 5)'
+        };
 
         function bloqueEscenas() {
             const preguntas = [];
@@ -2284,12 +2504,19 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return { id: 'escenas', nombre: 'Escena por Escena', icono: '🎬', preguntas: preguntas };
         }
 
+        const MK_BLOQUES_FINALES = ['dialogo', 'escena', 'prueba'];
+
+        function mkAplica(p) {
+            return !p.soloLargo || esLargometraje();
+        }
+
         function construirPreguntas(modo) {
             const lista = [];
-            const agregar = bloque => bloque.preguntas.forEach(p => lista.push(Object.assign({}, p, { bloque: bloque.nombre, icono: bloque.icono, bloqueId: bloque.id })));
+            const agregar = bloque => bloque.preguntas.filter(mkAplica).forEach(p => lista.push(
+                Object.assign({}, p, { bloque: bloque.nombre, icono: bloque.icono, bloqueId: bloque.id })));
 
             if (modo === 'rapida') {
-                const clave = ['idea_controladora', 'deseo_consciente', 'antag_fuerza', 'incidente', 'crisis', 'climax'];
+                const clave = ['idea_controladora', 'deseo_consciente', 'antag_fuerza', 'brecha', 'incidente', 'crisis', 'climax'];
                 MCKEE_BLOQUES.forEach(b => b.preguntas.forEach(p => {
                     if (clave.indexOf(p.id) >= 0) lista.push(Object.assign({}, p, { bloque: b.nombre, icono: b.icono, bloqueId: b.id }));
                 }));
@@ -2299,12 +2526,18 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (modo === 'escenas') { agregar(bloqueEscenas()); return lista; }
 
             MCKEE_BLOQUES.forEach(b => {
-                if (b.id === 'dialogo' || b.id === 'prueba') return;
+                if (MK_BLOQUES_FINALES.indexOf(b.id) >= 0) return;
                 agregar(b);
             });
             if (modo === 'completa') agregar(bloqueEscenas());
-            MCKEE_BLOQUES.forEach(b => { if (b.id === 'dialogo' || b.id === 'prueba') agregar(b); });
+            MCKEE_BLOQUES.forEach(b => { if (MK_BLOQUES_FINALES.indexOf(b.id) >= 0) agregar(b); });
             return lista;
+        }
+
+        function totalPreguntasHistoria() {
+            let n = 0;
+            MCKEE_BLOQUES.forEach(b => { n += b.preguntas.filter(mkAplica).length; });
+            return n;
         }
 
         function abrirSesionMcKee() {
@@ -2316,11 +2549,12 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function mostrarSelectorModo() {
             document.getElementById('mkProgreso').textContent = 'Elegí cómo querés trabajar hoy';
+            const nHist = totalPreguntasHistoria();
             const opciones = [
-                ['completa', '📚 Sesión completa', 'Historia + escena por escena. ' + (26 + secuenciasParseadas.length * 4) + ' preguntas. Para desarrollar el guión a fondo.'],
-                ['historia', '🏛️ Solo la historia', '26 preguntas sobre idea, personaje, antagonismo, estructura y final. Sin entrar escena por escena.'],
+                ['completa', '📚 Sesión completa', 'Historia + escena por escena. ' + (nHist + secuenciasParseadas.length * 4) + ' preguntas. Para desarrollar el guión a fondo.'],
+                ['historia', '🏛️ Solo la historia', nHist + ' preguntas sobre idea, personaje, antagonismo, mundo, diseño, estructura, escena y final.'],
                 ['escenas', '🎬 Escena por escena', (secuenciasParseadas.length * 4) + ' preguntas: valor, objetivo, conflicto y giro en cada una de tus ' + secuenciasParseadas.length + ' secuencias.'],
-                ['rapida', '⚡ Diagnóstico rápido', '6 preguntas esenciales. Para saber en 5 minutos si la historia se sostiene.']
+                ['rapida', '⚡ Diagnóstico rápido', '7 preguntas esenciales. Para saber en 5 minutos si la historia se sostiene.']
             ];
 
             document.getElementById('mkContenido').innerHTML = `
@@ -2370,6 +2604,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 <div class="mk-ayuda">
                     <b>Principio McKee</b>
                     <p>${p.ayuda}</p>
+                    ${(p.principio || MK_PRINCIPIOS[p.id]) ? `<div class="mk-fuente">El guión · ${p.principio || MK_PRINCIPIOS[p.id]}</div>` : ''}
                 </div>
                 ${chips ? `<div class="sb-chips" style="margin-bottom: 8px;">${chips}</div>` : ''}
                 <textarea id="mkRespuesta" placeholder="${p.ph}" style="height: 110px; font-family: inherit; font-size: 13px;">${(mckeeRespuestas[p.id] || '').replace(/</g, '&lt;')}</textarea>
@@ -2449,11 +2684,32 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return (mckeeRespuestas[id] || '').trim().length > 3;
         }
 
+        function mkTexto(id) {
+            return (mckeeRespuestas[id] || '').toLowerCase();
+        }
+
+        function mkPalabrasClave(t) {
+            const vacias = ['para', 'porque', 'pero', 'como', 'cuando', 'donde', 'este', 'esta', 'esto', 'todo', 'toda',
+                'unos', 'unas', 'sobre', 'entre', 'hasta', 'desde', 'ella', 'ellos', 'suyo', 'cada', 'algo', 'nada',
+                'personaje', 'protagonista', 'historia', 'final', 'valor', 'escena'];
+            return (t || '').toLowerCase().replace(/[^a-záéíóúñü ]/g, ' ').split(/\s+/)
+                .filter(w => w.length > 4 && vacias.indexOf(w) < 0);
+        }
+
+        function mkCargaValor(t) {
+            // devuelve 'sube', 'baja' o null a partir de como esta escrito el cambio de valor
+            const x = (t || '').toLowerCase();
+            if (/[-−]\s*(a|→|->|a\s+)?\s*\+/.test(x) || /negativ\w*\s*(a|→|->)\s*positiv/.test(x)) return 'sube';
+            if (/\+\s*(a|→|->|a\s+)?\s*[-−]/.test(x) || /positiv\w*\s*(a|→|->)\s*negativ/.test(x)) return 'baja';
+            return null;
+        }
+
         function diagnosticoMcKee() {
             const d = [];
             const push = (nivel, texto) => d.push({ nivel: nivel, texto: texto });
+            const largo = esLargometraje();
 
-            // Idea
+            // ---------- Idea ----------
             if (!mkTiene('idea_controladora')) push('falta', 'Falta la idea controladora: en una frase, qué valor cambia y por qué causa. Sin ella, cada escena tira para un lado distinto.');
             else if (!/porque|porqu[eê]|pois|debido/i.test(mckeeRespuestas.idea_controladora)) push('aviso', 'Tu idea controladora no expresa la causa. Probá reescribirla como "<valor final> PORQUE <causa>".');
             else push('ok', 'Idea controladora definida con valor y causa.');
@@ -2461,24 +2717,54 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (!mkTiene('contraidea')) push('aviso', 'Sin contra-idea la historia corre riesgo de volverse un sermón: definí la voz que sostiene lo contrario.');
             else push('ok', 'Hay contra-idea: la historia puede discutir consigo misma.');
 
-            // Protagonista
+            // coherencia entre idea controladora y climax
+            if (mkTiene('idea_controladora') && mkTiene('climax')) {
+                const a = mkPalabrasClave(mkTexto('idea_controladora'));
+                const b = mkPalabrasClave(mkTexto('climax'));
+                const comunes = a.filter(w => b.indexOf(w) >= 0);
+                if (!comunes.length) push('aviso', 'El clímax y la idea controladora no comparten ni una palabra: revisá si el final que escribiste demuestra de verdad la idea que declaraste.');
+                else push('ok', 'El clímax se apoya en el mismo material que la idea controladora.');
+            }
+
+            // ---------- Protagonista ----------
             if (mkTiene('deseo_consciente') && mkTiene('deseo_inconsciente')) push('ok', 'Deseo consciente e inconsciente definidos: el clímax tiene material para elegir entre lo que quiere y lo que necesita.');
             else if (mkTiene('deseo_consciente')) push('aviso', 'Definiste lo que el personaje quiere, pero no lo que necesita sin saberlo. Ese segundo deseo es el que da profundidad al final.');
             else push('falta', 'Falta el objeto de deseo: qué persigue el protagonista de forma concreta y filmable.');
 
             if (!mkTiene('caracterizacion')) push('aviso', 'No está separado lo que el personaje aparenta de quién es de verdad. La historia existe para cavar de una capa a la otra.');
+            if (!mkTiene('empatia')) push('aviso', 'Falta el punto de empatía: por qué el espectador reconoce algo suyo en el protagonista. Empatía no es simpatía.');
 
-            // Antagonismo
+            // ---------- Antagonismo ----------
             const niveles = ['antag_interior', 'antag_personal', 'antag_extra'].filter(mkTiene).length;
             if (niveles === 3) push('ok', 'Antagonismo trabajado en los tres niveles (interior, personal y extra-personal).');
             else if (niveles === 0) push('falta', 'No hay fuerzas antagónicas definidas. Una historia solo es tan buena como aquello que se opone al protagonista.');
             else push('aviso', 'Antagonismo en ' + niveles + ' de 3 niveles. Con un solo nivel de conflicto la historia se aplana: sumá los que faltan.');
 
             if (!mkTiene('antag_fuerza')) push('aviso', 'No está justificado por qué las fuerzas contrarias son más fuertes que el protagonista. Si puede ganar fácil, no hay drama.');
+            if (!mkTiene('antag_razon')) push('aviso', 'Falta el mejor argumento del lado contrario. Si el antagonismo no tiene razón en algo, el final se vuelve propaganda.');
 
-            // Estructura
+            // ---------- Mundo ----------
+            if (!mkTiene('limites_mundo')) push('aviso', 'No están definidos los límites del mundo (período, duración, lugar y nivel de conflicto). Cuanto más chico y conocido el mundo, más original lo que escribas dentro.');
+            if (!mkTiene('genero')) push('aviso', 'No declaraste el género. El género es el contrato de expectativas: sin saber cuál firmaste, no podés cumplirlo de forma inesperada.');
+            if (mkTiene('elenco')) push('ok', 'El elenco está pensado como sistema alrededor del protagonista.');
+
+            // ---------- Diseño ----------
+            if (!mkTiene('forma')) push('aviso', 'No elegiste forma (arcotrama, minitrama o antitrama). Lo grave no es la forma: es prometer una y entregar otra.');
+            if (!mkTiene('brecha')) push('aviso', 'Falta la brecha entre expectativa y resultado en una acción clave. Si el mundo responde lo que el personaje esperaba, no hubo acontecimiento.');
+            else push('ok', 'Hay una brecha identificada entre lo que el personaje esperaba y lo que ocurrió.');
+            if (!mkTiene('progresion')) push('aviso', 'No está definida la progresión: cómo escala la presión sin repetir el mismo golpe.');
+
+            if (largo) {
+                if (!mkTiene('actos')) push('falta', 'En un largometraje necesitás ubicar los clímax de acto. Si no podés nombrarlos, el segundo acto va a quedar plano.');
+                else push('ok', 'Clímax de acto identificados.');
+                if (!mkTiene('subtramas')) push('aviso', 'No hay subtramas declaradas. En un largo las subtramas contradicen, complican o hacen eco de la idea controladora.');
+            }
+
+            // ---------- Estructura ----------
             if (!mkTiene('incidente')) push('falta', 'Falta el incidente incitador: el hecho concreto que rompe el equilibrio y abre la pregunta dramática.');
             else push('ok', 'Incidente incitador identificado.');
+
+            if (!mkTiene('pregunta_dramatica')) push('aviso', 'No está formulada la pregunta dramática que el clímax tiene que responder.');
 
             if (!mkTiene('crisis')) push('falta', 'Falta la crisis: la decisión imposible entre dos bienes o entre dos males. Sin dilema real no hay clímax que valga.');
             else if (!/(o |ó |entre|contra|vs)/i.test(mckeeRespuestas.crisis)) push('aviso', 'Tu crisis no parece plantear una disyuntiva. Escribila como "elegir entre A o B", donde ninguna opción sea obviamente mejor.');
@@ -2487,14 +2773,20 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (!mkTiene('climax')) push('falta', 'Falta el clímax: la elección irreversible que responde la pregunta dramática.');
             if (!mkTiene('escena_obligatoria')) push('aviso', 'No está identificada la escena obligatoria: aquella que el espectador espera desde el principio y no podés esquivar.');
 
-            // Diálogo / imagen
+            // ---------- Escena y texto ----------
+            if (!mkTiene('beats')) push('aviso', 'Todavía no desglosaste los beats de tu escena clave. Nombrarlos con verbos muestra al instante dónde se estanca.');
+            if (!mkTiene('giro_escena')) push('aviso', 'No revisaste si cada escena termina con un giro. Una escena que no gira es exposición disfrazada.');
+            if (!mkTiene('texto_subtexto') && !mkTiene('subtexto')) push('aviso', 'Falta separar texto de subtexto en alguna escena. Si lo que se dice y lo que se hace coinciden, la escena queda plana.');
+            if (!mkTiene('exposicion')) push('aviso', 'No está resuelto cómo entregás la información del pasado. La exposición se dispara en medio del conflicto, nunca como informe.');
             if (!mkTiene('visual')) push('aviso', 'Todavía no probaste si la historia se entiende sin diálogo. En cine, si hace falta explicar lo que sentimos, falta una imagen.');
+            if (!mkTiene('entrar_salir')) push('aviso', 'No revisaste el principio de entrar tarde y salir temprano en cada escena.');
 
-            // Análisis del guión (independiente de respuestas)
+            // ---------- Análisis del guión ----------
             const total = secuenciasParseadas.length;
             if (total) {
                 const sinValor = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_valor')).map(s => s.numero);
                 const sinConflicto = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_conflicto')).map(s => s.numero);
+                const sinGiro = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_giro')).map(s => s.numero);
                 const cortas = secuenciasParseadas.filter(s => (s.descripcion || '').length < 160).map(s => s.numero);
 
                 if (sinValor.length === 0) push('ok', 'Todas las secuencias tienen declarado su cambio de valor.');
@@ -2502,11 +2794,37 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 else push('falta', 'Ninguna secuencia tiene declarado su cambio de valor. Corré la sesión "Escena por escena".');
 
                 if (sinConflicto.length && sinConflicto.length < total) push('aviso', 'Secuencias sin conflicto declarado: ' + sinConflicto.join(', ') + '. Ley del conflicto: nada avanza si nada se opone.');
+                if (sinGiro.length && sinGiro.length < total) push('aviso', 'Secuencias sin punto de giro declarado: ' + sinGiro.join(', ') + '.');
                 if (cortas.length) push('aviso', 'Secuencias poco desarrolladas en el texto: ' + cortas.join(', ') + '. Revisá si están cumpliendo una función o se pueden fundir con otras.');
+
+                // arco de valores: detecta mesetas
+                const cargas = secuenciasParseadas.map(s => mkCargaValor(mckeeRespuestas['s' + s.numero + '_valor']));
+                const conocidas = cargas.filter(c => c).length;
+                if (conocidas >= 3) {
+                    let racha = 1, peorRacha = 1, inicio = 0, peorInicio = 0;
+                    for (let i = 1; i < cargas.length; i++) {
+                        if (cargas[i] && cargas[i] === cargas[i - 1]) {
+                            racha++;
+                            if (racha > peorRacha) { peorRacha = racha; peorInicio = inicio; }
+                        } else { racha = 1; inicio = i; }
+                    }
+                    if (peorRacha >= 3) {
+                        const nums = secuenciasParseadas.slice(peorInicio, peorInicio + peorRacha).map(s => s.numero);
+                        push('aviso', 'Meseta de valor en las secuencias ' + nums.join(', ') + ': ' + peorRacha + ' seguidas con la misma carga. La historia se diseña en olas; si no invierte, el espectador se anestesia.');
+                    } else {
+                        push('ok', 'El arco de valores alterna entre secuencias: la historia respira en olas.');
+                    }
+                }
+
+                // extensión según el tipo de proyecto
+                if (largo && total < 18) push('aviso', 'Un largometraje con ' + total + ' secuencias suele quedar corto. Revisá si te faltan secuencias de desarrollo o subtramas.');
+                if (!largo && total > 16) push('aviso', 'Un cortometraje con ' + total + ' secuencias tiende a dispersarse. Fusioná las que empujan en la misma dirección.');
 
                 const conDialogo = secuenciasParseadas.filter(s => s.personajes.length).length;
                 if (conDialogo === 0) push('aviso', 'No se detectan diálogos. Está perfecto si es una decisión (cine visual puro), pero confirmá que sea intencional.');
             }
+
+            if (!mkTiene('inevitable')) push('aviso', 'No probaste el final contra la regla de inevitable e inesperado.');
 
             return d;
         }
@@ -2593,9 +2911,15 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         // ==================== PANEL DE STORYBOARD (dibujo automático) ====================
         const SB_W = 320, SB_H = 180;
-        const SB_TRAZO = '#3a3a3a';
-        const SB_SUAVE = '#b8b8b8';
-        const SB_MOV = '#8a8a8a';
+        const SB_TINTA = '#2B2622';
+        const SB_LINEA = '#5A5248';
+        const SB_SUAVE = '#B9B1A2';
+        const SB_MOV = '#8C8375';
+        const SB_PIEL = '#EDE6D8';
+        const SB_PIEL_S = '#CBC0AC';
+        const SB_PELO = '#3A342C';
+        const SB_ROPA = '#DCD4C4';
+        const SB_ROPA_S = '#B4AB98';
 
         function detectarElementosEscena(texto) {
             const t = (texto || '').toLowerCase();
@@ -2603,7 +2927,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 ['cama', /\bcamas?\b/],
                 ['lixeira', /\b(lixeiras?|papeleras?|basura)\b/],
                 ['monitor', /\b(monitor|computador|computadora|laptop|notebook|pantalla|tela do|escritorio|mesa)\b/],
-                ['brinquedo', /\b(brinquedos?|peluche|juguete|gato)\b/],
+                ['caderno', /\b(caderno|cuaderno|desenhos|dibujos|p[áa]ginas?)\b/],
+                ['brinquedo', /\b(brinquedos?|peluche|juguete)\b/],
                 ['palavras', /\b(palavras?|palabras?)\b/],
                 ['porta', /\b(portas?|puertas?)\b/],
                 ['prateleira', /\b(prateleiras?|estantes?|repisas?)\b/],
@@ -2619,7 +2944,60 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return /(acostad|deitad|na cama|en la cama|se deja caer|cai na cama)/i.test(texto || '');
         }
 
-        // ---------- utilidades de trazo ----------
+        function esNocturna(texto) {
+            return /(noite|noche|night|escur|oscur)/i.test(texto || '');
+        }
+
+        // ---------- capas de tono, luz y textura ----------
+        function sbDefs(uid, nocturna) {
+            const paredA = nocturna ? '#D9D3C6' : '#F2EDE1';
+            const paredB = nocturna ? '#A9A294' : '#D6CFC0';
+            const pisoA = nocturna ? '#9C9486' : '#C4BCAB';
+            const pisoB = nocturna ? '#CFC8B9' : '#EAE4D7';
+            return `<defs>
+                <linearGradient id="pared${uid}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="${paredA}"/><stop offset="1" stop-color="${paredB}"/>
+                </linearGradient>
+                <linearGradient id="piso${uid}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="${pisoA}"/><stop offset="1" stop-color="${pisoB}"/>
+                </linearGradient>
+                <linearGradient id="tela${uid}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D8D2C6"/>
+                </linearGradient>
+                <radialGradient id="brillo${uid}" cx="0.5" cy="0.5" r="0.5">
+                    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+                    <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.35"/>
+                    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+                </radialGradient>
+                <radialGradient id="vineta${uid}" cx="0.5" cy="0.48" r="0.72">
+                    <stop offset="0.5" stop-color="#2B2622" stop-opacity="0"/>
+                    <stop offset="1" stop-color="#2B2622" stop-opacity="0.26"/>
+                </radialGradient>
+                <linearGradient id="fondoDes${uid}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#E6E0D3"/><stop offset="1" stop-color="#BDB5A4"/>
+                </linearGradient>
+                <filter id="desenfoque${uid}" x="-25%" y="-25%" width="150%" height="150%">
+                    <feGaussianBlur stdDeviation="2.6"/>
+                </filter>
+                <filter id="desenfoqueFuerte${uid}" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="5"/>
+                </filter>
+                <filter id="grano${uid}" x="0" y="0" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" result="n"/>
+                    <feColorMatrix type="saturate" values="0" in="n" result="g"/>
+                </filter>
+            </defs>`;
+        }
+
+        function sbVineta(uid) {
+            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="url(#vineta${uid})"/>`;
+        }
+
+        function sbGrano(uid) {
+            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" filter="url(#grano${uid})" opacity="0.11"/>`;
+        }
+
+        // ---------- utilidades ----------
         function sbFlecha(x1, y1, x2, y2, color) {
             color = color || SB_MOV;
             const ang = Math.atan2(y2 - y1, x2 - x1), s = 7;
@@ -2630,155 +3008,330 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         function sbMarcasEncuadre() {
-            const m = 8, o = 5;
+            const m = 9, o = 6;
             function esquina(x, y, dx, dy) {
-                return `<path d="M ${x + dx * m} ${y} L ${x} ${y} L ${x} ${y + dy * m}" stroke="${SB_SUAVE}" stroke-width="1.6" fill="none"/>`;
+                return `<path d="M ${x + dx * m} ${y} L ${x} ${y} L ${x} ${y + dy * m}" stroke="#FBF8F1" stroke-width="1.4" fill="none" opacity="0.85"/>`;
             }
             return esquina(o, o, 1, 1) + esquina(SB_W - o, o, -1, 1) + esquina(o, SB_H - o, 1, -1) + esquina(SB_W - o, SB_H - o, -1, -1);
         }
 
-        function sbHabitacion(groundY, vpx) {
-            return `<line x1="0" y1="${groundY}" x2="${SB_W}" y2="${groundY}" stroke="${SB_SUAVE}" stroke-width="1.6"/>`
-                + `<line x1="0" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="#e8e8e8" stroke-width="1.2"/>`
-                + `<line x1="${SB_W}" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="#e8e8e8" stroke-width="1.2"/>`;
+        function sbSombraSuelo(cx, y, rx, opac) {
+            return `<ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${rx * 0.22}" fill="#2B2622" opacity="${opac || 0.18}"/>`;
         }
 
-        // ---------- figuras ----------
-        function sbFigura(cx, baseY, h) {
-            const headR = h * 0.10;
-            const headCy = baseY - h + headR;
-            const shY = headCy + headR * 2.1;
-            const hipY = baseY - h * 0.45;
-            const shW = h * 0.15, hipW = h * 0.10;
-            return `<circle cx="${cx}" cy="${headCy}" r="${headR}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>
-                <line x1="${cx}" y1="${headCy + headR}" x2="${cx}" y2="${shY}" stroke="${SB_TRAZO}" stroke-width="1.7"/>
-                <path d="M ${cx - shW} ${shY} L ${cx + shW} ${shY} L ${cx + hipW} ${hipY} L ${cx - hipW} ${hipY} Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="M ${cx - shW} ${shY} L ${cx - shW - h * 0.045} ${hipY + h * 0.04}" stroke="${SB_TRAZO}" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                <path d="M ${cx + shW} ${shY} L ${cx + shW + h * 0.045} ${hipY + h * 0.04}" stroke="${SB_TRAZO}" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-                <path d="M ${cx - hipW * 0.6} ${hipY} L ${cx - hipW * 1.1} ${baseY}" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M ${cx + hipW * 0.6} ${hipY} L ${cx + hipW * 1.1} ${baseY}" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linecap="round"/>`;
-        }
-
-        function sbFiguraDeitada(cx, y, w) {
-            const headR = w * 0.08;
-            return `<circle cx="${cx - w * 0.34}" cy="${y - headR}" r="${headR}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>
-                <path d="M ${cx - w * 0.25} ${y - headR * 1.7} L ${cx + w * 0.28} ${y - headR * 1.2} L ${cx + w * 0.42} ${y} L ${cx - w * 0.25} ${y} Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>`;
-        }
-
-        function sbRostro(cx, cy, r, perfil) {
-            if (perfil) {
-                return `<path d="M ${cx + r * 0.45} ${cy - r * 0.95} Q ${cx - r * 0.8} ${cy - r} ${cx - r * 0.72} ${cy - r * 0.05}
-                    L ${cx - r * 0.98} ${cy + r * 0.2} L ${cx - r * 0.66} ${cy + r * 0.28}
-                    Q ${cx - r * 0.58} ${cy + r * 0.9} ${cx + r * 0.3} ${cy + r}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.8" stroke-linejoin="round"/>
-                    <circle cx="${cx - r * 0.36}" cy="${cy - r * 0.06}" r="${r * 0.07}" fill="${SB_TRAZO}"/>
-                    <path d="M ${cx - r * 0.52} ${cy - r * 0.26} q ${r * 0.2} ${-r * 0.12} ${r * 0.36} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>`;
+        // ---------- espacio ----------
+        function sbSala(uid, groundY, vpx, luzX) {
+            let o = `<rect x="0" y="0" width="${SB_W}" height="${groundY}" fill="url(#pared${uid})"/>`
+                + `<rect x="0" y="${groundY}" width="${SB_W}" height="${SB_H - groundY}" fill="url(#piso${uid})"/>`
+                + `<line x1="0" y1="${groundY}" x2="${SB_W}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="1.1" opacity="0.55"/>`
+                + `<line x1="0" y1="${groundY + 4}" x2="${SB_W}" y2="${groundY + 4}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.3"/>`;
+            // fuga suave hacia el punto de vista
+            o += `<line x1="0" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.18"/>`
+                + `<line x1="${SB_W}" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.18"/>`;
+            if (luzX !== undefined) {
+                o += `<ellipse cx="${luzX}" cy="${groundY + (SB_H - groundY) * 0.55}" rx="${SB_W * 0.34}" ry="${(SB_H - groundY) * 0.8}" fill="url(#brillo${uid})" opacity="0.5"/>`;
             }
-            return `<ellipse cx="${cx}" cy="${cy}" rx="${r * 0.78}" ry="${r}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.8"/>
-                <path d="M ${cx - r * 0.79} ${cy - r * 0.22} Q ${cx} ${cy - r * 1.18} ${cx + r * 0.79} ${cy - r * 0.22}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.6"/>
-                <path d="M ${cx - r * 0.54} ${cy - r * 0.3} q ${r * 0.2} ${-r * 0.13} ${r * 0.38} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>
-                <path d="M ${cx + r * 0.16} ${cy - r * 0.3} q ${r * 0.2} ${-r * 0.13} ${r * 0.38} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>
-                <circle cx="${cx - r * 0.35}" cy="${cy - r * 0.07}" r="${r * 0.075}" fill="${SB_TRAZO}"/>
-                <circle cx="${cx + r * 0.35}" cy="${cy - r * 0.07}" r="${r * 0.075}" fill="${SB_TRAZO}"/>
-                <path d="M ${cx} ${cy - r * 0.04} L ${cx - r * 0.1} ${cy + r * 0.27} L ${cx + r * 0.04} ${cy + r * 0.29}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.4"/>
-                <path d="M ${cx - r * 0.28} ${cy + r * 0.54} q ${r * 0.28} ${r * 0.17} ${r * 0.56} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.6"/>`;
+            return o;
+        }
+
+        function sbFondoDesenfocado(uid, elementos, groundY) {
+            // masas suaves detrás del sujeto: da profundidad sin competir con la figura
+            let o = `<g filter="url(#desenfoqueFuerte${uid})" opacity="0.75">`;
+            o += `<rect x="0" y="0" width="${SB_W}" height="${groundY}" fill="url(#fondoDes${uid})"/>`;
+            o += `<rect x="0" y="${groundY}" width="${SB_W}" height="${SB_H - groundY}" fill="#A79E8D"/>`;
+            if (elementos.indexOf('janela') >= 0 || elementos.indexOf('monitor') >= 0) {
+                o += `<rect x="${SB_W * 0.62}" y="${groundY * 0.18}" width="${SB_W * 0.3}" height="${groundY * 0.55}" fill="#FFFFFF" opacity="0.85"/>`;
+            }
+            o += `<ellipse cx="${SB_W * 0.2}" cy="${groundY * 0.5}" rx="34" ry="46" fill="#8E8676" opacity="0.5"/>`;
+            o += `</g>`;
+            return o;
+        }
+
+        // ---------- figura humana con volumen ----------
+        function sbCuerpo(cx, baseY, h, opts) {
+            opts = opts || {};
+            const luz = opts.luz === 'der' ? 1 : -1;   // lado iluminado
+            const top = baseY - h;
+            const hCab = h * 0.132, wCab = hCab * 0.72;
+            const cabCy = top + hCab * 0.55;
+            const hom = top + h * 0.185, homW = h * 0.125;
+            const cin = top + h * 0.44, cinW = h * 0.082;
+            const cad = top + h * 0.51, cadW = h * 0.098;
+            const rod = top + h * 0.74;
+
+            let o = '';
+            // sombra proyectada
+            o += sbSombraSuelo(cx - luz * h * 0.05, baseY, h * 0.15, 0.2);
+
+            // piernas
+            o += `<path d="M ${cx - cadW} ${cad} L ${cx - cadW * 0.15} ${cad} L ${cx - cadW * 0.3} ${rod} L ${cx - cadW * 0.75} ${baseY} L ${cx - cadW * 1.25} ${baseY} Z"
+                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.1" stroke-linejoin="round"/>`;
+            o += `<path d="M ${cx + cadW * 0.15} ${cad} L ${cx + cadW} ${cad} L ${cx + cadW * 1.25} ${baseY} L ${cx + cadW * 0.75} ${baseY} L ${cx + cadW * 0.3} ${rod} Z"
+                    fill="${SB_ROPA_S}" stroke="${SB_TINTA}" stroke-width="1.1" stroke-linejoin="round"/>`;
+
+            // torso
+            o += `<path d="M ${cx - homW} ${hom} Q ${cx} ${hom - h * 0.02} ${cx + homW} ${hom}
+                    L ${cx + cinW} ${cin} L ${cx + cadW} ${cad} L ${cx - cadW} ${cad} L ${cx - cinW} ${cin} Z"
+                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.2" stroke-linejoin="round"/>`;
+            // sombra del torso del lado opuesto a la luz
+            o += `<path d="M ${cx + luz * -homW * 0.1} ${hom} L ${cx + luz * -homW} ${hom} L ${cx + luz * -cinW} ${cin} L ${cx + luz * -cadW} ${cad} L ${cx + luz * -cadW * 0.1} ${cad} Z"
+                    fill="${SB_ROPA_S}" opacity="0.85"/>`;
+
+            // brazos (por fuera de la silueta del torso, para que se lean)
+            const bIzq = `M ${cx - homW * 0.95} ${hom + h * 0.015} q ${-h * 0.055} ${h * 0.12} ${-h * 0.03} ${h * 0.25}`;
+            const bDer = `M ${cx + homW * 0.95} ${hom + h * 0.015} q ${h * 0.055} ${h * 0.12} ${h * 0.03} ${h * 0.25}`;
+            o += `<path d="${bIzq}" fill="none" stroke="${SB_TINTA}" stroke-width="${h * 0.036}" stroke-linecap="round" opacity="0.92"/>`;
+            o += `<path d="${bDer}" fill="none" stroke="${SB_TINTA}" stroke-width="${h * 0.036}" stroke-linecap="round" opacity="0.92"/>`;
+            o += `<path d="${bIzq}" fill="none" stroke="${SB_ROPA}" stroke-width="${h * 0.026}" stroke-linecap="round"/>`;
+            o += `<path d="${bDer}" fill="none" stroke="${SB_ROPA_S}" stroke-width="${h * 0.026}" stroke-linecap="round"/>`;
+
+            // cuello y cabeza
+            o += `<rect x="${cx - wCab * 0.22}" y="${cabCy + hCab * 0.4}" width="${wCab * 0.44}" height="${h * 0.035}" fill="${SB_PIEL_S}" stroke="${SB_TINTA}" stroke-width="1"/>`;
+            o += `<ellipse cx="${cx}" cy="${cabCy}" rx="${wCab * 0.62}" ry="${hCab * 0.6}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.15"/>`;
+            o += `<path d="M ${cx + luz * wCab * 0.62} ${cabCy - hCab * 0.1} a ${wCab * 0.62} ${hCab * 0.6} 0 0 ${luz > 0 ? 1 : 0} ${-luz * wCab * 0.5} ${hCab * 0.55}
+                    q ${luz * wCab * 0.35} ${-hCab * 0.2} ${luz * wCab * 0.5} ${-hCab * 0.45} Z" fill="${SB_PIEL_S}" opacity="0.8"/>`;
+            // pelo
+            o += `<path d="M ${cx - wCab * 0.64} ${cabCy - hCab * 0.05} q ${wCab * 0.05} ${-hCab * 0.85} ${wCab * 0.64} ${-hCab * 0.8}
+                    q ${wCab * 0.6} ${-hCab * 0.05} ${wCab * 0.64} ${hCab * 0.8}
+                    q ${-wCab * 0.2} ${-hCab * 0.35} ${-wCab * 0.64} ${-hCab * 0.28}
+                    q ${-wCab * 0.5} ${-hCab * 0.06} ${-wCab * 0.64} ${hCab * 0.28} Z"
+                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.9" stroke-linejoin="round"/>`;
+            // rasgos minimos cuando la cabeza tiene tamano suficiente
+            if (hCab > 18) {
+                const oy = cabCy + hCab * 0.02, ox = wCab * 0.24;
+                o += `<circle cx="${cx - ox}" cy="${oy}" r="${hCab * 0.045}" fill="${SB_TINTA}"/>`
+                    + `<circle cx="${cx + ox}" cy="${oy}" r="${hCab * 0.045}" fill="${SB_TINTA}"/>`
+                    + `<path d="M ${cx - wCab * 0.18} ${cabCy + hCab * 0.3} q ${wCab * 0.18} ${hCab * 0.09} ${wCab * 0.36} 0" fill="none" stroke="${SB_TINTA}" stroke-width="0.9" opacity="0.75"/>`;
+            }
+            return o;
+        }
+
+        function sbCuerpoDeitado(cx, y, w) {
+            const hCab = w * 0.11;
+            let o = `<path d="M ${cx - w * 0.3} ${y - hCab * 1.5} L ${cx + w * 0.3} ${y - hCab * 1.1} L ${cx + w * 0.46} ${y + 2} L ${cx - w * 0.3} ${y + 2} Z"
+                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.2" stroke-linejoin="round"/>`;
+            o += `<path d="M ${cx - w * 0.28} ${y - hCab * 0.4} L ${cx + w * 0.44} ${y} L ${cx - w * 0.3} ${y + 2} Z" fill="${SB_ROPA_S}" opacity="0.85"/>`;
+            o += `<ellipse cx="${cx - w * 0.36}" cy="${y - hCab}" rx="${hCab * 0.95}" ry="${hCab * 0.8}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.1"/>`;
+            o += `<path d="M ${cx - w * 0.44} ${y - hCab * 1.5} q ${hCab * 0.9} ${-hCab * 0.7} ${hCab * 1.7} ${hCab * 0.1}
+                    q ${-hCab * 0.7} ${-hCab * 0.1} ${-hCab * 1.7} ${hCab * 0.5} Z" fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.8"/>`;
+            return o;
+        }
+
+        // ---------- rostro para primeros planos ----------
+        function sbRostro(cx, cy, r, perfil, luzDer) {
+            const luz = luzDer ? 1 : -1;
+            if (perfil) {
+                // silueta de perfil mirando a la izquierda, en un solo trazo cerrado
+                const sil = `M ${cx + r * 0.06} ${cy - r * 1.02}
+                    Q ${cx - r * 0.42} ${cy - r * 0.98} ${cx - r * 0.58} ${cy - r * 0.58}
+                    L ${cx - r * 0.63} ${cy - r * 0.2}
+                    L ${cx - r * 0.93} ${cy + r * 0.08}
+                    L ${cx - r * 0.6} ${cy + r * 0.17}
+                    L ${cx - r * 0.64} ${cy + r * 0.32}
+                    Q ${cx - r * 0.72} ${cy + r * 0.46} ${cx - r * 0.58} ${cy + r * 0.52}
+                    Q ${cx - r * 0.66} ${cy + r * 0.78} ${cx - r * 0.34} ${cy + r * 0.94}
+                    Q ${cx + r * 0.2} ${cy + r * 1.06} ${cx + r * 0.58} ${cy + r * 0.7}
+                    Q ${cx + r * 0.84} ${cy + r * 0.3} ${cx + r * 0.78} ${cy - r * 0.2}
+                    Q ${cx + r * 0.7} ${cy - r * 0.82} ${cx + r * 0.06} ${cy - r * 1.02} Z`;
+                let o = `<path d="${sil}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.4" stroke-linejoin="round"/>`;
+                // media sombra hacia la nuca
+                o += `<path d="M ${cx + r * 0.1} ${cy - r * 1.0}
+                    Q ${cx + r * 0.72} ${cy - r * 0.8} ${cx + r * 0.78} ${cy - r * 0.2}
+                    Q ${cx + r * 0.84} ${cy + r * 0.3} ${cx + r * 0.58} ${cy + r * 0.7}
+                    Q ${cx + r * 0.3} ${cy + r * 0.5} ${cx + r * 0.1} ${cy - r * 1.0} Z"
+                    fill="${SB_PIEL_S}" opacity="0.75"/>`;
+                // pelo sobre craneo y nuca
+                o += `<path d="M ${cx + r * 0.06} ${cy - r * 1.04}
+                    Q ${cx - r * 0.48} ${cy - r} ${cx - r * 0.6} ${cy - r * 0.54}
+                    Q ${cx - r * 0.42} ${cy - r * 0.82} ${cx + r * 0.04} ${cy - r * 0.78}
+                    Q ${cx + r * 0.62} ${cy - r * 0.72} ${cx + r * 0.76} ${cy - r * 0.02}
+                    Q ${cx + r * 0.92} ${cy + r * 0.5} ${cx + r * 0.66} ${cy + r * 0.86}
+                    Q ${cx + r * 1.02} ${cy + r * 0.2} ${cx + r * 0.78} ${cy - r * 0.34}
+                    Q ${cx + r * 0.66} ${cy - r * 0.92} ${cx + r * 0.06} ${cy - r * 1.04} Z"
+                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.9" stroke-linejoin="round"/>`;
+                // ceja, ojo, boca y oreja
+                o += `<path d="M ${cx - r * 0.56} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.1} ${r * 0.34} ${-r * 0.02}" fill="none" stroke="${SB_TINTA}" stroke-width="1.3"/>`;
+                o += `<path d="M ${cx - r * 0.52} ${cy - r * 0.14} q ${r * 0.16} ${-r * 0.08} ${r * 0.28} ${r * 0.02} q ${-r * 0.12} ${r * 0.12} ${-r * 0.28} ${-r * 0.02} Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="1.1"/>`;
+                o += `<circle cx="${cx - r * 0.42}" cy="${cy - r * 0.09}" r="${r * 0.062}" fill="${SB_TINTA}"/>`;
+                o += `<path d="M ${cx - r * 0.62} ${cy + r * 0.4} q ${r * 0.14} ${r * 0.07} ${r * 0.26} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
+                o += `<path d="M ${cx + r * 0.16} ${cy + r * 0.06} q ${r * 0.16} ${-r * 0.1} ${r * 0.14} ${r * 0.16} q ${-r * 0.04} ${r * 0.14} ${-r * 0.16} ${r * 0.08}" fill="none" stroke="${SB_TINTA}" stroke-width="1.1" opacity="0.8"/>`;
+                // luz de contorno en la frente y la nariz
+                o += `<path d="M ${cx - r * 0.58} ${cy - r * 0.56} L ${cx - r * 0.63} ${cy - r * 0.2} L ${cx - r * 0.92} ${cy + r * 0.08}" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.65"/>`;
+                return o;
+            }
+            let o = `<ellipse cx="${cx}" cy="${cy}" rx="${r * 0.76}" ry="${r}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
+            // volumen: media sombra del lado opuesto a la luz
+            o += `<path d="M ${cx + luz * -r * 0.05} ${cy - r} a ${r * 0.76} ${r} 0 0 ${luz > 0 ? 0 : 1} 0 ${r * 2}
+                    q ${luz * -r * 0.34} ${-r} 0 ${-r * 2} Z" fill="${SB_PIEL_S}" opacity="0.8"/>`;
+            // pelo
+            o += `<path d="M ${cx - r * 0.79} ${cy - r * 0.12} q ${r * 0.02} ${-r * 1.12} ${r * 0.79} ${-r * 1.05}
+                    q ${r * 0.77} ${-r * 0.07} ${r * 0.79} ${r * 1.05}
+                    q ${-r * 0.22} ${-r * 0.5} ${-r * 0.79} ${-r * 0.44}
+                    q ${-r * 0.6} ${-r * 0.06} ${-r * 0.79} ${r * 0.44} Z"
+                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="1"/>`;
+            // cejas, ojos, nariz, boca
+            o += `<path d="M ${cx - r * 0.56} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.14} ${r * 0.4} -0.02" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
+            o += `<path d="M ${cx + r * 0.16} ${cy - r * 0.34} q ${r * 0.2} ${-r * 0.12} ${r * 0.4} 0.02" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
+            [-1, 1].forEach(function (s) {
+                const ox = cx + s * r * 0.36;
+                o += `<path d="M ${ox - r * 0.17} ${cy - r * 0.04} q ${r * 0.17} ${-r * 0.14} ${r * 0.34} 0 q ${-r * 0.17} ${r * 0.13} ${-r * 0.34} 0 Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
+                o += `<circle cx="${ox}" cy="${cy - r * 0.04}" r="${r * 0.072}" fill="${SB_TINTA}"/>`;
+                o += `<circle cx="${ox + r * 0.03}" cy="${cy - r * 0.07}" r="${r * 0.022}" fill="#FFFFFF"/>`;
+            });
+            o += `<path d="M ${cx + r * 0.02} ${cy - r * 0.02} L ${cx - r * 0.09} ${cy + r * 0.28} q ${r * 0.08} ${r * 0.05} ${r * 0.16} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
+            o += `<path d="M ${cx - r * 0.26} ${cy + r * 0.55} q ${r * 0.26} ${r * 0.16} ${r * 0.52} 0" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
+            o += `<path d="M ${cx - r * 0.26} ${cy + r * 0.55} q ${r * 0.26} ${-r * 0.08} ${r * 0.52} 0" fill="none" stroke="${SB_TINTA}" stroke-width="0.9" opacity="0.6"/>`;
+            // luz de contorno
+            o += `<path d="M ${cx + luz * r * 0.74} ${cy - r * 0.45} a ${r * 0.76} ${r} 0 0 ${luz > 0 ? 1 : 0} ${luz * -r * 0.16} ${r * 1.2}" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity="0.7"/>`;
+            return o;
         }
 
         function sbHombros(cx, y, w) {
-            return `<path d="M ${cx - w} ${SB_H} Q ${cx - w * 0.5} ${y} ${cx} ${y} Q ${cx + w * 0.5} ${y} ${cx + w} ${SB_H}" fill="#fff" stroke="${SB_TRAZO}" stroke-width="1.7"/>`;
+            return `<path d="M ${cx - w} ${SB_H} Q ${cx - w * 0.52} ${y} ${cx} ${y} Q ${cx + w * 0.52} ${y} ${cx + w} ${SB_H}"
+                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.3"/>
+                <path d="M ${cx + w * 0.1} ${y + 4} Q ${cx + w * 0.6} ${y + 10} ${cx + w} ${SB_H} L ${cx + w * 0.1} ${SB_H} Z" fill="${SB_ROPA_S}" opacity="0.8"/>`;
         }
 
         function sbOjos(cx, cy, w) {
             function ojo(ox) {
-                return `<path d="M ${ox - w * 0.19} ${cy} q ${w * 0.19} ${-w * 0.16} ${w * 0.38} 0 q ${-w * 0.19} ${w * 0.16} ${-w * 0.38} 0 Z" fill="#fff" stroke="${SB_TRAZO}" stroke-width="2"/>
-                    <circle cx="${ox}" cy="${cy}" r="${w * 0.085}" fill="${SB_TRAZO}"/>
-                    <path d="M ${ox - w * 0.21} ${cy - w * 0.24} q ${w * 0.21} ${-w * 0.11} ${w * 0.42} 0" fill="none" stroke="${SB_TRAZO}" stroke-width="1.8"/>`;
+                return `<path d="M ${ox - w * 0.2} ${cy} q ${w * 0.2} ${-w * 0.17} ${w * 0.4} 0 q ${-w * 0.2} ${w * 0.17} ${-w * 0.4} 0 Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="2"/>
+                    <circle cx="${ox}" cy="${cy}" r="${w * 0.105}" fill="#6B6154"/>
+                    <circle cx="${ox}" cy="${cy}" r="${w * 0.05}" fill="${SB_TINTA}"/>
+                    <circle cx="${ox + w * 0.035}" cy="${cy - w * 0.035}" r="${w * 0.022}" fill="#FFFFFF"/>
+                    <path d="M ${ox - w * 0.2} ${cy} q ${w * 0.2} ${-w * 0.17} ${w * 0.4} 0" fill="none" stroke="${SB_TINTA}" stroke-width="2.6"/>
+                    <path d="M ${ox - w * 0.22} ${cy - w * 0.26} q ${w * 0.22} ${-w * 0.12} ${w * 0.44} 0" fill="none" stroke="${SB_TINTA}" stroke-width="1.8"/>`;
             }
-            return ojo(cx - w * 0.4) + ojo(cx + w * 0.4)
-                + `<path d="M ${cx} ${cy + w * 0.12} L ${cx - w * 0.05} ${cy + w * 0.5}" fill="none" stroke="${SB_TRAZO}" stroke-width="1.5"/>`;
+            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="${SB_PIEL}"/>`
+                + `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="${SB_PIEL_S}" opacity="0.45"/>`
+                + `<ellipse cx="${cx}" cy="${cy}" rx="${w * 1.1}" ry="${w * 0.6}" fill="${SB_PIEL}"/>`
+                + ojo(cx - w * 0.42) + ojo(cx + w * 0.42)
+                + `<path d="M ${cx} ${cy + w * 0.16} L ${cx - w * 0.06} ${cy + w * 0.52}" fill="none" stroke="${SB_TINTA}" stroke-width="1.3" opacity="0.65"/>`;
         }
 
-        function sbHombroFrente(lado) {
+        function sbHombroFrente(lado, uid) {
             const x = lado === 'der' ? SB_W : 0;
             const d = lado === 'der' ? -1 : 1;
-            return `<path d="M ${x} ${SB_H} L ${x} ${SB_H * 0.5} q ${d * 24} ${-34} ${d * 54} ${-6} q ${d * 20} ${20} ${d * 24} ${SB_H * 0.42} Z" fill="#ededed" stroke="${SB_TRAZO}" stroke-width="1.7" stroke-linejoin="round"/>`;
+            // nuca + hombro en primer termino, desenfocados y en contraluz
+            return `<g filter="url(#desenfoque${uid})">
+                <path d="M ${x} ${SB_H}
+                    L ${x} ${SB_H * 0.66}
+                    Q ${x + d * 6} ${SB_H * 0.3} ${x + d * 40} ${SB_H * 0.26}
+                    Q ${x + d * 74} ${SB_H * 0.3} ${x + d * 80} ${SB_H * 0.62}
+                    Q ${x + d * 96} ${SB_H * 0.74} ${x + d * 104} ${SB_H}
+                    Z"
+                    fill="#4A443C" opacity="0.95"/>
+                </g>
+                <path d="M ${x + d * 40} ${SB_H * 0.26} Q ${x + d * 74} ${SB_H * 0.3} ${x + d * 80} ${SB_H * 0.62}"
+                    fill="none" stroke="#FBF8F1" stroke-width="1.6" opacity="0.35" filter="url(#desenfoque${uid})"/>`;
         }
 
-        // ---------- objetos ----------
-        function sbProp(tipo, cx, groundY, s) {
+        // ---------- objetos con tono ----------
+        function sbProp(tipo, cx, groundY, s, uid) {
             s = s || 1;
-            const T = SB_TRAZO;
+            const T = SB_TINTA;
             switch (tipo) {
                 case 'monitor': {
-                    const w = 54 * s, h = 36 * s, x = cx - w / 2, y = groundY - h - 14 * s;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <rect x="${x + 5 * s}" y="${y + 5 * s}" width="${w - 10 * s}" height="${h - 10 * s}" fill="none" stroke="#e2e2e2" stroke-width="1.2"/>
-                        <line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${groundY - 4 * s}" stroke="${T}" stroke-width="1.7"/>
-                        <line x1="${cx - 14 * s}" y1="${groundY - 4 * s}" x2="${cx + 14 * s}" y2="${groundY - 4 * s}" stroke="${T}" stroke-width="1.7"/>`;
+                    const w = 58 * s, h = 38 * s, x = cx - w / 2, y = groundY - h - 16 * s;
+                    return `<ellipse cx="${cx}" cy="${y + h / 2}" rx="${w * 0.95}" ry="${h * 0.95}" fill="url(#brillo${uid})" opacity="0.75"/>
+                        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" fill="#3A342C" stroke="${T}" stroke-width="1.3"/>
+                        <rect x="${x + 3 * s}" y="${y + 3 * s}" width="${w - 6 * s}" height="${h - 6 * s}" fill="url(#tela${uid})"/>
+                        <path d="M ${x + 3 * s} ${y + h - 3 * s} L ${x + w - 3 * s} ${y + 3 * s} L ${x + w - 3 * s} ${y + h - 3 * s} Z" fill="#FFFFFF" opacity="0.5"/>
+                        <path d="M ${cx - 5 * s} ${y + h} L ${cx + 5 * s} ${y + h} L ${cx + 9 * s} ${groundY - 4 * s} L ${cx - 9 * s} ${groundY - 4 * s} Z" fill="#4A443C" stroke="${T}" stroke-width="1.1"/>
+                        <rect x="${cx - 16 * s}" y="${groundY - 5 * s}" width="${32 * s}" height="${3 * s}" rx="1" fill="#3A342C" stroke="${T}" stroke-width="1"/>
+                        ${sbSombraSuelo(cx, groundY, 24 * s, 0.16)}`;
                 }
                 case 'cama': {
-                    const w = 118 * s, h = 26 * s, x = cx - w / 2, y = groundY - h;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <line x1="${x}" y1="${y - 24 * s}" x2="${x}" y2="${y}" stroke="${T}" stroke-width="1.7"/>
-                        <ellipse cx="${x + 22 * s}" cy="${y + 9 * s}" rx="${15 * s}" ry="${7 * s}" fill="none" stroke="${T}" stroke-width="1.4"/>`;
+                    const w = 124 * s, h = 28 * s, x = cx - w / 2, y = groundY - h;
+                    return `${sbSombraSuelo(cx, groundY + 1, w * 0.5, 0.16)}
+                        <path d="M ${x} ${y} L ${x + w} ${y - 6 * s} L ${x + w} ${y + h - 6 * s} L ${x} ${y + h} Z" fill="#E4DED1" stroke="${T}" stroke-width="1.3" stroke-linejoin="round"/>
+                        <path d="M ${x} ${y + h * 0.55} L ${x + w} ${y + h * 0.55 - 6 * s} L ${x + w} ${y + h - 6 * s} L ${x} ${y + h} Z" fill="#BDB5A4" opacity="0.9"/>
+                        <path d="M ${x} ${y} L ${x} ${y - 30 * s} L ${x + 8 * s} ${y - 30 * s} L ${x + 8 * s} ${y} Z" fill="#CFC7B6" stroke="${T}" stroke-width="1.2"/>
+                        <ellipse cx="${x + 26 * s}" cy="${y + 6 * s}" rx="${16 * s}" ry="${6 * s}" fill="#F4EFE3" stroke="${T}" stroke-width="1.1"/>`;
                 }
                 case 'lixeira': {
-                    const tw = 34 * s, bw = 24 * s, h = 36 * s, ty = groundY - h;
-                    return `<path d="M ${cx - tw / 2} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx - bw / 2} ${groundY} Z" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <line x1="${cx - tw / 2 - 3 * s}" y1="${ty}" x2="${cx + tw / 2 + 3 * s}" y2="${ty}" stroke="${T}" stroke-width="1.7"/>
-                        <line x1="${cx - tw * 0.2}" y1="${ty + 6 * s}" x2="${cx - tw * 0.15}" y2="${groundY - 5 * s}" stroke="#dcdcdc" stroke-width="1.2"/>`;
+                    const tw = 34 * s, bw = 24 * s, h = 38 * s, ty = groundY - h;
+                    return `${sbSombraSuelo(cx, groundY, tw * 0.6, 0.16)}
+                        <path d="M ${cx - tw / 2} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx - bw / 2} ${groundY} Z" fill="#DDD5C4" stroke="${T}" stroke-width="1.3"/>
+                        <path d="M ${cx + tw * 0.12} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx + bw * 0.12} ${groundY} Z" fill="#B0A796" opacity="0.85"/>
+                        <ellipse cx="${cx}" cy="${ty}" rx="${tw / 2}" ry="${5 * s}" fill="#2B2622" opacity="0.35"/>
+                        <ellipse cx="${cx}" cy="${ty}" rx="${tw / 2}" ry="${5 * s}" fill="none" stroke="${T}" stroke-width="1.3"/>`;
+                }
+                case 'caderno': {
+                    const w = 46 * s, h = 32 * s, x = cx - w / 2, y = groundY - h;
+                    let lineas = '';
+                    for (let i = 1; i <= 3; i++) {
+                        lineas += `<line x1="${x + 5 * s}" y1="${y + 7 * s + i * 6 * s}" x2="${x + w * 0.44}" y2="${y + 6 * s + i * 6 * s}" stroke="#A79E8D" stroke-width="1"/>`;
+                    }
+                    return `${sbSombraSuelo(cx, groundY, w * 0.5, 0.18)}
+                        <path d="M ${x} ${y + 4 * s} Q ${cx} ${y - 3 * s} ${x + w} ${y + 4 * s} L ${x + w} ${groundY} Q ${cx} ${groundY - 7 * s} ${x} ${groundY} Z"
+                            fill="#F6F1E4" stroke="${T}" stroke-width="1.3" stroke-linejoin="round"/>
+                        <path d="M ${cx} ${y - 0.5 * s} L ${cx} ${groundY - 3.5 * s}" stroke="${T}" stroke-width="1.1"/>
+                        <path d="M ${cx} ${y} Q ${cx + w * 0.25} ${y + 3 * s} ${x + w} ${y + 4 * s} L ${x + w} ${groundY} Q ${cx + w * 0.25} ${groundY - 5 * s} ${cx} ${groundY - 3.5 * s} Z" fill="#E2DBCB" opacity="0.55"/>
+                        ${lineas}
+                        <ellipse cx="${cx + w * 0.24}" cy="${y + 16 * s}" rx="${6 * s}" ry="${5 * s}" fill="none" stroke="${T}" stroke-width="1.1"/>
+                        <path d="M ${cx + w * 0.18} ${y + 12 * s} l ${-1.5 * s} ${-4 * s} l ${4 * s} ${2 * s} M ${cx + w * 0.3} ${y + 12 * s} l ${1.5 * s} ${-4 * s} l ${-4 * s} ${2 * s}" fill="none" stroke="${T}" stroke-width="1.1"/>`;
                 }
                 case 'brinquedo': {
                     const hr = 11 * s, brx = 15 * s, bry = 10 * s;
                     const bcy = groundY - bry, hcy = bcy - bry - hr + 3 * s;
-                    return `<ellipse cx="${cx}" cy="${bcy}" rx="${brx}" ry="${bry}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <circle cx="${cx}" cy="${hcy}" r="${hr}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <path d="M ${cx - hr * 0.75} ${hcy - hr * 0.6} L ${cx - hr * 0.25} ${hcy - hr * 1.45} L ${cx - hr * 0.05} ${hcy - hr * 0.5} Z" fill="#fff" stroke="${T}" stroke-width="1.5"/>
-                        <path d="M ${cx + hr * 0.75} ${hcy - hr * 0.6} L ${cx + hr * 0.25} ${hcy - hr * 1.45} L ${cx + hr * 0.05} ${hcy - hr * 0.5} Z" fill="#fff" stroke="${T}" stroke-width="1.5"/>
-                        <circle cx="${cx - hr * 0.35}" cy="${hcy}" r="${hr * 0.11}" fill="${T}"/>
-                        <circle cx="${cx + hr * 0.35}" cy="${hcy}" r="${hr * 0.11}" fill="${T}"/>
-                        <path d="M ${cx + brx * 0.9} ${bcy} q ${10 * s} ${-8 * s} ${4 * s} ${-16 * s}" fill="none" stroke="${T}" stroke-width="1.5"/>`;
+                    return `${sbSombraSuelo(cx, groundY, brx * 1.1, 0.16)}
+                        <ellipse cx="${cx}" cy="${bcy}" rx="${brx}" ry="${bry}" fill="#E4DED1" stroke="${T}" stroke-width="1.3"/>
+                        <circle cx="${cx}" cy="${hcy}" r="${hr}" fill="#EDE7DA" stroke="${T}" stroke-width="1.3"/>
+                        <path d="M ${cx - hr * 0.75} ${hcy - hr * 0.6} L ${cx - hr * 0.25} ${hcy - hr * 1.45} L ${cx - hr * 0.05} ${hcy - hr * 0.5} Z" fill="#EDE7DA" stroke="${T}" stroke-width="1.1"/>
+                        <path d="M ${cx + hr * 0.75} ${hcy - hr * 0.6} L ${cx + hr * 0.25} ${hcy - hr * 1.45} L ${cx + hr * 0.05} ${hcy - hr * 0.5} Z" fill="#EDE7DA" stroke="${T}" stroke-width="1.1"/>
+                        <circle cx="${cx - hr * 0.35}" cy="${hcy}" r="${hr * 0.12}" fill="${T}"/>
+                        <circle cx="${cx + hr * 0.35}" cy="${hcy}" r="${hr * 0.12}" fill="${T}"/>`;
                 }
                 case 'porta': {
-                    const w = 40 * s, h = 92 * s, x = cx - w / 2, y = groundY - h;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <rect x="${x + 5 * s}" y="${y + 6 * s}" width="${w - 10 * s}" height="${h - 12 * s}" fill="none" stroke="#e4e4e4" stroke-width="1.2"/>
+                    const w = 42 * s, h = 96 * s, x = cx - w / 2, y = groundY - h;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#CFC7B6" stroke="${T}" stroke-width="1.3"/>
+                        <rect x="${x + w * 0.55}" y="${y}" width="${w * 0.45}" height="${h}" fill="#AFA695" opacity="0.7"/>
+                        <rect x="${x + 5 * s}" y="${y + 7 * s}" width="${w - 10 * s}" height="${h - 14 * s}" fill="none" stroke="${T}" stroke-width="0.9" opacity="0.5"/>
                         <circle cx="${x + w - 8 * s}" cy="${y + h / 2}" r="${2.6 * s}" fill="${T}"/>`;
                 }
                 case 'prateleira': {
-                    const w = 72 * s, y = groundY - 52 * s;
-                    return `<line x1="${cx - w / 2}" y1="${y}" x2="${cx + w / 2}" y2="${y}" stroke="${T}" stroke-width="2"/>
-                        <rect x="${cx - w / 2 + 6 * s}" y="${y - 20 * s}" width="${13 * s}" height="${20 * s}" fill="#fff" stroke="${T}" stroke-width="1.5"/>
-                        <rect x="${cx - w / 2 + 24 * s}" y="${y - 15 * s}" width="${10 * s}" height="${15 * s}" fill="#fff" stroke="${T}" stroke-width="1.5"/>`;
+                    const w = 78 * s, y = groundY - 56 * s;
+                    return `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${3 * s}" fill="#B7AE9C" stroke="${T}" stroke-width="1.1"/>
+                        <rect x="${cx - w / 2 + 6 * s}" y="${y - 22 * s}" width="${13 * s}" height="${22 * s}" fill="#E0D9C9" stroke="${T}" stroke-width="1.1"/>
+                        <rect x="${cx - w / 2 + 21 * s}" y="${y - 17 * s}" width="${10 * s}" height="${17 * s}" fill="#CAC2B0" stroke="${T}" stroke-width="1.1"/>
+                        <rect x="${cx - w / 2 + 33 * s}" y="${y - 19 * s}" width="${12 * s}" height="${19 * s}" fill="#EFE9DB" stroke="${T}" stroke-width="1.1"/>
+                        <rect x="${cx - w / 2}" y="${y + 3 * s}" width="${w}" height="${5 * s}" fill="#2B2622" opacity="0.16"/>`;
                 }
                 case 'janela': {
-                    const w = 52 * s, h = 52 * s, x = cx - w / 2, y = groundY - h - 34 * s;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${T}" stroke-width="1.7"/>
-                        <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="${T}" stroke-width="1.4"/>
-                        <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="${T}" stroke-width="1.4"/>`;
+                    const w = 56 * s, h = 56 * s, x = cx - w / 2, y = groundY - h - 38 * s;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#tela${uid})" stroke="${T}" stroke-width="1.4"/>
+                        <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="${T}" stroke-width="1.2"/>
+                        <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="${T}" stroke-width="1.2"/>
+                        <path d="M ${x + w} ${y + h} L ${x + w + 26 * s} ${groundY} L ${x + 12 * s} ${groundY} L ${x} ${y + h} Z" fill="#FFFFFF" opacity="0.35"/>`;
                 }
                 case 'palavras': {
-                    const w = 56 * s;
-                    function bloque(bx, by, bw, bh, rot) {
-                        return `<g transform="rotate(${rot} ${bx + bw / 2} ${by + bh / 2})">
-                            <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.6"/>
-                            <line x1="${bx + 5 * s}" y1="${by + bh / 2}" x2="${bx + bw - 5 * s}" y2="${by + bh / 2}" stroke="#c9c9c9" stroke-width="${2.6 * s}"/>
+                    const w = 58 * s;
+                    function bloque(bx, by, bw, bh, rot, op) {
+                        return `<g transform="rotate(${rot} ${bx + bw / 2} ${by + bh / 2})" opacity="${op}">
+                            <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#2B2622"/>
+                            <rect x="${bx + 3 * s}" y="${by + bh * 0.32}" width="${bw - 6 * s}" height="${bh * 0.36}" fill="#F4F0E6"/>
                         </g>`;
                     }
-                    return bloque(cx - w * 0.85, groundY - 100 * s, w, 15 * s, -8)
-                        + bloque(cx - w * 0.15, groundY - 74 * s, w * 0.85, 14 * s, 7)
-                        + bloque(cx - w * 0.7, groundY - 46 * s, w * 0.7, 13 * s, -4);
+                    return bloque(cx - w * 0.9, groundY - 104 * s, w, 15 * s, -9, 0.9)
+                        + bloque(cx - w * 0.1, groundY - 78 * s, w * 0.85, 14 * s, 7, 0.75)
+                        + bloque(cx - w * 0.75, groundY - 48 * s, w * 0.7, 13 * s, -4, 0.6)
+                        + bloque(cx + w * 0.15, groundY - 26 * s, w * 0.5, 11 * s, 12, 0.45);
                 }
                 case 'formulario': {
-                    const w = 44 * s, h = 56 * s, x = cx - w / 2, y = groundY - h;
+                    const w = 48 * s, h = 60 * s, x = cx - w / 2, y = groundY - h;
                     let l = '';
                     for (let i = 1; i <= 4; i++) {
-                        l += `<line x1="${x + 7 * s}" y1="${y + i * 11 * s}" x2="${x + w - 7 * s}" y2="${y + i * 11 * s}" stroke="#d2d2d2" stroke-width="1.3"/>`;
+                        l += `<line x1="${x + 7 * s}" y1="${y + i * 11 * s}" x2="${x + w - 7 * s}" y2="${y + i * 11 * s}" stroke="#B0A796" stroke-width="1.2"/>`;
                     }
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#fff" stroke="${T}" stroke-width="1.7"/>${l}`;
+                    return `<rect x="${x + 2 * s}" y="${y + 2 * s}" width="${w}" height="${h}" fill="#2B2622" opacity="0.18"/>
+                        <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#FBF8F1" stroke="${T}" stroke-width="1.3"/>${l}
+                        <rect x="${x + 7 * s}" y="${y + h - 14 * s}" width="${w - 14 * s}" height="${8 * s}" fill="#2B2622"/>`;
                 }
                 default: {
-                    const w = 34 * s, y = groundY - w;
-                    return `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${w}" rx="3" fill="none" stroke="#cfcfcf" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+                    const w = 36 * s, y = groundY - w;
+                    return `${sbSombraSuelo(cx, groundY, w * 0.55, 0.14)}
+                        <rect x="${cx - w / 2}" y="${y}" width="${w}" height="${w}" fill="#DDD5C4" stroke="${T}" stroke-width="1.2"/>
+                        <rect x="${cx}" y="${y}" width="${w / 2}" height="${w}" fill="#B0A796" opacity="0.8"/>`;
                 }
             }
         }
@@ -2797,31 +3350,33 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         function sbMovimiento(mov) {
             const m = (mov || '').toLowerCase();
             let o = '', etiqueta = '';
-            const marco = `<rect x="74" y="44" width="172" height="96" fill="none" stroke="${SB_MOV}" stroke-width="1.3" stroke-dasharray="6,4"/>`;
+            const marco = `<rect x="74" y="44" width="172" height="96" fill="none" stroke="#FBF8F1" stroke-width="1.3" stroke-dasharray="6,4" opacity="0.9"/>`;
+            const C = '#FBF8F1';
 
             if (m.indexOf('zoom in') >= 0) {
                 etiqueta = 'ZOOM IN';
-                o += marco + sbFlecha(30, 26, 64, 42) + sbFlecha(290, 26, 256, 42) + sbFlecha(30, 154, 64, 138) + sbFlecha(290, 154, 256, 138);
+                o += marco + sbFlecha(30, 26, 64, 42, C) + sbFlecha(290, 26, 256, 42, C) + sbFlecha(30, 154, 64, 138, C) + sbFlecha(290, 154, 256, 138, C);
             } else if (m.indexOf('zoom out') >= 0) {
                 etiqueta = 'ZOOM OUT';
-                o += marco + sbFlecha(64, 42, 30, 26) + sbFlecha(256, 42, 290, 26) + sbFlecha(64, 138, 30, 154) + sbFlecha(256, 138, 290, 154);
+                o += marco + sbFlecha(64, 42, 30, 26, C) + sbFlecha(256, 42, 290, 26, C) + sbFlecha(64, 138, 30, 154, C) + sbFlecha(256, 138, 290, 154, C);
             } else if (m.indexOf('tilt') >= 0) {
                 etiqueta = m.indexOf('zoom') >= 0 ? 'TILT + ZOOM' : 'TILT';
-                o += sbFlecha(302, 142, 302, 40);
+                o += sbFlecha(302, 142, 302, 40, C);
                 if (m.indexOf('zoom') >= 0) o += marco;
             } else if (m.indexOf('pan') >= 0) {
                 etiqueta = 'PAN';
-                o += sbFlecha(72, 166, 248, 166);
+                o += sbFlecha(72, 166, 248, 166, C);
             } else if (m.indexOf('dolly') >= 0) {
                 etiqueta = 'DOLLY IN';
-                o += sbFlecha(160, 174, 160, 126);
+                o += sbFlecha(160, 174, 160, 126, C);
             } else if (m.indexOf('tracking') >= 0) {
                 etiqueta = 'TRACKING';
-                o += `<line x1="58" y1="171" x2="262" y2="171" stroke="${SB_MOV}" stroke-width="1.2" stroke-dasharray="4,4"/>`
-                    + sbFlecha(150, 164, 258, 164) + sbFlecha(170, 164, 62, 164);
+                o += `<line x1="58" y1="171" x2="262" y2="171" stroke="${C}" stroke-width="1.2" stroke-dasharray="4,4"/>`
+                    + sbFlecha(150, 164, 258, 164, C) + sbFlecha(170, 164, 62, 164, C);
             }
             if (etiqueta) {
-                o += `<text x="${SB_W - 10}" y="18" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="9" fill="${SB_MOV}" letter-spacing="1">${etiqueta}</text>`;
+                o += `<rect x="${SB_W - etiqueta.length * 5.6 - 16}" y="7" width="${etiqueta.length * 5.6 + 10}" height="14" fill="#2B2622" opacity="0.55"/>`
+                    + `<text x="${SB_W - 11}" y="17" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="8.5" fill="#FBF8F1" letter-spacing="1">${etiqueta}</text>`;
             }
             return o;
         }
@@ -2831,10 +3386,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const plano = (planoTexto || '').toLowerCase();
             const cfg = sbConfigAngulo(anguloTexto);
             const groundY = Math.round(SB_H * cfg.ground);
+            const uid = 's' + (seq ? seq.numero : 'x') + '_' + Math.abs((plano + anguloTexto).length);
 
             const vivos = seq ? (seq.personajes || []).filter(function (p) { return ['K-POP', 'POP ART', 'GRAFITE'].indexOf(p) < 0; }) : [];
             const elementos = seq ? detectarElementosEscena(seq.descripcion) : [];
             const deitado = seq ? estaDeitado(seq.descripcion) : false;
+            const nocturna = seq ? esNocturna(seq.descripcion + ' ' + (seq.titulo || '')) : false;
+            const hayPantalla = elementos.indexOf('monitor') >= 0;
+            const luzDer = hayPantalla ? false : true;
 
             const esExtremo = plano.indexOf('extreme') >= 0;
             const esCerca = plano.indexOf('close') >= 0;
@@ -2845,38 +3404,42 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             let esc = '';
 
             if (esExtremo) {
-                esc += vivos.length ? sbOjos(160, 86, 150) : sbProp(elementos[0] || 'generico', 160, 158, 3.2);
+                esc += vivos.length
+                    ? sbOjos(160, 88, 150)
+                    : sbFondoDesenfocado(uid, elementos, groundY) + sbProp(elementos[0] || 'generico', 160, 162, 3.2, uid);
             } else if (esCerca) {
+                esc += sbFondoDesenfocado(uid, elementos, groundY);
                 if (vivos.length) {
-                    esc += sbHombros(160, 152, 118) + sbRostro(160, 76, 54, cfg.perfil);
+                    esc += sbHombros(160, 150, 122) + sbRostro(160, 74, 54, cfg.perfil, luzDer);
                 } else {
-                    esc += sbProp(elementos[0] || 'generico', 160, 160, 2.4);
+                    esc += sbProp(elementos[0] || 'generico', 160, 164, 2.4, uid);
                 }
             } else if (esOTS) {
-                esc += sbHabitacion(groundY, 195);
-                esc += sbFigura(218, groundY, SB_H * 1.15 * cfg.escala);
-                esc += sbHombroFrente('izq');
+                esc += sbSala(uid, groundY, 195, hayPantalla ? 230 : 60);
+                esc += sbCuerpo(206, groundY + 30, SB_H * 0.92 * cfg.escala, { luz: luzDer ? 'der' : 'izq' });
+                esc += sbHombroFrente('izq', uid);
             } else {
-                esc += sbHabitacion(groundY, 165);
-                if (cfg.bajo) esc += `<path d="M 0 10 L 118 44 M 320 10 L 202 44" stroke="#ececec" stroke-width="1.2" fill="none"/>`;
-                if (cfg.alto) esc += `<ellipse cx="160" cy="${groundY - 6}" rx="126" ry="20" fill="none" stroke="#efefef" stroke-width="1.2"/>`;
+                esc += sbSala(uid, groundY, 165, hayPantalla ? 240 : 50);
+                if (cfg.bajo) esc += `<path d="M 0 8 L 120 46 M 320 8 L 200 46" stroke="${SB_LINEA}" stroke-width="0.8" fill="none" opacity="0.25"/>`;
+                if (cfg.alto) esc += `<ellipse cx="160" cy="${groundY - 8}" rx="128" ry="22" fill="#2B2622" opacity="0.07"/>`;
 
                 if (esMedium || esTwo) {
                     const h = SB_H * 1.3 * cfg.escala;
                     const base = SB_H + h * 0.42;
                     if (esTwo || vivos.length >= 2) {
-                        esc += sbFigura(106, base, h) + sbFigura(214, base, h);
+                        esc += sbCuerpo(210, base - 8, h * 0.94, { luz: 'izq' });
+                        esc += sbCuerpo(104, base, h, { luz: luzDer ? 'der' : 'izq' });
                     } else {
-                        esc += sbFigura(122, base, h);
-                        esc += sbProp(elementos[0] || 'monitor', 250, groundY, 1.1);
+                        esc += sbProp(elementos[0] || 'monitor', 252, groundY, 1.1, uid);
+                        esc += sbCuerpo(120, base, h, { luz: luzDer ? 'der' : 'izq' });
                     }
                 } else {
                     const h = SB_H * 0.6 * cfg.escala;
                     if (deitado && elementos.indexOf('cama') >= 0) {
-                        esc += sbProp('cama', 112, groundY, 1.2) + sbFiguraDeitada(112, groundY - 28, 104);
+                        esc += sbProp('cama', 112, groundY, 1.2, uid) + sbCuerpoDeitado(112, groundY - 30, 108);
                         const otros = elementos.filter(function (e) { return e !== 'cama'; });
-                        if (vivos.length > 1) esc += sbFigura(252, groundY, h);
-                        else if (otros.length) esc += sbProp(otros[0], 252, groundY, 1.1);
+                        if (vivos.length > 1) esc += sbCuerpo(254, groundY, h, { luz: 'izq' });
+                        else if (otros.length) esc += sbProp(otros[0], 254, groundY, 1.1, uid);
                     } else {
                         const piezas = [];
                         const nPer = Math.min(vivos.length, 2);
@@ -2884,9 +3447,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                         elementos.slice(0, Math.max(1, 3 - piezas.length)).forEach(function (e) { piezas.push({ t: 'e', k: e }); });
                         if (!piezas.length) piezas.push({ t: 'e', k: 'generico' });
                         const n = piezas.length;
+                        // los objetos se dibujan primero (fondo), las personas después (frente)
                         piezas.forEach(function (pz, i) {
-                            const cx = (SB_W / (n + 1)) * (i + 1);
-                            esc += pz.t === 'p' ? sbFigura(cx, groundY, h) : sbProp(pz.k, cx, groundY, 1.1);
+                            if (pz.t !== 'e') return;
+                            esc += sbProp(pz.k, (SB_W / (n + 1)) * (i + 1), groundY, 1.1, uid);
+                        });
+                        piezas.forEach(function (pz, i) {
+                            if (pz.t !== 'p') return;
+                            esc += sbCuerpo((SB_W / (n + 1)) * (i + 1), groundY, h, { luz: luzDer ? 'der' : 'izq' });
                         });
                     }
                 }
@@ -2894,12 +3462,16 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
             const grupo = `<g transform="rotate(${cfg.rot} 160 90)">${esc}</g>`;
             const etiquetaAng = cfg.etiqueta
-                ? `<text x="10" y="18" font-family="Helvetica, Arial, sans-serif" font-size="9" fill="${SB_MOV}" letter-spacing="1">${cfg.etiqueta}</text>`
+                ? `<rect x="7" y="7" width="${cfg.etiqueta.length * 5.6 + 10}" height="14" fill="#2B2622" opacity="0.55"/>`
+                  + `<text x="12" y="17" font-family="Helvetica, Arial, sans-serif" font-size="8.5" fill="#FBF8F1" letter-spacing="1">${cfg.etiqueta}</text>`
                 : '';
 
             return `<svg viewBox="0 0 ${SB_W} ${SB_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`
-                + `<rect x="0.8" y="0.8" width="${SB_W - 1.6}" height="${SB_H - 1.6}" fill="#ffffff" stroke="#dcdcdc" stroke-width="1.2"/>`
-                + grupo + sbMarcasEncuadre() + sbMovimiento(movimientoTexto) + etiquetaAng
+                + sbDefs(uid, nocturna)
+                + `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="#E9E3D6"/>`
+                + grupo + sbVineta(uid) + sbGrano(uid)
+                + sbMarcasEncuadre() + sbMovimiento(movimientoTexto) + etiquetaAng
+                + `<rect x="0.6" y="0.6" width="${SB_W - 1.2}" height="${SB_H - 1.2}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`
                 + `</svg>`;
         }
 
