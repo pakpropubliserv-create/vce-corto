@@ -619,7 +619,7 @@
             <h1>Ade</h1>
             <span class="firma">asistencia de escritura</span>
         </div>
-        <p>De la idea al plan de rodaje · Método de <em>El guión</em>, de Robert McKee</p>
+        <p>De la idea al plan de rodaje · Método de <em>El guion</em>, de Robert McKee</p>
         <div class="barra-proyecto">
             <span class="et">Proyecto</span>
             <select id="selProyecto" onchange="cambiarProyecto(this.value)"></select>
@@ -636,7 +636,7 @@
         <div class="panel">
             <div class="tabs">
                 <button class="tab-button active" onclick="abrirTab('idea', event)">💡 Idea</button>
-                <button class="tab-button" onclick="abrirTab('literario', event)">✍️ Literário</button>
+                <button class="tab-button" onclick="abrirTab('literario', event)">✍️ Literario</button>
                 <button class="tab-button" onclick="abrirTab('tecnico', event)">⚙️ Técnico</button>
                 <button class="tab-button" onclick="abrirTab('paleta', event)">🎨 Paleta</button>
             </div>
@@ -644,7 +644,7 @@
             <!-- Tab: Idea (NUEVO - punto de partida) -->
             <div id="idea-tab" class="tab-content active">
                 <div class="ade-titulo">Asistente de Escritura</div>
-                <div class="ade-sub">Cuéntame tu idea — escribiendo o hablando — y yo la estructuro en un guión literario profesional.</div>
+                <div class="ade-sub">Cuéntame tu idea — escribiendo o hablando — y yo la estructuro en un guion literario profesional.</div>
 
                 <div class="campo-idea">
                     <label>💭 Tu idea (libre)</label>
@@ -698,9 +698,9 @@
                 </div>
 
                 <button onclick="generarGuionDesdeIdea()" style="width: 100%; padding: 15px; font-size: 15px; font-weight: 800; background: #2B2622; margin-top: 5px;">
-                    ✨ Generar Guión Literario Profesional
+                    ✨ Generar Guion Literario Profesional
                 </button>
-                <span class="hint" style="display: block; text-align: center; margin-top: 8px;">Ade genera: guión en 10 secuencias (3 actos) + guión técnico + storyboard + desgloces + plan de rodaje. Después solo editas.</span>
+                <span class="hint" style="display: block; text-align: center; margin-top: 8px;">Ade genera: guion en 10 secuencias (3 actos) + guion técnico + storyboard + desgloses + plan de rodaje. Después solo editas.</span>
             </div>
 
             <!-- Tab: Literário con Asistencia -->
@@ -715,7 +715,7 @@
                         ✓ Escribe narrativa pura (sin direcciones de cámara)<br>
                         ✓ Agrega <strong>SOM:</strong> y <strong>ANIMAÇÃO:</strong> al final de cada secuencia<br>
                         ✓ Los diálogos van como <strong>NOMBRE: texto</strong><br>
-                        ✓ Al guardar, se actualizan desgloces, storyboard y plan de rodaje
+                        ✓ Al guardar, se actualizan desgloses, storyboard y plan de rodaje
                     </p>
                 </div>
 
@@ -726,7 +726,7 @@
 
                 <textarea id="guiaoLiterario" style="height: 400px;"></textarea>
                 <button onclick="abrirGuiaoFullscreen()" style="width: 100%; margin-top: 10px; background: #FBF8F1; color: #2B2622; border: 1px solid #2B2622;">Ver en pantalla completa</button>
-                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 8px;">💾 Salvar Guião Literário</button>
+                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 8px;">💾 Guardar guion literario</button>
             </div>
 
             <!-- Tab: Técnico -->
@@ -736,7 +736,7 @@
 
                 <div id="asistenciaTecnicoDiv" style="background: #F7F1E1; border-left: 1px solid #8C7A4F; padding: 12px; border-radius: 0; margin-bottom: 15px;">
                     <strong style="color: #8C7A4F; font-size: 13px;">💡 Asistencia:</strong>
-                    <p style="font-size: 11px; margin-top: 8px;">Ya hay un guión técnico predefinido. Puedes editarlo directamente abajo o usar el asistente para refinarlo secuencia por secuencia.</p>
+                    <p style="font-size: 11px; margin-top: 8px;">Ya hay un guion técnico predefinido. Puedes editarlo directamente abajo o usar el asistente para refinarlo secuencia por secuencia.</p>
                 </div>
 
                 <button onclick="iniciarAsistenteTecnico()" style="width: 100%; padding: 12px; margin-bottom: 15px; font-weight: 700; background: #2B2622; color: var(--secondary); font-size: 13px;">
@@ -744,10 +744,10 @@
                 </button>
 
                 <div id="modoManualTecnico">
-                    <p style="font-size: 11px; color: #8C8375; margin-bottom: 10px;">Edita manualmente el guião técnico:</p>
+                    <p style="font-size: 11px; color: #8C8375; margin-bottom: 10px;">Edita manualmente el guion técnico:</p>
                     <textarea id="guiaoTecnico" style="height: 300px; font-family: 'Courier New', monospace;"></textarea>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button onclick="salvarGuiaoTecnico()" style="flex: 1;">💾 Salvar</button>
+                        <button onclick="salvarGuiaoTecnico()" style="flex: 1;">💾 Guardar</button>
                         <button onclick="iniciarAsistenteTecnico()" class="secondary" style="flex: 1;">🚀 Asistente</button>
                     </div>
                 </div>
@@ -775,14 +775,14 @@
                     <input type="text" id="colorSecundarioText" value="#2B2622" style="width: 100%; margin-top: 5px;">
                 </div>
 
-                <button onclick="salvarPaleta()" style="width: 100%; margin-top: 10px;">💾 Salvar Paleta</button>
+                <button onclick="salvarPaleta()" style="width: 100%; margin-top: 10px;">💾 Guardar paleta</button>
             </div>
         </div>
 
         <!-- Panel Derecho: Desgloces, Storyboard y Rodaje -->
         <div class="panel right">
             <div class="tabs">
-                <button class="tab-button active" onclick="abrirTab('desgloces', event)">📋 Desgloces</button>
+                <button class="tab-button active" onclick="abrirTab('desgloces', event)">📋 Desgloses</button>
                 <button class="tab-button" onclick="abrirTab('storyboard', event)">🎬 Storyboard</button>
                 <button class="tab-button" onclick="abrirTab('rodaje', event)">📅 Rodaje</button>
                 <button class="tab-button" onclick="abrirTab('ficha', event)">📐 Ficha</button>
@@ -790,9 +790,9 @@
 
             <!-- Tab: Desgloces -->
             <div id="desgloces-tab" class="tab-content active">
-                <button onclick="exportarPDF('desglocesContainer', 'desgloces')" style="width: 100%; margin-bottom: 15px;">📥 Exportar PDF</button>
+                <button onclick="exportarPDF('desglocesContainer', 'desgloses')" style="width: 100%; margin-bottom: 15px;">📥 Exportar PDF</button>
                 <div id="desglocesContainer">
-                    <p style="color: #999; text-align: center; padding: 40px 20px;">Cargando desgloces...</p>
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Cargando desgloses...</p>
                 </div>
             </div>
 
@@ -800,7 +800,7 @@
             <div id="storyboard-tab" class="tab-content">
                 <button onclick="exportarPDF('storyboardContainer', 'storyboard')" style="width: 100%; margin-bottom: 15px;">📥 Exportar Storyboard PDF</button>
                 <div id="storyboardContainer">
-                    <p style="color: #999; text-align: center; padding: 40px 20px;">Completa el guião técnico para ver storyboard</p>
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Completa el guion técnico para ver el storyboard</p>
                 </div>
             </div>
 
@@ -808,7 +808,7 @@
             <div id="rodaje-tab" class="tab-content">
                 <button onclick="exportarPDF('rodajeContainer', 'plan-de-rodaje')" style="width: 100%; margin-bottom: 15px;">📥 Exportar Plan de Rodaje PDF</button>
                 <div id="rodajeContainer">
-                    <p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guião literário para generar el plan de rodaje</p>
+                    <p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guion literario para generar el plan de rodaje</p>
                 </div>
             </div>
 
@@ -850,17 +850,17 @@
         </div>
     </div>
 
-    <!-- Pantalla completa del guión -->
+    <!-- Pantalla completa del guion -->
     <div id="fsGuiao" style="display:none; position:fixed; inset:0; z-index:9999; background:#F4F0E6; flex-direction:column;">
         <div style="display:flex; align-items:center; gap:18px; padding:16px 26px; color:#8C8375; flex-wrap:wrap;">
-            <span style="font-size:10px; letter-spacing:4px; text-transform:uppercase; margin-right:auto;">Guião Literário</span>
+            <span style="font-size:10px; letter-spacing:4px; text-transform:uppercase; margin-right:auto;">Guion literario</span>
             <span style="font-size:12px; letter-spacing:1px;">
                 <a onclick="fsZoom(-1)" title="Alejar (Ctrl −)" style="cursor:pointer;">−</a>
                 <a id="fsZoomLabel" onclick="fsZoom(0)" title="Tamaño normal" style="cursor:pointer; padding:0 8px;">18</a>
                 <a onclick="fsZoom(1)" title="Ampliar (Ctrl +)" style="cursor:pointer;">+</a>
             </span>
             <a onclick="fsAnchoToggle()" id="fsAnchoBtn" style="cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase;">Ancho</a>
-            <a onclick="fsGuardar()" style="cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase;">Salvar</a>
+            <a onclick="fsGuardar()" style="cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase;">Guardar</a>
             <a onclick="cerrarGuiaoFullscreen()" title="Cerrar (Esc)" style="cursor:pointer; font-size:14px;">&times;</a>
         </div>
         <div id="fsGuiaoWrap" style="flex:1; overflow:auto; display:flex; justify-content:center;">
@@ -948,7 +948,7 @@
             const id = 'p' + Date.now();
             const resp = (prompt('¿Qué vas a escribir?\n\n1 = Cortometraje\n2 = Largometraje\n3 = Serie / piloto', '1') || '1').trim();
             const tipo = resp === '2' ? 'largo' : (resp === '3' ? 'serie' : 'corto');
-            const conPlantilla = tipo === 'corto' && confirm('¿Empezar con el guión de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
+            const conPlantilla = tipo === 'corto' && confirm('¿Empezar con el guion de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
             proyectos.push({ id: id, nombre: nombre.trim(), tipo: tipo });
             localStorage.setItem('proyectos', JSON.stringify(proyectos));
             if (!conPlantilla) {
@@ -1090,7 +1090,7 @@ Ela tenta apagar com o mouse. Mas quanto mais apaga, mais palavras aparecem. O c
 Os três personajes agora se movem más rápido, más agressivamente. Invadem a tela inteira. Toda a realidade parece desaparecer.
 
 ANIMAÇÃO: Palavras em movimento caótico, apareciendo de todas as direções. Glitch effects na tela. Os personajes invaden todo o espaço visual. Pulsos de luz desagradables. A tela inteira vibra.
-SOM: Palavras apareciendo con sonidos agudos y penetrantes. Heartbeat acelerado. Sonidos distorsionados e angustosos. Música atinge o climax caótico.
+SOM: Palavras apareciendo con sonidos agudos y penetrantes. Heartbeat acelerado. Sonidos distorsionados y angustiosos. Música atinge o clímax caótico.
 
 =====
 
@@ -1116,7 +1116,7 @@ ARTISTA: Eu não sei o que as pessoas querem. Eu nunca soube. E eu estou cansada
 
 Ella se queda acostada. Mirando el techo. Completamente derrotada.
 
-El silence persiste.
+O silêncio persiste.
 
 SOM: Diálogo (primeira vez que a ouvimos falar, sua voz frágil). Silêncio quase total. Respiración pesada. Música desaparece completamente.
 
@@ -1146,7 +1146,7 @@ MÃE: Vou deixar aqui com você.
 
 La madre sai. Silêncio simples. O quarto volta a estar en silencio.
 
-SOM: Vozes naturales. Pasos suaves. Som do brinquedo sendo colocado na cama. Música: minimalista, warm, esperanzadora.
+SOM: Vozes naturales. Pasos suaves. Som do caderno sendo colocado na cama. Música: minimalista, warm, esperanzadora.
 
 =====
 
@@ -1207,11 +1207,11 @@ Ella abre su programa de dibujo.
 
 Comienza a dibujar.
 
-El CADERNO está abierto al lado de la computadora, en la página del gato de los siete años. Companhero silencioso.
+El CADERNO está abierto al lado de la computadora, en la página del gato de los siete años. Compañero silencioso.
 
 Ella mira el dibujo infantil. Después la pantalla. Después el dibujo otra vez.
 
-Línea por línea, el mismo gato renace. Las mismas orejas grandes demás. La misma sonrisa impossível. Pero ahora con la mano de quien pasó quince años aprendiendo a dibujar.
+Línea por línea, el mismo gato renace. Las mismas orejas demasiado grandes. La misma sonrisa imposible. Pero ahora con la mano de quien pasó quince años aprendiendo a dibujar.
 
 No es un estilo que ella copió. Es el estilo que ella nunca dejó de tener.
 
@@ -1238,7 +1238,7 @@ Olha para a ARTISTA.
 
 Sorri.
 
-Um sorriso genuino. Familiar. O mesmo sorriso impossível do caderno.
+Um sorriso genuíno. Familiar. O mesmo sorriso impossível do caderno.
 
 Não fala nada. Não precisa.
 
@@ -1390,7 +1390,7 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS
             }
         }
 
-        // ==================== GENERADOR: IDEA → GUIÓN ====================
+        // ==================== GENERADOR: IDEA → GUION ====================
         function generarGuionDesdeIdea() {
             const idea = document.getElementById('ideaLibre').value.trim();
             const titulo = document.getElementById('ideaTitulo').value.trim() || 'MI CORTOMETRAJE';
@@ -1574,7 +1574,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             atualizarDesgloces();
             atualizarPlanRodaje();
 
-            // Generar guión técnico sugerido para la nueva estructura
+            // Generar guion técnico sugerido para la nueva estructura
             const tecnicoGenerado = generarTecnicoSugerido(secs.length);
             document.getElementById('guiaoTecnico').value = tecnicoGenerado;
             pset('guiaoTecnico', tecnicoGenerado);
@@ -1586,7 +1586,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('literario-tab').classList.add('active');
             document.querySelectorAll('.panel:not(.right) .tab-button')[1].classList.add('active');
 
-            alert('✨ ¡Listo! Ade generó:\n\n✓ Guión literario (10 secuencias, 3 actos)\n✓ Guión técnico sugerido\n✓ Storyboard\n✓ Desgloces\n✓ Plan de rodaje\n\nAhora revisa el guión y edita lo que quieras. Los textos entre [corchetes] son para que los completes.');
+            alert('✨ ¡Listo! Ade generó:\n\n✓ Guion literario (10 secuencias, 3 actos)\n✓ Guion técnico sugerido\n✓ Storyboard\n✓ Desgloses\n✓ Plan de rodaje\n\nAhora revisa el guion y edita lo que quieras. Los textos entre [corchetes] son para que los completes.');
         }
 
         function extraerNombreProtagonista(texto) {
@@ -1716,7 +1716,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         function obtenerTecnicoActual() {
-            // Si el guión técnico está vacío o en formato viejo sin datos, usar el predefinido
+            // Si el guion técnico está vacío o en formato viejo sin datos, usar el predefinido
             let tecnico = document.getElementById('guiaoTecnico').value.trim();
             if (!tecnico || !tecnico.match(/SEQUÊNCIA\s+\d+/i)) {
                 tecnico = generarTecnicoSugerido(Math.max(secuenciasParseadas.length, 1));
@@ -1737,7 +1737,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (div) div.style.display = asistencias[tipo] ? 'block' : 'none';
         }
 
-        // ==================== PANTALLA COMPLETA DEL GUIÓN ====================
+        // ==================== PANTALLA COMPLETA DEL GUION ====================
         let fsFuente = parseInt(localStorage.getItem('fsGuiaoZoom')) || 18;
         let fsAncho = localStorage.getItem('fsGuiaoAncho') || 'lectura';
 
@@ -1802,7 +1802,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
             atualizarPlanRodaje();
-            alert('✓ Guião Literário salvo. Desgloces y plan de rodaje actualizados.');
+            alert('✓ Guion literario guardado. Desgloses y plan de rodaje actualizados.');
         }
 
         // ==================== DESGLOCES ====================
@@ -1875,13 +1875,13 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 html += `</div>`;
             }
 
-            document.getElementById('desglocesContainer').innerHTML = html || '<p style="color: #999;">Sin desgloces</p>';
+            document.getElementById('desglocesContainer').innerHTML = html || '<p style="color: #999;">Sin desgloses</p>';
         }
 
         // ==================== PLAN DE RODAJE ====================
         function atualizarPlanRodaje() {
             if (secuenciasParseadas.length === 0) {
-                document.getElementById('rodajeContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guião literário primero</p>';
+                document.getElementById('rodajeContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 20px;">Guarda el guion literario primero</p>';
                 return;
             }
 
@@ -1957,7 +1957,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         function iniciarAsistenteTecnico() {
             const texto = document.getElementById('guiaoLiterario').value;
             if (!texto.trim()) {
-                alert('Por favor, escribe el guião literário primero');
+                alert('Por favor, escribe el guion literario primero');
                 return;
             }
 
@@ -1969,7 +1969,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             secuenciasParseadas = parseGuiaoLiterario(texto);
             respuestasAsistente = {};
 
-            // Pre-cargar respuestas desde el guión técnico actual (para modificar, no empezar de cero)
+            // Pre-cargar respuestas desde el guion técnico actual (para modificar, no empezar de cero)
             const tecnicoActual = document.getElementById('guiaoTecnico').value;
             tecnicoActual.split('\n').forEach(linea => {
                 const m = linea.match(/SEQUÊNCIA\s+(\d+)/i);
@@ -2105,7 +2105,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         // ==================== STORYBOARD ====================
         // ==================== SESIÓN DE PREGUNTAS — MÉTODO McKEE ====================
-        // Estructura de preguntas basada en los principios de "El guión" (Story), de Robert McKee.
+        // Estructura de preguntas basada en los principios de "El guion" (Story), de Robert McKee.
         // Las preguntas y explicaciones son redacción propia de la plataforma.
 
         let mckeeRespuestas = {};
@@ -2119,9 +2119,9 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 preguntas: [
                     {
                         id: 'premisa',
-                        q: '¿Cuál es tu "¿qué pasaría si...?"',
+                        q: '¿Cuál es el "¿qué pasaría si...?" de tu historia?',
                         ayuda: 'Toda historia nace de una chispa: una situación que rompe lo normal. Escribila como pregunta, no como resumen. Todavía no es la trama: es la puerta de entrada.',
-                        ph: 'Ej: Qué pasaría si alguien solo pudiera crear algo verdadero al dejar de imitar a los demás'
+                        ph: 'Ej: ¿Qué pasaría si alguien solo pudiera crear algo verdadero al dejar de imitar a los demás?'
                     },
                     {
                         id: 'idea_controladora',
@@ -2225,81 +2225,81 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 preguntas: [
                     {
                         id: 'limites_mundo',
-                        q: 'Cuales son los limites de tu mundo? Periodo, duracion, lugar y nivel de conflicto',
-                        principio: 'Estructura y ambientacion (cap. 2)',
-                        ayuda: 'McKee define el ambiente por cuatro dimensiones: periodo (cuando), duracion (cuanto tiempo abarca), localizacion (donde) y nivel de conflicto (contra que se pelea en este mundo). Un mundo chico y bien conocido da mas originalidad que uno enorme y generico: cuanto menor el mundo, mayor el dominio del autor.',
-                        ph: 'Ej: Hoy, una noche, un cuarto; el conflicto es interno y contra el criterio de exito de las redes'
+                        q: '¿Cuáles son los límites de tu mundo? Período, duración, lugar y nivel de conflicto',
+                        principio: 'Estructura y ambientación (cap. 2)',
+                        ayuda: 'McKee define el ambiente por cuatro dimensiones: período (cuándo), duración (cuánto tiempo abarca), localización (dónde) y nivel de conflicto (contra qué se pelea en este mundo). Un mundo chico y bien conocido da más originalidad que uno enorme y genérico: cuanto menor el mundo, mayor el dominio del autor.',
+                        ph: 'Ej: Hoy, una noche, un cuarto; el conflicto es interno y contra el criterio de éxito de las redes'
                     },
                     {
                         id: 'genero',
-                        q: 'En que genero estas trabajando y que espera el espectador de el?',
-                        principio: 'Estructura y genero (cap. 3)',
-                        ayuda: 'El genero no es una etiqueta comercial: es el contrato de expectativas con el espectador. Dominar las convenciones es lo que te permite cumplirlas de manera inesperada. Escribi tu genero y las tres o cuatro convenciones que el publico da por hechas.',
-                        ph: 'Ej: Drama de madurez. Se espera perdida de una ilusion y ganancia de una verdad'
+                        q: '¿En qué género estás trabajando y qué espera el espectador de él?',
+                        principio: 'Estructura y género (cap. 3)',
+                        ayuda: 'El género no es una etiqueta comercial: es el contrato de expectativas con el espectador. Dominar las convenciones es lo que te permite cumplirlas de manera inesperada. Escribí tu género y las tres o cuatro convenciones que el público da por hechas.',
+                        ph: 'Ej: Drama de madurez. Se espera pérdida de una ilusión y ganancia de una verdad'
                     },
                     {
                         id: 'elenco',
-                        q: 'Para que existe cada personaje secundario? Que dimension del protagonista revela?',
+                        q: '¿Para qué existe cada personaje secundario? ¿Qué dimensión del protagonista revela?',
                         principio: 'Personaje (cap. 16)',
-                        ayuda: 'El elenco se disena alrededor del protagonista como un sistema de espejos: cada personaje existe para provocar en el una reaccion distinta y asi revelar otra faceta. Si dos personajes provocan lo mismo, uno sobra.',
+                        ayuda: 'El elenco se diseña alrededor del protagonista como un sistema de espejos: cada personaje existe para provocar en él una reacción distinta y así revelar otra faceta. Si dos personajes provocan lo mismo, uno sobra.',
                         ph: 'Ej: La madre saca su lado de hija; las tres obras sacan su lado de impostora'
                     },
                     {
                         id: 'investigacion',
-                        q: 'Que sabes de este mundo por memoria, que por imaginacion y que te falta investigar?',
-                        principio: 'El metodo del escritor (cap. 18)',
-                        ayuda: 'McKee distingue tres fuentes: memoria (lo vivido), imaginacion (lo inventado) y hecho (lo investigado). El bloqueo casi siempre es falta de material, no falta de talento. Separa lo que ya tenes de lo que necesitas ir a buscar.',
-                        ph: 'Ej: Memoria: la frustracion de dibujar. Falta: como funciona de verdad un concurso de ilustracion'
+                        q: '¿Qué sabés de este mundo por memoria, qué por imaginación y qué te falta investigar?',
+                        principio: 'El método del escritor (cap. 18)',
+                        ayuda: 'McKee distingue tres fuentes: memoria (lo vivido), imaginación (lo inventado) y hecho (lo investigado). El bloqueo casi siempre es falta de material, no falta de talento. Separá lo que ya tenés de lo que necesitás ir a buscar.',
+                        ph: 'Ej: Memoria: la frustración de dibujar. Falta: cómo funciona de verdad un concurso de ilustración'
                     }
                 ]
             },
             {
-                id: 'diseno', nombre: 'Diseno de la Historia', icono: '📐',
+                id: 'diseno', nombre: 'Diseño de la Historia', icono: '📐',
                 preguntas: [
                     {
                         id: 'forma',
-                        q: 'Tu historia es de trama cerrada, minima o fragmentada? Por que esa forma?',
-                        principio: 'El triangulo de la historia (cap. 2)',
-                        ayuda: 'McKee ubica toda historia en un triangulo: arcotrama (final cerrado, causalidad, conflicto externo), minitrama (final abierto, protagonista pasivo, conflicto interno) y antitrama (coincidencia, no linealidad). Ninguna es mejor que otra: lo grave es prometer una y entregar otra.',
+                        q: '¿Tu historia es de trama cerrada, mínima o fragmentada? ¿Por qué esa forma?',
+                        principio: 'El triángulo de la historia (cap. 2)',
+                        ayuda: 'McKee ubica toda historia en un triángulo: arcotrama (final cerrado, causalidad, conflicto externo), minitrama (final abierto, protagonista pasivo, conflicto interno) y antitrama (coincidencia, no linealidad). Ninguna es mejor que otra: lo grave es prometer una y entregar otra.',
                         ph: 'Ej: Minitrama, final cerrado pero conflicto casi todo interior',
                         chips: ['Arcotrama porque ', 'Minitrama porque ', 'Antitrama porque ']
                     },
                     {
                         id: 'brecha',
-                        q: 'Elegi una accion clave: que esperaba el personaje que pasara y que paso en realidad?',
+                        q: 'Elegí una acción clave: ¿qué esperaba el personaje que pasara y qué pasó en realidad?',
                         principio: 'La sustancia del relato (cap. 6)',
-                        ayuda: 'Para McKee la historia vive en la brecha: el personaje actua esperando una reaccion del mundo, y el mundo responde de un modo mas poderoso o distinto. Esa grieta entre expectativa y resultado lo obliga a arriesgar mas. Si el mundo responde lo esperado, no hubo acontecimiento.',
+                        ayuda: 'Para McKee la historia vive en la brecha: el personaje actúa esperando una reacción del mundo, y el mundo responde de un modo más poderoso o distinto. Esa grieta entre expectativa y resultado lo obliga a arriesgar más. Si el mundo responde lo esperado, no hubo acontecimiento.',
                         ph: 'Ej: Borra todo esperando alivio; lo que llega es que sus obras la acusan'
                     },
                     {
                         id: 'arco_valor',
-                        q: 'Como alterna la carga positiva y negativa a lo largo de la historia?',
-                        principio: 'Estructura y significado (cap. 5) / Composicion (cap. 11)',
-                        ayuda: 'Una historia no puede ir siempre para abajo ni siempre para arriba: se disena en olas. Cada secuencia invierte la carga respecto de la anterior, y la amplitud crece hacia el climax. Si tres secuencias seguidas tienen la misma carga, el espectador se anestesia.',
-                        ph: 'Ej: menos / menos menos / menos menos menos / mas / mas mas'
+                        q: '¿Cómo alterna la carga positiva y negativa a lo largo de la historia?',
+                        principio: 'Estructura y significado (cap. 5) / Composición (cap. 11)',
+                        ayuda: 'Una historia no puede ir siempre para abajo ni siempre para arriba: se diseña en olas. Cada secuencia invierte la carga respecto de la anterior, y la amplitud crece hacia el clímax. Si tres secuencias seguidas tienen la misma carga, el espectador se anestesia.',
+                        ph: 'Ej: − / −− / −−− / + / ++'
                     },
                     {
                         id: 'progresion',
-                        q: 'Como escalas la presion sin repetir el mismo golpe?',
-                        principio: 'Composicion (cap. 11)',
-                        ayuda: 'La progresion exige ampliar el mundo del conflicto o profundizarlo: llevar la presion a otro nivel (de lo interior a lo personal, de lo personal a lo social) o al mismo nivel pero mas hondo. Repetir la misma intensidad es retroceder.',
+                        q: '¿Cómo escalás la presión sin repetir el mismo golpe?',
+                        principio: 'Composición (cap. 11)',
+                        ayuda: 'La progresión exige ampliar el mundo del conflicto o profundizarlo: llevar la presión a otro nivel (de lo interior a lo personal, de lo personal a lo social) o al mismo nivel pero más hondo. Repetir la misma intensidad es retroceder.',
                         ph: 'Ej: Del fastidio privado, a las voces que la acusan, al ataque que ocupa toda la pantalla'
                     },
                     {
                         id: 'subtramas',
                         soloLargo: true,
-                        q: 'Que subtramas tenes y como se cruzan con la trama central?',
-                        principio: 'Diseno de actos (cap. 8)',
-                        ayuda: 'En un largometraje las subtramas existen para contradecir, complicar o hacer eco de la idea controladora, o para dar la exposicion que la trama central no puede. Una subtrama que no toca la principal es un cuerpo extrano.',
-                        ph: 'Ej: La relacion con la madre contradice la idea: ahi ser uno mismo si alcanza'
+                        q: '¿Qué subtramas tenés y cómo se cruzan con la trama central?',
+                        principio: 'Diseño de actos (cap. 8)',
+                        ayuda: 'En un largometraje las subtramas existen para contradecir, complicar o hacer eco de la idea controladora, o para dar la exposición que la trama central no puede. Una subtrama que no toca la principal es un cuerpo extraño.',
+                        ph: 'Ej: La relación con la madre contradice la idea: ahí ser uno mismo sí alcanza'
                     },
                     {
                         id: 'actos',
                         soloLargo: true,
-                        q: 'Donde caen los climax de acto? Enumera los momentos de cambio irreversible',
-                        principio: 'Diseno de actos (cap. 8)',
-                        ayuda: 'Un largometraje se sostiene en tres o mas climax de acto, cada uno con una inversion de valor mayor que el anterior. El del final del segundo acto suele ser el mas duro. Marca los tuyos: si no podes ubicarlos, la historia esta plana en el medio.',
-                        ph: 'Ej: Acto 1, acepta el encargo. Acto 2, pierde a quien la sostenia. Acto 3, elige su propia voz'
+                        q: '¿Dónde caen los clímax de acto? Enumerá los momentos de cambio irreversible',
+                        principio: 'Diseño de actos (cap. 8)',
+                        ayuda: 'Un largometraje se sostiene en tres o más clímax de acto, cada uno con una inversión de valor mayor que el anterior. El del final del segundo acto suele ser el más duro. Marcá los tuyos: si no podés ubicarlos, la historia está plana en el medio.',
+                        ph: 'Ej: Acto 1, acepta el encargo. Acto 2, pierde a quien la sostenía. Acto 3, elige su propia voz'
                     }
                 ]
             },
@@ -2368,41 +2368,41 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     {
                         id: 'visual',
                         q: 'Si borrás TODO el diálogo, ¿la historia se sigue entendiendo en imágenes?',
-                        ayuda: 'Prueba de cine puro: el guión audiovisual se cuenta con comportamiento e imagen. Si necesitás que alguien explique lo que sentimos, todavía falta una imagen.',
+                        ayuda: 'Prueba de cine puro: el guion audiovisual se cuenta con comportamiento e imagen. Si necesitás que alguien explique lo que sentimos, todavía falta una imagen.',
                         ph: 'Ej: Sí — borrar, caer en la cama, tomar el juguete, dibujar, enviar'
                     }
                 ]
             },
             {
-                id: 'escena', nombre: 'Diseno de Escena', icono: '🎞',
+                id: 'escena', nombre: 'Diseño de Escena', icono: '🎞',
                 preguntas: [
                     {
                         id: 'beats',
-                        q: 'Toma tu escena mas importante: cuales son sus beats de accion y reaccion?',
-                        principio: 'Diseno de escena (cap. 9) / Analisis de escena (cap. 10)',
-                        ayuda: 'Un beat es un intercambio de comportamiento: el personaje hace algo, el otro (o el mundo) responde, y eso cambia la escena. Los beats se nombran con verbos, no con adjetivos: suplica / rechaza / amenaza / cede. Escribir los beats muestra al instante donde la escena se estanca.',
+                        q: 'Tomá tu escena más importante: ¿cuáles son sus beats de acción y reacción?',
+                        principio: 'Diseño de escena (cap. 9) / Análisis de escena (cap. 10)',
+                        ayuda: 'Un beat es un intercambio de comportamiento: el personaje hace algo, el otro (o el mundo) responde, y eso cambia la escena. Los beats se nombran con verbos, no con adjetivos: suplica / rechaza / amenaza / cede. Escribir los beats muestra al instante dónde la escena se estanca.',
                         ph: 'Ej: pide permiso / se niega / insiste / la humilla / se rinde'
                     },
                     {
                         id: 'entrar_salir',
-                        q: 'Entras a cada escena lo mas tarde posible y salis lo mas temprano posible?',
-                        principio: 'Composicion (cap. 11)',
-                        ayuda: 'Entrar tarde y salir temprano: empeza la escena lo mas cerca posible de su punto de giro y corta apenas giro. Los saludos, las llegadas y las despedidas casi nunca hacen falta.',
-                        ph: 'Ej: La secuencia 6 podria empezar con el caderno ya en la cama'
+                        q: '¿Entrás a cada escena lo más tarde posible y salís lo más temprano posible?',
+                        principio: 'Composición (cap. 11)',
+                        ayuda: 'Entrar tarde y salir temprano: empezá la escena lo más cerca posible de su punto de giro y cortá apenas giró. Los saludos, las llegadas y las despedidas casi nunca hacen falta.',
+                        ph: 'Ej: La secuencia 6 podría empezar con el caderno ya en la cama'
                     },
                     {
                         id: 'giro_escena',
-                        q: 'Cada escena termina con un giro? Nombra las que todavia no lo tienen',
-                        principio: 'Diseno de escena (cap. 9)',
-                        ayuda: 'Toda escena es una historia en miniatura: deseo, conflicto y un giro que invierte la carga en el ultimo beat. Si una escena termina en la misma carga en que empezo, es exposicion disfrazada.',
-                        ph: 'Ej: La 2 y la 3 no giran: las dos terminan en la misma frustracion'
+                        q: '¿Cada escena termina con un giro? Nombrá las que todavía no lo tienen',
+                        principio: 'Diseño de escena (cap. 9)',
+                        ayuda: 'Toda escena es una historia en miniatura: deseo, conflicto y un giro que invierte la carga en el último beat. Si una escena termina en la misma carga en que empezó, es exposición disfrazada.',
+                        ph: 'Ej: La 2 y la 3 no giran: las dos terminan en la misma frustración'
                     },
                     {
                         id: 'texto_subtexto',
-                        q: 'Elegi una escena y escribi en dos columnas: que se dice y que se esta haciendo de verdad',
-                        principio: 'Analisis de escena (cap. 10) / El texto (cap. 17)',
-                        ayuda: 'Analizar una escena es separar el texto (la superficie de palabras y gestos) de la vida interior que corre debajo. Si al escribir las dos columnas te queda lo mismo en las dos, la escena todavia no esta escrita.',
-                        ph: 'Ej: Dice: voy a dejarlo aca. Hace: pedir perdon sin nombrarlo'
+                        q: 'Elegí una escena y escribí en dos columnas: ¿qué se dice y qué se está haciendo de verdad?',
+                        principio: 'Análisis de escena (cap. 10) / El texto (cap. 17)',
+                        ayuda: 'Analizar una escena es separar el texto (la superficie de palabras y gestos) de la vida interior que corre debajo. Si al escribir las dos columnas te queda lo mismo en las dos, la escena todavía no está escrita.',
+                        ph: 'Ej: Dice: voy a dejarlo acá. Hace: pedir perdón sin nombrarlo'
                     }
                 ]
             },
@@ -2439,7 +2439,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         const MK_CHIPS_VALOR = ['Esperanza: + → −', 'Esperanza: − → +', 'Verdad: − → +', 'Libertad: + → −', 'Confianza: − → +', 'Soledad: + → −'];
 
-        // Referencia de capítulo de "El guión" (Story) para las preguntas del temario base
+        // Referencia de capítulo de "El guion" (Story) para las preguntas del temario base
         const MK_PRINCIPIOS = {
             premisa: 'El método del escritor (cap. 18)',
             idea_controladora: 'Estructura y significado (cap. 5)',
@@ -2551,7 +2551,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('mkProgreso').textContent = 'Elegí cómo querés trabajar hoy';
             const nHist = totalPreguntasHistoria();
             const opciones = [
-                ['completa', '📚 Sesión completa', 'Historia + escena por escena. ' + (nHist + secuenciasParseadas.length * 4) + ' preguntas. Para desarrollar el guión a fondo.'],
+                ['completa', '📚 Sesión completa', 'Historia + escena por escena. ' + (nHist + secuenciasParseadas.length * 4) + ' preguntas. Para desarrollar el guion a fondo.'],
                 ['historia', '🏛️ Solo la historia', nHist + ' preguntas sobre idea, personaje, antagonismo, mundo, diseño, estructura, escena y final.'],
                 ['escenas', '🎬 Escena por escena', (secuenciasParseadas.length * 4) + ' preguntas: valor, objetivo, conflicto y giro en cada una de tus ' + secuenciasParseadas.length + ' secuencias.'],
                 ['rapida', '⚡ Diagnóstico rápido', '7 preguntas esenciales. Para saber en 5 minutos si la historia se sostiene.']
@@ -2560,7 +2560,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('mkContenido').innerHTML = `
                 <div style="background: #F4F0E6; border-left: 1px solid #2B2622; padding: 12px; border-radius: 0; margin-bottom: 18px;">
                     <p style="font-size: 11px; line-height: 1.6; color: #444;">
-                        Ade te va a hacer preguntas siguiendo los principios de <strong>El guión</strong>, de Robert McKee.
+                        Ade te va a hacer preguntas siguiendo los principios de <strong>El guion</strong>, de Robert McKee.
                         No hay respuestas correctas: el objetivo es que <strong>vos</strong> descubras qué le falta a tu historia.
                         Podés saltar cualquier pregunta y volver después — todo se guarda.
                     </p>
@@ -2604,7 +2604,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 <div class="mk-ayuda">
                     <b>Principio McKee</b>
                     <p>${p.ayuda}</p>
-                    ${(p.principio || MK_PRINCIPIOS[p.id]) ? `<div class="mk-fuente">El guión · ${p.principio || MK_PRINCIPIOS[p.id]}</div>` : ''}
+                    ${(p.principio || MK_PRINCIPIOS[p.id]) ? `<div class="mk-fuente">El guion · ${p.principio || MK_PRINCIPIOS[p.id]}</div>` : ''}
                 </div>
                 ${chips ? `<div class="sb-chips" style="margin-bottom: 8px;">${chips}</div>` : ''}
                 <textarea id="mkRespuesta" placeholder="${p.ph}" style="height: 110px; font-family: inherit; font-size: 13px;">${(mckeeRespuestas[p.id] || '').replace(/</g, '&lt;')}</textarea>
@@ -2697,7 +2697,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         function mkCargaValor(t) {
-            // devuelve 'sube', 'baja' o null a partir de como esta escrito el cambio de valor
+            // devuelve 'sube', 'baja' o null según cómo esté escrito el cambio de valor
             const x = (t || '').toLowerCase();
             if (/[-−]\s*(a|→|->|a\s+)?\s*\+/.test(x) || /negativ\w*\s*(a|→|->)\s*positiv/.test(x)) return 'sube';
             if (/\+\s*(a|→|->|a\s+)?\s*[-−]/.test(x) || /positiv\w*\s*(a|→|->)\s*negativ/.test(x)) return 'baja';
@@ -2781,7 +2781,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (!mkTiene('visual')) push('aviso', 'Todavía no probaste si la historia se entiende sin diálogo. En cine, si hace falta explicar lo que sentimos, falta una imagen.');
             if (!mkTiene('entrar_salir')) push('aviso', 'No revisaste el principio de entrar tarde y salir temprano en cada escena.');
 
-            // ---------- Análisis del guión ----------
+            // ---------- Análisis del guion ----------
             const total = secuenciasParseadas.length;
             if (total) {
                 const sinValor = secuenciasParseadas.filter(s => !mkTiene('s' + s.numero + '_valor')).map(s => s.numero);
@@ -2888,7 +2888,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 html += `</div>`;
             }
 
-            html += `<p style="font-size: 9px; color: #aaa; text-align: center; margin-top: 10px; line-height: 1.5;">Preguntas y diagnóstico estructurados según los principios de <em>El guión</em> (Story), de Robert McKee.</p>`;
+            html += `<p style="font-size: 9px; color: #aaa; text-align: center; margin-top: 10px; line-height: 1.5;">Preguntas y diagnóstico estructurados según los principios de <em>El guion</em> (Story), de Robert McKee.</p>`;
 
             cont.innerHTML = html;
         }
@@ -3096,7 +3096,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     q ${-wCab * 0.2} ${-hCab * 0.35} ${-wCab * 0.64} ${-hCab * 0.28}
                     q ${-wCab * 0.5} ${-hCab * 0.06} ${-wCab * 0.64} ${hCab * 0.28} Z"
                     fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.9" stroke-linejoin="round"/>`;
-            // rasgos minimos cuando la cabeza tiene tamano suficiente
+            // rasgos mínimos cuando la cabeza tiene tamaño suficiente
             if (hCab > 18) {
                 const oy = cabCy + hCab * 0.02, ox = wCab * 0.24;
                 o += `<circle cx="${cx - ox}" cy="${oy}" r="${hCab * 0.045}" fill="${SB_TINTA}"/>`
@@ -3211,7 +3211,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         function sbHombroFrente(lado, uid) {
             const x = lado === 'der' ? SB_W : 0;
             const d = lado === 'der' ? -1 : 1;
-            // nuca + hombro en primer termino, desenfocados y en contraluz
+            // nuca + hombro en primer término, desenfocados y en contraluz
             return `<g filter="url(#desenfoque${uid})">
                 <path d="M ${x} ${SB_H}
                     L ${x} ${SB_H * 0.66}
@@ -3663,7 +3663,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             pset('guiaoTecnico', texto);
             atualizarStoryboard(texto);
             atualizarPlanRodaje();
-            alert('✓ Guião Técnico salvo. Storyboard y plan de rodaje actualizados.');
+            alert('✓ Guion técnico guardado. Storyboard y plan de rodaje actualizados.');
         }
 
         function exportarPDF(containerId, nombre) {

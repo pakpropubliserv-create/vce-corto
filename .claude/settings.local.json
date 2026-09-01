@@ -5,7 +5,12 @@
       "Bash(python /tmp/update_guiao.py)",
       "Bash(git add *)",
       "Bash(git commit -q -m 'Storyboard con volumen y luz, temario McKee ampliado y proyectos por tipo \\(corto/largo/serie\\) *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(python \"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--corto\\\\12b670bd-0437-4268-a400-6ccb65130c77\\\\scratchpad\\\\orto.py\")",
+      "Bash(awk -F: '{print $2}')",
+      "Bash(python -c ' *)",
+      "Bash(grep -oiE \"\\\\b[a-záéíóúãõçêôàñ]{4,}\\\\b\" guiao-literario-final.fountain)",
+      "Bash(grep -iE \"^\\(silence|companhero|gasatada|angustosos|cerrando|palpitam|personajes|ventanas\\)$\")"
     ]
   }
 }
