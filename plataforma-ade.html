@@ -313,6 +313,50 @@
             color: var(--gray-light);
         }
 
+        .barra-insertar {
+            display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px;
+            font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid);
+        }
+        .barra-insertar a { cursor: pointer; }
+        .barra-insertar a:hover { color: var(--text-dark); }
+
+        .barra-estado {
+            display: flex; justify-content: space-between; gap: 10px; margin-top: 6px;
+            font-size: 10px; letter-spacing: 1px; color: var(--gray-light);
+        }
+
+        .fs-barra {
+            display: flex; align-items: center; gap: 16px; padding: 16px 26px; flex-wrap: wrap;
+            font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid);
+        }
+        .fs-barra a { cursor: pointer; }
+        .fs-barra a:hover { color: var(--text-dark); }
+        .fs-marca { color: var(--gray-light); }
+        .fs-zoom { font-size: 12px; letter-spacing: 1px; text-transform: none; }
+        .fs-zoom a { padding: 0 6px; }
+        .fs-sep { flex: 1; }
+        .fs-stats { text-transform: none; letter-spacing: 0.5px; font-size: 10px; color: var(--gray-light); }
+
+        .fs-cuerpo { flex: 1; display: flex; min-height: 0; }
+        #fsIndice {
+            width: 190px; overflow-y: auto; padding: 4px 0 40px 26px;
+            border-right: 1px solid var(--border);
+        }
+        #fsIndice a {
+            display: flex; gap: 10px; align-items: baseline; padding: 7px 14px 7px 0;
+            cursor: pointer; font-size: 11px; color: var(--gray-mid); line-height: 1.3;
+        }
+        #fsIndice a:hover { color: var(--text-dark); }
+        #fsIndice .n { font-size: 9px; letter-spacing: 1px; color: var(--gray-light); }
+        #fsIndice .t { text-transform: uppercase; letter-spacing: 1px; }
+
+        #fsGuiaoWrap { flex: 1; overflow: auto; display: flex; justify-content: center; }
+        #fsGuiaoTexto {
+            width: 100%; max-width: 820px; height: 100%; border: none; outline: none; resize: none;
+            padding: 20px 40px 50vh; background: transparent; color: var(--text-dark);
+            font-family: 'Courier New', monospace; font-size: 18px; line-height: 1.8;
+        }
+
         .sb-panel-wrap { display: flex; flex-direction: column; gap: 8px; }
 
         .sb-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
@@ -724,9 +768,19 @@
                 </button>
                 <div id="mckeeNudge" style="font-size: 10px; color: #8C8375; line-height: 1.5; background: #F4F0E6; border-left: 1px solid #8C8375; padding: 9px 11px; border-radius: 0; margin-bottom: 14px;"></div>
 
-                <textarea id="guiaoLiterario" style="height: 400px;"></textarea>
-                <button onclick="abrirGuiaoFullscreen()" style="width: 100%; margin-top: 10px; background: #FBF8F1; color: #2B2622; border: 1px solid #2B2622;">Ver en pantalla completa</button>
-                <button onclick="salvarGuiaoLiterario()" style="width: 100%; margin-top: 8px;">💾 Guardar guion literario</button>
+                <div class="barra-insertar">
+                    <a onclick="insertarSecuencia()" title="Ctrl+Shift+Q">+ Secuencia</a>
+                    <a onclick="insertarEncabezado()" title="Ctrl+Shift+E">+ Encabezado</a>
+                    <a onclick="insertarDialogo()" title="Ctrl+Shift+D">+ Diálogo</a>
+                    <a onclick="insertarSom()" title="Ctrl+Shift+M">+ Som</a>
+                    <a onclick="insertarAnimacion()" title="Ctrl+Shift+A">+ Animação</a>
+                </div>
+                <textarea id="guiaoLiterario" style="height: 420px;" oninput="autoguardarGuion(false)"></textarea>
+                <div class="barra-estado">
+                    <span id="statsGuion"></span>
+                    <span id="estadoGuardado"></span>
+                </div>
+                <button onclick="abrirGuiaoFullscreen()" style="width: 100%; margin-top: 10px;">Escribir en pantalla completa</button>
             </div>
 
             <!-- Tab: Técnico -->
@@ -852,19 +906,29 @@
 
     <!-- Pantalla completa del guion -->
     <div id="fsGuiao" style="display:none; position:fixed; inset:0; z-index:9999; background:#F4F0E6; flex-direction:column;">
-        <div style="display:flex; align-items:center; gap:18px; padding:16px 26px; color:#8C8375; flex-wrap:wrap;">
-            <span style="font-size:10px; letter-spacing:4px; text-transform:uppercase; margin-right:auto;">Guion literario</span>
-            <span style="font-size:12px; letter-spacing:1px;">
-                <a onclick="fsZoom(-1)" title="Alejar (Ctrl −)" style="cursor:pointer;">−</a>
-                <a id="fsZoomLabel" onclick="fsZoom(0)" title="Tamaño normal" style="cursor:pointer; padding:0 8px;">18</a>
-                <a onclick="fsZoom(1)" title="Ampliar (Ctrl +)" style="cursor:pointer;">+</a>
+        <div class="fs-barra">
+            <span class="fs-marca">Guion literario</span>
+            <a onclick="fsIndiceToggle()" id="fsIndiceBtn" style="opacity:.55">Índice</a>
+            <a onclick="fsMaquinaToggle()" id="fsMaquinaBtn" style="opacity:.55" title="Mantiene la línea que escribís centrada">Máquina</a>
+            <a onclick="fsAnchoToggle()" id="fsAnchoBtn">Ancho</a>
+            <span class="fs-zoom">
+                <a onclick="fsZoom(-1)" title="Alejar (Ctrl −)">−</a>
+                <a id="fsZoomLabel" onclick="fsZoom(0)" title="Tamaño normal">18</a>
+                <a onclick="fsZoom(1)" title="Ampliar (Ctrl +)">+</a>
             </span>
-            <a onclick="fsAnchoToggle()" id="fsAnchoBtn" style="cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase;">Ancho</a>
-            <a onclick="fsGuardar()" style="cursor:pointer; font-size:10px; letter-spacing:2px; text-transform:uppercase;">Guardar</a>
-            <a onclick="cerrarGuiaoFullscreen()" title="Cerrar (Esc)" style="cursor:pointer; font-size:14px;">&times;</a>
+            <span class="fs-sep"></span>
+            <span id="fsStats" class="fs-stats"></span>
+            <span id="fsEstado" class="fs-stats"></span>
+            <a onclick="cerrarGuiaoFullscreen()" title="Cerrar (Esc)" style="font-size:14px;">&times;</a>
         </div>
-        <div id="fsGuiaoWrap" style="flex:1; overflow:auto; display:flex; justify-content:center;">
-            <textarea id="fsGuiaoTexto" spellcheck="false" style="width:100%; max-width:820px; height:100%; border:none; outline:none; resize:none; padding:20px 40px 80px; background:transparent; color:#2B2622; font-family:'Courier New', monospace; font-size:18px; line-height:1.8;"></textarea>
+        <div class="fs-cuerpo">
+            <nav id="fsIndice" style="display:none"></nav>
+            <div id="fsGuiaoWrap">
+                <textarea id="fsGuiaoTexto" spellcheck="false"
+                    oninput="autoguardarGuion(true); centrarCursor();"
+                    onclick="centrarCursor()"
+                    onkeyup="if(event.key.indexOf('Arrow')===0) centrarCursor()"></textarea>
+            </div>
         </div>
     </div>
 
@@ -1300,16 +1364,16 @@ FIM.
 ANIMAÇÃO: Formulário apareciendo. Cursor animado. Barra de progresso subiendo lentamente. Upload 100%. Transiciones finales suaves y ceremoniales.
 SOM: Respiracion profunda (antes de clicar). Click del mouse. Sonido de upload (minimalista, suave). Silêncio final absoluto. Música desaparece gradualmente, dejando only el sonido del silencio.`;
 
-        const guiaoTecnicoPredefinido = `SEQUÊNCIA 1 | PLANO: Wide shot | ÁNGULO: Nivel | MOVIMENTO: Ninguno | NOTAS: Iniciar en tela negra, revelación del quarto
-SEQUÊNCIA 2 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom in | NOTAS: Foco en monitor, luego en cara frustrada
-SEQUÊNCIA 3 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Pan | NOTAS: Tres ventanas en pantalla, alternancia entre personajes
-SEQUÊNCIA 4 | PLANO: Wide shot | ÁNGULO: Holandés | MOVIMENTO: Tilt + Zoom | NOTAS: Caos visual, glitch effects, personajes invadiendo
-SEQUÊNCIA 5 | PLANO: Close-up | ÁNGULO: Inferior | MOVIMENTO: Ninguno | NOTAS: Expresión de verdad, primer diálogo hablado
-SEQUÊNCIA 6 | PLANO: Two-shot | ÁNGULO: Perfil | MOVIMENTO: Dolly | NOTAS: Madre entra lentamente, coloca brinquedo con ternura
-SEQUÊNCIA 7 | PLANO: Extreme close-up | ÁNGULO: Superior | MOVIMENTO: Ninguno | NOTAS: Foco en brinquedo, flashback emocional
-SEQUÊNCIA 8 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Tracking | NOTAS: Time-lapse de creación, cierre de tabs innecesarios
-SEQUÊNCIA 9 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Zoom in | NOTAS: Gato cobra vida, contacto visual directo
-SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | NOTAS: Envío del archivo, desenlace ceremonial`;
+        const guiaoTecnicoPredefinido = `SEQUÊNCIA 1 | PLANO: Wide shot | ÁNGULO: Nivel | MOVIMENTO: Ninguno | ARTE: Escritorio con monitor encendido, papelera junto a la mesa, caderno gastado olvidado en el estante del fondo | NOTAS: Iniciar en tela negra, revelación del quarto
+SEQUÊNCIA 2 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom in | ARTE: Pantalla con el aviso del concurso, mouse, tableta gráfica | NOTAS: Foco en monitor, luego en cara frustrada
+SEQUÊNCIA 3 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Pan | ARTE: Tres ventanas animadas en pantalla (K-pop, Pop Art, Grafite) | NOTAS: Alternancia entre personajes de pantalla
+SEQUÊNCIA 4 | PLANO: Wide shot | ÁNGULO: Holandés | MOVIMENTO: Tilt + Zoom | ARTE: Tipografía de las palabras-ataque, glitch sobre la pantalla | NOTAS: Caos visual, los personajes invaden el encuadre
+SEQUÊNCIA 5 | PLANO: Close-up | ÁNGULO: Inferior | MOVIMENTO: Ninguno | ARTE: Cama con sábanas usadas, notebook cerrado de golpe | NOTAS: Expresión de verdad, primer diálogo hablado
+SEQUÊNCIA 6 | PLANO: Two-shot | ÁNGULO: Perfil | MOVIMENTO: Dolly | ARTE: CADERNO DE DESENHOS (tapa gastada, cantos doblados, mancha de jugo seca), puerta practicable | NOTAS: La madre entra y deja el caderno en la cama
+SEQUÊNCIA 7 | PLANO: Extreme close-up | ÁNGULO: Superior | MOVIMENTO: Ninguno | ARTE: Interior del caderno: dibujos infantiles en lápiz de color y el GATO firmado con letra de niña y la edad 7 | NOTAS: Foco en el caderno, flashback emocional
+SEQUÊNCIA 8 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Tracking | ARTE: Caderno abierto junto a la computadora en la página del gato, escritorio despejado | NOTAS: Creación del dibujo, cierre de pestañas
+SEQUÊNCIA 9 | PLANO: Medium shot | ÁNGULO: Frontal | MOVIMENTO: Zoom in | ARTE: Gato animado terminado en pantalla | NOTAS: El gato cobra vida, contacto visual directo
+SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE: Formulario del concurso en pantalla, caderno abierto en la mesita, papelera vacía | NOTAS: Envío del archivo, desenlace ceremonial`;
 
         let asistencias = { literario: true, tecnico: true, paleta: true };
         let secuenciasParseadas = [];
@@ -1598,21 +1662,21 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function generarTecnicoSugerido(n) {
             const defaults = [
-                { p: 'Wide shot', a: 'Nivel', m: 'Ninguno', n: 'Plano de presentación, establecer el mundo' },
-                { p: 'Close-up', a: 'Frontal', m: 'Zoom in', n: 'Foco en el deseo/oportunidad' },
-                { p: 'Medium shot', a: 'Frontal', m: 'Ninguno', n: 'Primer intento y primer obstáculo' },
-                { p: 'Wide shot', a: 'Holandés', m: 'Tilt + Zoom', n: 'Caos creciente, ángulo inestable' },
-                { p: 'Close-up', a: 'Inferior', m: 'Ninguno', n: 'Momento de verdad, máxima intimidad' },
-                { p: 'Two-shot', a: 'Perfil', m: 'Dolly', n: 'El giro entra en escena suavemente' },
-                { p: 'Extreme close-up', a: 'Superior', m: 'Ninguno', n: 'Descubrimiento, detalle emocional' },
-                { p: 'Medium shot', a: 'Frontal', m: 'Tracking', n: 'Montaje de acción, energía renovada' },
-                { p: 'Medium shot', a: 'Frontal', m: 'Zoom in', n: 'Clímax, contacto directo' },
-                { p: 'Close-up', a: 'Frontal', m: 'Zoom out', n: 'Resolución ceremonial, cierre' }
+                { p: 'Wide shot', a: 'Nivel', m: 'Ninguno', ar: 'Decorado base de la localización principal', n: 'Plano de presentación, establecer el mundo' },
+                { p: 'Close-up', a: 'Frontal', m: 'Zoom in', ar: 'Objeto o detalle que encarna el deseo', n: 'Foco en el deseo/oportunidad' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Ninguno', ar: 'Utilería de la acción del primer intento', n: 'Primer intento y primer obstáculo' },
+                { p: 'Wide shot', a: 'Holandés', m: 'Tilt + Zoom', ar: 'Elementos que se desordenan o invaden el cuadro', n: 'Caos creciente, ángulo inestable' },
+                { p: 'Close-up', a: 'Inferior', m: 'Ninguno', ar: 'Maquillaje de desgaste, continuidad emocional', n: 'Momento de verdad, máxima intimidad' },
+                { p: 'Two-shot', a: 'Perfil', m: 'Dolly', ar: 'El objeto que trae el giro', n: 'El giro entra en escena suavemente' },
+                { p: 'Extreme close-up', a: 'Superior', m: 'Ninguno', ar: 'El objeto clave en detalle: textura y desgaste', n: 'Descubrimiento, detalle emocional' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Tracking', ar: 'Herramientas de trabajo del protagonista', n: 'Montaje de acción, energía renovada' },
+                { p: 'Medium shot', a: 'Frontal', m: 'Zoom in', ar: 'Resultado visible de la creación', n: 'Clímax, contacto directo' },
+                { p: 'Close-up', a: 'Frontal', m: 'Zoom out', ar: 'Objeto del inicio, ahora resignificado', n: 'Resolución ceremonial, cierre' }
             ];
             const lineas = [];
             for (let i = 0; i < n; i++) {
                 const d = defaults[i] || defaults[defaults.length - 1];
-                lineas.push(`SEQUÊNCIA ${i + 1} | PLANO: ${d.p} | ÁNGULO: ${d.a} | MOVIMENTO: ${d.m} | NOTAS: ${d.n}`);
+                lineas.push(`SEQUÊNCIA ${i + 1} | PLANO: ${d.p} | ÁNGULO: ${d.a} | MOVIMENTO: ${d.m} | ARTE: ${d.ar} | NOTAS: ${d.n}`);
             }
             return lineas.join('\n');
         }
@@ -1745,6 +1809,11 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('fsGuiaoTexto').value = document.getElementById('guiaoLiterario').value;
             document.getElementById('fsGuiao').style.display = 'flex';
             fsAplicar();
+            document.getElementById('fsIndice').style.display = fsIndiceVisible ? 'block' : 'none';
+            document.getElementById('fsIndiceBtn').style.opacity = fsIndiceVisible ? '1' : '0.55';
+            document.getElementById('fsMaquinaBtn').style.opacity = fsMaquina ? '1' : '0.55';
+            if (fsIndiceVisible) pintarIndiceSecuencias();
+            pintarEstadisticas();
             document.getElementById('fsGuiaoTexto').focus();
         }
 
@@ -1873,6 +1942,18 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     html += `<div style="background: var(--accent); padding: 6px; border-radius: 0; margin-top: 5px; font-size: 11px;"><strong>Seq ${s.numero}:</strong> ${s.son}</div>`;
                 });
                 html += `</div>`;
+            }
+
+            // Desglose de arte tomado del guion técnico (campo ARTE)
+            const arteSecs = secuenciasParseadas
+                .map(s => ({ seq: s, arte: datosTecnicosSeq(s.numero).arte }))
+                .filter(x => x.arte);
+            if (arteSecs.length > 0) {
+                html += `<div class="card"><strong>🎬 Desglose de arte por secuencia</strong>`;
+                arteSecs.forEach(x => {
+                    html += `<div style="background: var(--accent); padding: 8px; margin-top: 5px; font-size: 11px; line-height: 1.5;"><strong>Seq ${x.seq.numero}</strong> — ${x.seq.titulo}<br><span style="color: var(--gray-dark);">${x.arte}</span></div>`;
+                });
+                html += `<div style="font-size: 10px; color: var(--gray-mid); margin-top: 8px;">Se edita en la pestaña Técnico, campo ARTE de cada secuencia.</div></div>`;
             }
 
             document.getElementById('desglocesContainer').innerHTML = html || '<p style="color: #999;">Sin desgloses</p>';
@@ -2042,6 +2123,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 </div>
 
                 <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; font-size: 13px;">🎨 Desglose de arte</div>
+                    <div style="font-size: 10px; color: var(--gray-mid); margin-bottom: 8px;">Qué hay que conseguir, fabricar o vestir para esta secuencia. ${sugerenciaArte(seq) ? 'Detectado en el guion: ' + sugerenciaArte(seq) : ''}</div>
+                    <input type="text" placeholder="Utilería, decorado, vestuario, maquillaje..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 0; font-size: 12px;"
+                        value="${(respuestasAsistente[seq.numero]?.arte || '').replace(/"/g, '&quot;')}"
+                        onchange="respuestasAsistente[${seq.numero}] = respuestasAsistente[${seq.numero}] || {}; respuestasAsistente[${seq.numero}].arte = this.value;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
                     <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">📝 Notas técnicas</div>
                     <input type="text" placeholder="Notas, detalles..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 0; font-size: 12px;"
                         value="${(respuestasAsistente[seq.numero]?.notas || '').replace(/"/g, '&quot;')}"
@@ -2055,6 +2144,17 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             `;
 
             document.getElementById('asistenteContent').innerHTML = html;
+        }
+
+        const ETIQUETAS_ARTE = {
+            cama: 'cama', lixeira: 'papelera', monitor: 'monitor y escritorio', caderno: 'caderno de dibujos',
+            palavras: 'tipografía animada', porta: 'puerta practicable', prateleira: 'estante',
+            janela: 'ventana', formulario: 'formulario en pantalla'
+        };
+
+        function sugerenciaArte(seq) {
+            if (!seq) return '';
+            return detectarElementosEscena(seq.descripcion).map(e => ETIQUETAS_ARTE[e] || e).join(', ');
         }
 
         function seleccionarOpcion(seqNum, tipo, valor) {
@@ -2085,9 +2185,10 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 const plano = respuesta.plano || 'A definir';
                 const angulo = respuesta.angulo || 'A definir';
                 const movimiento = respuesta.movimiento || 'Ninguno';
+                const arte = respuesta.arte || '';
                 const notas = respuesta.notas || '';
 
-                guiaoTecnico += `SEQUÊNCIA ${seq.numero} | PLANO: ${plano} | ÁNGULO: ${angulo} | MOVIMENTO: ${movimiento}${notas ? ` | NOTAS: ${notas}` : ''}\n`;
+                guiaoTecnico += `SEQUÊNCIA ${seq.numero} | PLANO: ${plano} | ÁNGULO: ${angulo} | MOVIMENTO: ${movimiento}${arte ? ` | ARTE: ${arte}` : ''}${notas ? ` | NOTAS: ${notas}` : ''}\n`;
             });
 
             document.getElementById('guiaoTecnico').value = guiaoTecnico;
@@ -2909,17 +3010,185 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             el.innerHTML = `<strong>Próxima pregunta de Ade:</strong> ${texto}`;
         }
 
-        // ==================== PANEL DE STORYBOARD (dibujo automático) ====================
+        // ==================== AYUDAS DE ESCRITURA ====================
+        let autoTimer = null;
+        let ultimoTextoGuardado = null;
+        let fsIndiceVisible = false;
+        let fsMaquina = localStorage.getItem('fsMaquina') === '1';
+
+        function estadisticasGuion(texto) {
+            const t = texto || '';
+            const palabras = (t.match(/[0-9A-Za-zÀ-ÿ'’-]+/g) || []).length;
+            const secuencias = (t.match(/^\s*SEQU[ÊE]NCIA\b/gmi) || []).length;
+            // Un diálogo es NOMBRE: texto — se excluyen las marcas técnicas del guion
+            const dialogos = (t.match(/^(?!SOM:|ANIMA|SEQU|INT\.|EXT\.|TELA|MONTAGEM)[A-ZÀ-Ý][A-ZÀ-Ý0-9 \.\(\)]{1,24}:/gm) || []).length;
+            // Convención: una página de guion ≈ 55 líneas ≈ un minuto de pantalla
+            const paginas = t.split('\n').length / 55;
+            const min = Math.floor(paginas);
+            const seg = Math.round((paginas - min) * 60);
+            return {
+                palabras: palabras,
+                secuencias: secuencias,
+                dialogos: dialogos,
+                duracion: min + ':' + String(seg).padStart(2, '0')
+            };
+        }
+
+        function pintarEstadisticas() {
+            const ta = document.getElementById('guiaoLiterario');
+            if (!ta) return;
+            const e = estadisticasGuion(ta.value);
+            const texto = e.palabras + ' palabras · ' + e.secuencias + ' secuencias · ' + e.dialogos + ' diálogos · ≈ ' + e.duracion + ' en pantalla';
+            const a = document.getElementById('statsGuion');
+            if (a) a.textContent = texto;
+            const b = document.getElementById('fsStats');
+            if (b) b.textContent = texto;
+        }
+
+        function marcarEstadoGuardado(estado) {
+            const texto = estado === 'escribiendo' ? 'escribiendo…' : (estado === 'guardado' ? 'guardado' : '');
+            ['estadoGuardado', 'fsEstado'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = texto;
+            });
+        }
+
+        function autoguardarGuion(desdeFullscreen) {
+            if (desdeFullscreen) {
+                document.getElementById('guiaoLiterario').value = document.getElementById('fsGuiaoTexto').value;
+            }
+            pintarEstadisticas();
+            if (fsIndiceVisible) pintarIndiceSecuencias();
+            marcarEstadoGuardado('escribiendo');
+            clearTimeout(autoTimer);
+            autoTimer = setTimeout(function () {
+                const texto = document.getElementById('guiaoLiterario').value;
+                if (texto === ultimoTextoGuardado) { marcarEstadoGuardado('guardado'); return; }
+                ultimoTextoGuardado = texto;
+                pset('guiaoLiterario', texto);
+                secuenciasParseadas = parseGuiaoLiterario(texto);
+                atualizarDesgloces();
+                atualizarPlanRodaje();
+                atualizarFichaMcKee();
+                actualizarNudgeMcKee();
+                marcarEstadoGuardado('guardado');
+            }, 900);
+        }
+
+        // ---------- índice de secuencias ----------
+        function secuenciasConPosicion() {
+            const texto = document.getElementById('guiaoLiterario').value;
+            const lista = [];
+            const re = /^[ \t]*SEQU[ÊE]NCIA[ \t]*(\d+)?[ \t]*:?[ \t]*(.*)$/gmi;
+            let m;
+            while ((m = re.exec(texto)) !== null) {
+                lista.push({ numero: m[1] || (lista.length + 1), titulo: (m[2] || '').trim(), pos: m.index });
+            }
+            return lista;
+        }
+
+        function pintarIndiceSecuencias() {
+            const cont = document.getElementById('fsIndice');
+            if (!cont) return;
+            const lista = secuenciasConPosicion();
+            cont.innerHTML = lista.length
+                ? lista.map(function (s, i) {
+                    return '<a onclick="irASecuencia(' + s.pos + ')">' +
+                        '<span class="n">' + String(s.numero).padStart(2, '0') + '</span>' +
+                        '<span class="t">' + (s.titulo || 'sin título') + '</span></a>';
+                }).join('')
+                : '<p style="font-size:10px; color:var(--gray-light); letter-spacing:1px;">Sin secuencias</p>';
+        }
+
+        function fsIndiceToggle() {
+            fsIndiceVisible = !fsIndiceVisible;
+            document.getElementById('fsIndice').style.display = fsIndiceVisible ? 'block' : 'none';
+            document.getElementById('fsIndiceBtn').style.opacity = fsIndiceVisible ? '1' : '0.55';
+            if (fsIndiceVisible) pintarIndiceSecuencias();
+        }
+
+        function irASecuencia(pos) {
+            const ta = document.getElementById('fsGuiaoTexto');
+            ta.focus();
+            ta.setSelectionRange(pos, pos);
+            centrarCursor(true);
+        }
+
+        // ---------- scroll de máquina de escribir ----------
+        function filasHasta(ta, pos) {
+            const ancho = ta.clientWidth - 80;
+            const charW = fsFuente * 0.6;   // Courier New ≈ 0,6 em de avance
+            const cpl = Math.max(20, Math.floor(ancho / charW));
+            let filas = 0;
+            ta.value.slice(0, pos).split('\n').forEach(function (l) {
+                filas += Math.max(1, Math.ceil(l.length / cpl));
+            });
+            return filas;
+        }
+
+        function centrarCursor(forzar) {
+            if (!fsMaquina && !forzar) return;
+            const ta = document.getElementById('fsGuiaoTexto');
+            const wrap = document.getElementById('fsGuiaoWrap');
+            if (!ta || !wrap) return;
+            const lh = parseFloat(getComputedStyle(ta).lineHeight) || fsFuente * 1.8;
+            const y = filasHasta(ta, ta.selectionStart) * lh;
+            wrap.scrollTop = Math.max(0, y - wrap.clientHeight * 0.42);
+        }
+
+        function fsMaquinaToggle() {
+            fsMaquina = !fsMaquina;
+            localStorage.setItem('fsMaquina', fsMaquina ? '1' : '0');
+            document.getElementById('fsMaquinaBtn').style.opacity = fsMaquina ? '1' : '0.55';
+            if (fsMaquina) centrarCursor();
+        }
+
+        // ---------- inserciones rápidas ----------
+        function insertarEnGuion(texto, desplazarAtras) {
+            const fs = document.getElementById('fsGuiao').style.display === 'flex';
+            const ta = document.getElementById(fs ? 'fsGuiaoTexto' : 'guiaoLiterario');
+            const i = ta.selectionStart;
+            const antes = ta.value.slice(0, i);
+            const salto = (antes === '' || antes.endsWith('\n\n')) ? '' : (antes.endsWith('\n') ? '\n' : '\n\n');
+            const bloque = salto + texto;
+            ta.value = antes + bloque + ta.value.slice(ta.selectionEnd);
+            const cursor = i + bloque.length - (desplazarAtras || 0);
+            ta.setSelectionRange(cursor, cursor);
+            ta.focus();
+            autoguardarGuion(fs);
+            if (fs) centrarCursor();
+        }
+
+        function insertarSecuencia() {
+            const n = secuenciasConPosicion().length + 1;
+            insertarEnGuion('=====\n\nSEQUÊNCIA ' + n + ': ', 0);
+        }
+
+        function insertarEncabezado() { insertarEnGuion('INT.  - NOITE', 8); }
+        function insertarDialogo() { insertarEnGuion('PERSONAJE: ', 0); }
+        function insertarSom() { insertarEnGuion('SOM: ', 0); }
+        function insertarAnimacion() { insertarEnGuion('ANIMAÇÃO: ', 0); }
+
+        document.addEventListener('keydown', function (e) {
+            if (!(e.ctrlKey || e.metaKey) || !e.shiftKey) return;
+            const activo = document.activeElement;
+            if (!activo || (activo.id !== 'guiaoLiterario' && activo.id !== 'fsGuiaoTexto')) return;
+            const k = e.key.toLowerCase();
+            if (k === 'q') { e.preventDefault(); insertarSecuencia(); }
+            else if (k === 'e') { e.preventDefault(); insertarEncabezado(); }
+            else if (k === 'd') { e.preventDefault(); insertarDialogo(); }
+            else if (k === 'm') { e.preventDefault(); insertarSom(); }
+            else if (k === 'a') { e.preventDefault(); insertarAnimacion(); }
+        });
+
+
+        // ==================== PANEL DE STORYBOARD (línea limpia) ====================
         const SB_W = 320, SB_H = 180;
         const SB_TINTA = '#2B2622';
-        const SB_LINEA = '#5A5248';
-        const SB_SUAVE = '#B9B1A2';
-        const SB_MOV = '#8C8375';
-        const SB_PIEL = '#EDE6D8';
-        const SB_PIEL_S = '#CBC0AC';
-        const SB_PELO = '#3A342C';
-        const SB_ROPA = '#DCD4C4';
-        const SB_ROPA_S = '#B4AB98';
+        const SB_SUAVE = '#C9C0AE';
+        const SB_PAPEL = '#FBF8F1';
+        const SB_T = 1.2;   // trazo del sujeto
+        const SB_T2 = 0.9;  // trazo del entorno
 
         function detectarElementosEscena(texto) {
             const t = (texto || '').toLowerCase();
@@ -2928,7 +3197,6 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 ['lixeira', /\b(lixeiras?|papeleras?|basura)\b/],
                 ['monitor', /\b(monitor|computador|computadora|laptop|notebook|pantalla|tela do|escritorio|mesa)\b/],
                 ['caderno', /\b(caderno|cuaderno|desenhos|dibujos|p[áa]ginas?)\b/],
-                ['brinquedo', /\b(brinquedos?|peluche|juguete)\b/],
                 ['palavras', /\b(palavras?|palabras?)\b/],
                 ['porta', /\b(portas?|puertas?)\b/],
                 ['prateleira', /\b(prateleiras?|estantes?|repisas?)\b/],
@@ -2944,184 +3212,68 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return /(acostad|deitad|na cama|en la cama|se deja caer|cai na cama)/i.test(texto || '');
         }
 
-        function esNocturna(texto) {
-            return /(noite|noche|night|escur|oscur)/i.test(texto || '');
-        }
-
-        // ---------- capas de tono, luz y textura ----------
-        function sbDefs(uid, nocturna) {
-            const paredA = nocturna ? '#D9D3C6' : '#F2EDE1';
-            const paredB = nocturna ? '#A9A294' : '#D6CFC0';
-            const pisoA = nocturna ? '#9C9486' : '#C4BCAB';
-            const pisoB = nocturna ? '#CFC8B9' : '#EAE4D7';
-            return `<defs>
-                <linearGradient id="pared${uid}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="${paredA}"/><stop offset="1" stop-color="${paredB}"/>
-                </linearGradient>
-                <linearGradient id="piso${uid}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="${pisoA}"/><stop offset="1" stop-color="${pisoB}"/>
-                </linearGradient>
-                <linearGradient id="tela${uid}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D8D2C6"/>
-                </linearGradient>
-                <radialGradient id="brillo${uid}" cx="0.5" cy="0.5" r="0.5">
-                    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
-                    <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.35"/>
-                    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-                </radialGradient>
-                <radialGradient id="vineta${uid}" cx="0.5" cy="0.48" r="0.72">
-                    <stop offset="0.5" stop-color="#2B2622" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#2B2622" stop-opacity="0.26"/>
-                </radialGradient>
-                <linearGradient id="fondoDes${uid}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#E6E0D3"/><stop offset="1" stop-color="#BDB5A4"/>
-                </linearGradient>
-                <filter id="desenfoque${uid}" x="-25%" y="-25%" width="150%" height="150%">
-                    <feGaussianBlur stdDeviation="2.6"/>
-                </filter>
-                <filter id="desenfoqueFuerte${uid}" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="5"/>
-                </filter>
-                <filter id="grano${uid}" x="0" y="0" width="100%" height="100%">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" result="n"/>
-                    <feColorMatrix type="saturate" values="0" in="n" result="g"/>
-                </filter>
-            </defs>`;
-        }
-
-        function sbVineta(uid) {
-            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="url(#vineta${uid})"/>`;
-        }
-
-        function sbGrano(uid) {
-            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" filter="url(#grano${uid})" opacity="0.11"/>`;
-        }
-
         // ---------- utilidades ----------
-        function sbFlecha(x1, y1, x2, y2, color) {
-            color = color || SB_MOV;
-            const ang = Math.atan2(y2 - y1, x2 - x1), s = 7;
-            const ax = x2 - s * Math.cos(ang - 0.42), ay = y2 - s * Math.sin(ang - 0.42);
-            const bx = x2 - s * Math.cos(ang + 0.42), by = y2 - s * Math.sin(ang + 0.42);
-            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" stroke-linecap="round"/>`
-                + `<path d="M ${x2} ${y2} L ${ax} ${ay} M ${x2} ${y2} L ${bx} ${by}" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+        function sbLinea(x1, y1, x2, y2, suave) {
+            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${suave ? SB_SUAVE : SB_TINTA}" stroke-width="${suave ? SB_T2 : SB_T}" stroke-linecap="round"/>`;
         }
 
-        function sbMarcasEncuadre() {
-            const m = 9, o = 6;
-            function esquina(x, y, dx, dy) {
-                return `<path d="M ${x + dx * m} ${y} L ${x} ${y} L ${x} ${y + dy * m}" stroke="#FBF8F1" stroke-width="1.4" fill="none" opacity="0.85"/>`;
-            }
-            return esquina(o, o, 1, 1) + esquina(SB_W - o, o, -1, 1) + esquina(o, SB_H - o, 1, -1) + esquina(SB_W - o, SB_H - o, -1, -1);
+        function sbFlecha(x1, y1, x2, y2) {
+            const ang = Math.atan2(y2 - y1, x2 - x1), s = 6;
+            const ax = x2 - s * Math.cos(ang - 0.4), ay = y2 - s * Math.sin(ang - 0.4);
+            const bx = x2 - s * Math.cos(ang + 0.4), by = y2 - s * Math.sin(ang + 0.4);
+            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${SB_TINTA}" stroke-width="1.1" stroke-linecap="round"/>`
+                + `<path d="M ${x2} ${y2} L ${ax} ${ay} M ${x2} ${y2} L ${bx} ${by}" stroke="${SB_TINTA}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
         }
 
-        function sbSombraSuelo(cx, y, rx, opac) {
-            return `<ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${rx * 0.22}" fill="#2B2622" opacity="${opac || 0.18}"/>`;
+        function sbEtiqueta(texto, derecha) {
+            if (!texto) return '';
+            return `<text x="${derecha ? SB_W - 9 : 9}" y="17" text-anchor="${derecha ? 'end' : 'start'}"
+                font-family="Helvetica, Arial, sans-serif" font-size="8" fill="${SB_TINTA}" letter-spacing="1.4">${texto}</text>`;
         }
 
         // ---------- espacio ----------
-        function sbSala(uid, groundY, vpx, luzX) {
-            let o = `<rect x="0" y="0" width="${SB_W}" height="${groundY}" fill="url(#pared${uid})"/>`
-                + `<rect x="0" y="${groundY}" width="${SB_W}" height="${SB_H - groundY}" fill="url(#piso${uid})"/>`
-                + `<line x1="0" y1="${groundY}" x2="${SB_W}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="1.1" opacity="0.55"/>`
-                + `<line x1="0" y1="${groundY + 4}" x2="${SB_W}" y2="${groundY + 4}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.3"/>`;
-            // fuga suave hacia el punto de vista
-            o += `<line x1="0" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.18"/>`
-                + `<line x1="${SB_W}" y1="${SB_H}" x2="${vpx}" y2="${groundY}" stroke="${SB_LINEA}" stroke-width="0.6" opacity="0.18"/>`;
-            if (luzX !== undefined) {
-                o += `<ellipse cx="${luzX}" cy="${groundY + (SB_H - groundY) * 0.55}" rx="${SB_W * 0.34}" ry="${(SB_H - groundY) * 0.8}" fill="url(#brillo${uid})" opacity="0.5"/>`;
-            }
-            return o;
+        function sbSala(groundY, vpx) {
+            return sbLinea(0, groundY, SB_W, groundY, true)
+                + sbLinea(0, SB_H, vpx * 0.55, groundY, true)
+                + sbLinea(SB_W, SB_H, vpx * 1.1 > SB_W ? SB_W : vpx * 1.1, groundY, true);
         }
 
-        function sbFondoDesenfocado(uid, elementos, groundY) {
-            // masas suaves detrás del sujeto: da profundidad sin competir con la figura
-            let o = `<g filter="url(#desenfoqueFuerte${uid})" opacity="0.75">`;
-            o += `<rect x="0" y="0" width="${SB_W}" height="${groundY}" fill="url(#fondoDes${uid})"/>`;
-            o += `<rect x="0" y="${groundY}" width="${SB_W}" height="${SB_H - groundY}" fill="#A79E8D"/>`;
-            if (elementos.indexOf('janela') >= 0 || elementos.indexOf('monitor') >= 0) {
-                o += `<rect x="${SB_W * 0.62}" y="${groundY * 0.18}" width="${SB_W * 0.3}" height="${groundY * 0.55}" fill="#FFFFFF" opacity="0.85"/>`;
-            }
-            o += `<ellipse cx="${SB_W * 0.2}" cy="${groundY * 0.5}" rx="34" ry="46" fill="#8E8676" opacity="0.5"/>`;
-            o += `</g>`;
-            return o;
-        }
-
-        // ---------- figura humana con volumen ----------
-        function sbCuerpo(cx, baseY, h, opts) {
-            opts = opts || {};
-            const luz = opts.luz === 'der' ? 1 : -1;   // lado iluminado
+        // ---------- figura ----------
+        function sbCuerpo(cx, baseY, h) {
             const top = baseY - h;
-            const hCab = h * 0.132, wCab = hCab * 0.72;
-            const cabCy = top + hCab * 0.55;
-            const hom = top + h * 0.185, homW = h * 0.125;
-            const cin = top + h * 0.44, cinW = h * 0.082;
-            const cad = top + h * 0.51, cadW = h * 0.098;
+            const hCab = h * 0.132, wCab = hCab * 0.7;
+            const cabCy = top + hCab * 0.58;
+            const hom = top + h * 0.19, homW = h * 0.12;
+            const cin = top + h * 0.44, cinW = h * 0.08;
+            const cad = top + h * 0.51, cadW = h * 0.095;
             const rod = top + h * 0.74;
+            const T = SB_T;
 
-            let o = '';
-            // sombra proyectada
-            o += sbSombraSuelo(cx - luz * h * 0.05, baseY, h * 0.15, 0.2);
-
-            // piernas
-            o += `<path d="M ${cx - cadW} ${cad} L ${cx - cadW * 0.15} ${cad} L ${cx - cadW * 0.3} ${rod} L ${cx - cadW * 0.75} ${baseY} L ${cx - cadW * 1.25} ${baseY} Z"
-                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.1" stroke-linejoin="round"/>`;
-            o += `<path d="M ${cx + cadW * 0.15} ${cad} L ${cx + cadW} ${cad} L ${cx + cadW * 1.25} ${baseY} L ${cx + cadW * 0.75} ${baseY} L ${cx + cadW * 0.3} ${rod} Z"
-                    fill="${SB_ROPA_S}" stroke="${SB_TINTA}" stroke-width="1.1" stroke-linejoin="round"/>`;
-
-            // torso
-            o += `<path d="M ${cx - homW} ${hom} Q ${cx} ${hom - h * 0.02} ${cx + homW} ${hom}
+            return `<ellipse cx="${cx}" cy="${cabCy}" rx="${wCab * 0.62}" ry="${hCab * 0.6}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                <path d="M ${cx - wCab * 0.6} ${cabCy - hCab * 0.08} q ${wCab * 0.08} ${-hCab * 0.78} ${wCab * 0.6} ${-hCab * 0.72}
+                    q ${wCab * 0.54} ${-hCab * 0.06} ${wCab * 0.6} ${hCab * 0.72}" fill="none" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                <path d="M ${cx} ${cabCy + hCab * 0.6} L ${cx} ${hom}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                <path d="M ${cx - homW} ${hom} Q ${cx} ${hom - h * 0.025} ${cx + homW} ${hom}
                     L ${cx + cinW} ${cin} L ${cx + cadW} ${cad} L ${cx - cadW} ${cad} L ${cx - cinW} ${cin} Z"
-                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.2" stroke-linejoin="round"/>`;
-            // sombra del torso del lado opuesto a la luz
-            o += `<path d="M ${cx + luz * -homW * 0.1} ${hom} L ${cx + luz * -homW} ${hom} L ${cx + luz * -cinW} ${cin} L ${cx + luz * -cadW} ${cad} L ${cx + luz * -cadW * 0.1} ${cad} Z"
-                    fill="${SB_ROPA_S}" opacity="0.85"/>`;
-
-            // brazos (por fuera de la silueta del torso, para que se lean)
-            const bIzq = `M ${cx - homW * 0.95} ${hom + h * 0.015} q ${-h * 0.055} ${h * 0.12} ${-h * 0.03} ${h * 0.25}`;
-            const bDer = `M ${cx + homW * 0.95} ${hom + h * 0.015} q ${h * 0.055} ${h * 0.12} ${h * 0.03} ${h * 0.25}`;
-            o += `<path d="${bIzq}" fill="none" stroke="${SB_TINTA}" stroke-width="${h * 0.036}" stroke-linecap="round" opacity="0.92"/>`;
-            o += `<path d="${bDer}" fill="none" stroke="${SB_TINTA}" stroke-width="${h * 0.036}" stroke-linecap="round" opacity="0.92"/>`;
-            o += `<path d="${bIzq}" fill="none" stroke="${SB_ROPA}" stroke-width="${h * 0.026}" stroke-linecap="round"/>`;
-            o += `<path d="${bDer}" fill="none" stroke="${SB_ROPA_S}" stroke-width="${h * 0.026}" stroke-linecap="round"/>`;
-
-            // cuello y cabeza
-            o += `<rect x="${cx - wCab * 0.22}" y="${cabCy + hCab * 0.4}" width="${wCab * 0.44}" height="${h * 0.035}" fill="${SB_PIEL_S}" stroke="${SB_TINTA}" stroke-width="1"/>`;
-            o += `<ellipse cx="${cx}" cy="${cabCy}" rx="${wCab * 0.62}" ry="${hCab * 0.6}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.15"/>`;
-            o += `<path d="M ${cx + luz * wCab * 0.62} ${cabCy - hCab * 0.1} a ${wCab * 0.62} ${hCab * 0.6} 0 0 ${luz > 0 ? 1 : 0} ${-luz * wCab * 0.5} ${hCab * 0.55}
-                    q ${luz * wCab * 0.35} ${-hCab * 0.2} ${luz * wCab * 0.5} ${-hCab * 0.45} Z" fill="${SB_PIEL_S}" opacity="0.8"/>`;
-            // pelo
-            o += `<path d="M ${cx - wCab * 0.64} ${cabCy - hCab * 0.05} q ${wCab * 0.05} ${-hCab * 0.85} ${wCab * 0.64} ${-hCab * 0.8}
-                    q ${wCab * 0.6} ${-hCab * 0.05} ${wCab * 0.64} ${hCab * 0.8}
-                    q ${-wCab * 0.2} ${-hCab * 0.35} ${-wCab * 0.64} ${-hCab * 0.28}
-                    q ${-wCab * 0.5} ${-hCab * 0.06} ${-wCab * 0.64} ${hCab * 0.28} Z"
-                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.9" stroke-linejoin="round"/>`;
-            // rasgos mínimos cuando la cabeza tiene tamaño suficiente
-            if (hCab > 18) {
-                const oy = cabCy + hCab * 0.02, ox = wCab * 0.24;
-                o += `<circle cx="${cx - ox}" cy="${oy}" r="${hCab * 0.045}" fill="${SB_TINTA}"/>`
-                    + `<circle cx="${cx + ox}" cy="${oy}" r="${hCab * 0.045}" fill="${SB_TINTA}"/>`
-                    + `<path d="M ${cx - wCab * 0.18} ${cabCy + hCab * 0.3} q ${wCab * 0.18} ${hCab * 0.09} ${wCab * 0.36} 0" fill="none" stroke="${SB_TINTA}" stroke-width="0.9" opacity="0.75"/>`;
-            }
-            return o;
+                    fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round"/>
+                <path d="M ${cx - homW * 0.92} ${hom + h * 0.02} q ${-h * 0.05} ${h * 0.12} ${-h * 0.025} ${h * 0.24}" fill="none" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linecap="round"/>
+                <path d="M ${cx + homW * 0.92} ${hom + h * 0.02} q ${h * 0.05} ${h * 0.12} ${h * 0.025} ${h * 0.24}" fill="none" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linecap="round"/>
+                <path d="M ${cx - cadW} ${cad} L ${cx - cadW * 0.3} ${rod} L ${cx - cadW * 1.1} ${baseY}" fill="none" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M ${cx + cadW} ${cad} L ${cx + cadW * 0.3} ${rod} L ${cx + cadW * 1.1} ${baseY}" fill="none" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M ${cx - cadW * 0.3} ${rod} L ${cx + cadW * 0.3} ${rod}" stroke="${SB_TINTA}" stroke-width="${T}" opacity="0.35"/>`;
         }
 
         function sbCuerpoDeitado(cx, y, w) {
-            const hCab = w * 0.11;
-            let o = `<path d="M ${cx - w * 0.3} ${y - hCab * 1.5} L ${cx + w * 0.3} ${y - hCab * 1.1} L ${cx + w * 0.46} ${y + 2} L ${cx - w * 0.3} ${y + 2} Z"
-                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.2" stroke-linejoin="round"/>`;
-            o += `<path d="M ${cx - w * 0.28} ${y - hCab * 0.4} L ${cx + w * 0.44} ${y} L ${cx - w * 0.3} ${y + 2} Z" fill="${SB_ROPA_S}" opacity="0.85"/>`;
-            o += `<ellipse cx="${cx - w * 0.36}" cy="${y - hCab}" rx="${hCab * 0.95}" ry="${hCab * 0.8}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.1"/>`;
-            o += `<path d="M ${cx - w * 0.44} ${y - hCab * 1.5} q ${hCab * 0.9} ${-hCab * 0.7} ${hCab * 1.7} ${hCab * 0.1}
-                    q ${-hCab * 0.7} ${-hCab * 0.1} ${-hCab * 1.7} ${hCab * 0.5} Z" fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.8"/>`;
-            return o;
+            const hCab = w * 0.1;
+            return `<ellipse cx="${cx - w * 0.36}" cy="${y - hCab}" rx="${hCab * 0.95}" ry="${hCab * 0.8}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>
+                <path d="M ${cx - w * 0.3} ${y - hCab * 1.45} L ${cx + w * 0.3} ${y - hCab * 1.05} L ${cx + w * 0.45} ${y} L ${cx - w * 0.3} ${y} Z"
+                    fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T}" stroke-linejoin="round"/>`;
         }
 
-        // ---------- rostro para primeros planos ----------
-        function sbRostro(cx, cy, r, perfil, luzDer) {
-            const luz = luzDer ? 1 : -1;
+        // ---------- rostro ----------
+        function sbRostro(cx, cy, r, perfil) {
+            const T = SB_T + 0.2;
             if (perfil) {
-                // silueta de perfil mirando a la izquierda, en un solo trazo cerrado
                 const sil = `M ${cx + r * 0.06} ${cy - r * 1.02}
                     Q ${cx - r * 0.42} ${cy - r * 0.98} ${cx - r * 0.58} ${cy - r * 0.58}
                     L ${cx - r * 0.63} ${cy - r * 0.2}
@@ -3133,205 +3285,137 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     Q ${cx + r * 0.2} ${cy + r * 1.06} ${cx + r * 0.58} ${cy + r * 0.7}
                     Q ${cx + r * 0.84} ${cy + r * 0.3} ${cx + r * 0.78} ${cy - r * 0.2}
                     Q ${cx + r * 0.7} ${cy - r * 0.82} ${cx + r * 0.06} ${cy - r * 1.02} Z`;
-                let o = `<path d="${sil}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.4" stroke-linejoin="round"/>`;
-                // media sombra hacia la nuca
-                o += `<path d="M ${cx + r * 0.1} ${cy - r * 1.0}
-                    Q ${cx + r * 0.72} ${cy - r * 0.8} ${cx + r * 0.78} ${cy - r * 0.2}
-                    Q ${cx + r * 0.84} ${cy + r * 0.3} ${cx + r * 0.58} ${cy + r * 0.7}
-                    Q ${cx + r * 0.3} ${cy + r * 0.5} ${cx + r * 0.1} ${cy - r * 1.0} Z"
-                    fill="${SB_PIEL_S}" opacity="0.75"/>`;
-                // pelo sobre craneo y nuca
-                o += `<path d="M ${cx + r * 0.06} ${cy - r * 1.04}
-                    Q ${cx - r * 0.48} ${cy - r} ${cx - r * 0.6} ${cy - r * 0.54}
-                    Q ${cx - r * 0.42} ${cy - r * 0.82} ${cx + r * 0.04} ${cy - r * 0.78}
-                    Q ${cx + r * 0.62} ${cy - r * 0.72} ${cx + r * 0.76} ${cy - r * 0.02}
-                    Q ${cx + r * 0.92} ${cy + r * 0.5} ${cx + r * 0.66} ${cy + r * 0.86}
-                    Q ${cx + r * 1.02} ${cy + r * 0.2} ${cx + r * 0.78} ${cy - r * 0.34}
-                    Q ${cx + r * 0.66} ${cy - r * 0.92} ${cx + r * 0.06} ${cy - r * 1.04} Z"
-                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="0.9" stroke-linejoin="round"/>`;
-                // ceja, ojo, boca y oreja
-                o += `<path d="M ${cx - r * 0.56} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.1} ${r * 0.34} ${-r * 0.02}" fill="none" stroke="${SB_TINTA}" stroke-width="1.3"/>`;
-                o += `<path d="M ${cx - r * 0.52} ${cy - r * 0.14} q ${r * 0.16} ${-r * 0.08} ${r * 0.28} ${r * 0.02} q ${-r * 0.12} ${r * 0.12} ${-r * 0.28} ${-r * 0.02} Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="1.1"/>`;
-                o += `<circle cx="${cx - r * 0.42}" cy="${cy - r * 0.09}" r="${r * 0.062}" fill="${SB_TINTA}"/>`;
-                o += `<path d="M ${cx - r * 0.62} ${cy + r * 0.4} q ${r * 0.14} ${r * 0.07} ${r * 0.26} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
-                o += `<path d="M ${cx + r * 0.16} ${cy + r * 0.06} q ${r * 0.16} ${-r * 0.1} ${r * 0.14} ${r * 0.16} q ${-r * 0.04} ${r * 0.14} ${-r * 0.16} ${r * 0.08}" fill="none" stroke="${SB_TINTA}" stroke-width="1.1" opacity="0.8"/>`;
-                // luz de contorno en la frente y la nariz
-                o += `<path d="M ${cx - r * 0.58} ${cy - r * 0.56} L ${cx - r * 0.63} ${cy - r * 0.2} L ${cx - r * 0.92} ${cy + r * 0.08}" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.65"/>`;
-                return o;
+                return `<path d="${sil}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round"/>
+                    <path d="M ${cx + r * 0.06} ${cy - r * 1.02} Q ${cx - r * 0.46} ${cy - r * 0.98} ${cx - r * 0.6} ${cy - r * 0.54}
+                        Q ${cx - r * 0.3} ${cy - r * 0.8} ${cx + r * 0.1} ${cy - r * 0.76}
+                        Q ${cx + r * 0.64} ${cy - r * 0.7} ${cx + r * 0.78} ${cy - r * 0.1}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>
+                    <path d="M ${cx - r * 0.56} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.1} ${r * 0.34} ${-r * 0.02}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>
+                    <path d="M ${cx - r * 0.52} ${cy - r * 0.14} q ${r * 0.16} ${-r * 0.08} ${r * 0.28} ${r * 0.02} q ${-r * 0.12} ${r * 0.12} ${-r * 0.28} ${-r * 0.02} Z" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>
+                    <circle cx="${cx - r * 0.42}" cy="${cy - r * 0.09}" r="${r * 0.055}" fill="${SB_TINTA}"/>
+                    <path d="M ${cx - r * 0.62} ${cy + r * 0.4} q ${r * 0.14} ${r * 0.07} ${r * 0.26} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
             }
-            let o = `<ellipse cx="${cx}" cy="${cy}" rx="${r * 0.76}" ry="${r}" fill="${SB_PIEL}" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
-            // volumen: media sombra del lado opuesto a la luz
-            o += `<path d="M ${cx + luz * -r * 0.05} ${cy - r} a ${r * 0.76} ${r} 0 0 ${luz > 0 ? 0 : 1} 0 ${r * 2}
-                    q ${luz * -r * 0.34} ${-r} 0 ${-r * 2} Z" fill="${SB_PIEL_S}" opacity="0.8"/>`;
-            // pelo
-            o += `<path d="M ${cx - r * 0.79} ${cy - r * 0.12} q ${r * 0.02} ${-r * 1.12} ${r * 0.79} ${-r * 1.05}
-                    q ${r * 0.77} ${-r * 0.07} ${r * 0.79} ${r * 1.05}
-                    q ${-r * 0.22} ${-r * 0.5} ${-r * 0.79} ${-r * 0.44}
-                    q ${-r * 0.6} ${-r * 0.06} ${-r * 0.79} ${r * 0.44} Z"
-                    fill="${SB_PELO}" stroke="${SB_TINTA}" stroke-width="1"/>`;
-            // cejas, ojos, nariz, boca
-            o += `<path d="M ${cx - r * 0.56} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.14} ${r * 0.4} -0.02" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
-            o += `<path d="M ${cx + r * 0.16} ${cy - r * 0.34} q ${r * 0.2} ${-r * 0.12} ${r * 0.4} 0.02" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
+            let o = `<ellipse cx="${cx}" cy="${cy}" rx="${r * 0.74}" ry="${r}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>`;
+            o += `<path d="M ${cx - r * 0.76} ${cy - r * 0.14} q ${r * 0.04} ${-r * 1.05} ${r * 0.76} ${-r} q ${r * 0.72} ${-r * 0.05} ${r * 0.76} ${r}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
+            o += `<path d="M ${cx - r * 0.54} ${cy - r * 0.32} q ${r * 0.2} ${-r * 0.12} ${r * 0.38} ${-r * 0.02}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
+            o += `<path d="M ${cx + r * 0.16} ${cy - r * 0.34} q ${r * 0.19} ${-r * 0.1} ${r * 0.38} ${r * 0.02}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
             [-1, 1].forEach(function (s) {
-                const ox = cx + s * r * 0.36;
-                o += `<path d="M ${ox - r * 0.17} ${cy - r * 0.04} q ${r * 0.17} ${-r * 0.14} ${r * 0.34} 0 q ${-r * 0.17} ${r * 0.13} ${-r * 0.34} 0 Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
-                o += `<circle cx="${ox}" cy="${cy - r * 0.04}" r="${r * 0.072}" fill="${SB_TINTA}"/>`;
-                o += `<circle cx="${ox + r * 0.03}" cy="${cy - r * 0.07}" r="${r * 0.022}" fill="#FFFFFF"/>`;
+                const ox = cx + s * r * 0.35;
+                o += `<path d="M ${ox - r * 0.16} ${cy - r * 0.04} q ${r * 0.16} ${-r * 0.13} ${r * 0.32} 0 q ${-r * 0.16} ${r * 0.12} ${-r * 0.32} 0 Z" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
+                o += `<circle cx="${ox}" cy="${cy - r * 0.04}" r="${r * 0.06}" fill="${SB_TINTA}"/>`;
             });
-            o += `<path d="M ${cx + r * 0.02} ${cy - r * 0.02} L ${cx - r * 0.09} ${cy + r * 0.28} q ${r * 0.08} ${r * 0.05} ${r * 0.16} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`;
-            o += `<path d="M ${cx - r * 0.26} ${cy + r * 0.55} q ${r * 0.26} ${r * 0.16} ${r * 0.52} 0" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
-            o += `<path d="M ${cx - r * 0.26} ${cy + r * 0.55} q ${r * 0.26} ${-r * 0.08} ${r * 0.52} 0" fill="none" stroke="${SB_TINTA}" stroke-width="0.9" opacity="0.6"/>`;
-            // luz de contorno
-            o += `<path d="M ${cx + luz * r * 0.74} ${cy - r * 0.45} a ${r * 0.76} ${r} 0 0 ${luz > 0 ? 1 : 0} ${luz * -r * 0.16} ${r * 1.2}" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity="0.7"/>`;
+            o += `<path d="M ${cx + r * 0.02} ${cy - r * 0.02} L ${cx - r * 0.08} ${cy + r * 0.26} q ${r * 0.07} ${r * 0.05} ${r * 0.15} ${r * 0.01}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
+            o += `<path d="M ${cx - r * 0.24} ${cy + r * 0.54} q ${r * 0.24} ${r * 0.15} ${r * 0.48} 0" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}"/>`;
             return o;
         }
 
         function sbHombros(cx, y, w) {
-            return `<path d="M ${cx - w} ${SB_H} Q ${cx - w * 0.52} ${y} ${cx} ${y} Q ${cx + w * 0.52} ${y} ${cx + w} ${SB_H}"
-                    fill="${SB_ROPA}" stroke="${SB_TINTA}" stroke-width="1.3"/>
-                <path d="M ${cx + w * 0.1} ${y + 4} Q ${cx + w * 0.6} ${y + 10} ${cx + w} ${SB_H} L ${cx + w * 0.1} ${SB_H} Z" fill="${SB_ROPA_S}" opacity="0.8"/>`;
+            // cuello y caida de hombros: dos trazos abiertos, sin relleno
+            return `<path d="M ${cx - w} ${SB_H} L ${cx - w * 0.44} ${y + 8} Q ${cx - w * 0.28} ${y - 2} ${cx - w * 0.18} ${y - 28}"
+                    fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M ${cx + w} ${SB_H} L ${cx + w * 0.44} ${y + 8} Q ${cx + w * 0.28} ${y - 2} ${cx + w * 0.18} ${y - 28}"
+                    fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T}" stroke-linejoin="round" stroke-linecap="round"/>`;
         }
 
         function sbOjos(cx, cy, w) {
             function ojo(ox) {
-                return `<path d="M ${ox - w * 0.2} ${cy} q ${w * 0.2} ${-w * 0.17} ${w * 0.4} 0 q ${-w * 0.2} ${w * 0.17} ${-w * 0.4} 0 Z" fill="#FFFFFF" stroke="${SB_TINTA}" stroke-width="2"/>
-                    <circle cx="${ox}" cy="${cy}" r="${w * 0.105}" fill="#6B6154"/>
-                    <circle cx="${ox}" cy="${cy}" r="${w * 0.05}" fill="${SB_TINTA}"/>
-                    <circle cx="${ox + w * 0.035}" cy="${cy - w * 0.035}" r="${w * 0.022}" fill="#FFFFFF"/>
-                    <path d="M ${ox - w * 0.2} ${cy} q ${w * 0.2} ${-w * 0.17} ${w * 0.4} 0" fill="none" stroke="${SB_TINTA}" stroke-width="2.6"/>
-                    <path d="M ${ox - w * 0.22} ${cy - w * 0.26} q ${w * 0.22} ${-w * 0.12} ${w * 0.44} 0" fill="none" stroke="${SB_TINTA}" stroke-width="1.8"/>`;
+                return `<path d="M ${ox - w * 0.2} ${cy} q ${w * 0.2} ${-w * 0.17} ${w * 0.4} 0 q ${-w * 0.2} ${w * 0.17} ${-w * 0.4} 0 Z" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="1.6"/>
+                    <circle cx="${ox}" cy="${cy}" r="${w * 0.1}" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>
+                    <circle cx="${ox}" cy="${cy}" r="${w * 0.045}" fill="${SB_TINTA}"/>
+                    <path d="M ${ox - w * 0.22} ${cy - w * 0.26} q ${w * 0.22} ${-w * 0.12} ${w * 0.44} 0" fill="none" stroke="${SB_TINTA}" stroke-width="1.4"/>`;
             }
-            return `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="${SB_PIEL}"/>`
-                + `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="${SB_PIEL_S}" opacity="0.45"/>`
-                + `<ellipse cx="${cx}" cy="${cy}" rx="${w * 1.1}" ry="${w * 0.6}" fill="${SB_PIEL}"/>`
-                + ojo(cx - w * 0.42) + ojo(cx + w * 0.42)
-                + `<path d="M ${cx} ${cy + w * 0.16} L ${cx - w * 0.06} ${cy + w * 0.52}" fill="none" stroke="${SB_TINTA}" stroke-width="1.3" opacity="0.65"/>`;
+            return ojo(cx - w * 0.42) + ojo(cx + w * 0.42)
+                + `<path d="M ${cx} ${cy + w * 0.16} L ${cx - w * 0.06} ${cy + w * 0.5}" fill="none" stroke="${SB_TINTA}" stroke-width="1.1"/>`;
         }
 
-        function sbHombroFrente(lado, uid) {
+        function sbHombroFrente(lado) {
             const x = lado === 'der' ? SB_W : 0;
             const d = lado === 'der' ? -1 : 1;
-            // nuca + hombro en primer término, desenfocados y en contraluz
-            return `<g filter="url(#desenfoque${uid})">
-                <path d="M ${x} ${SB_H}
-                    L ${x} ${SB_H * 0.66}
-                    Q ${x + d * 6} ${SB_H * 0.3} ${x + d * 40} ${SB_H * 0.26}
-                    Q ${x + d * 74} ${SB_H * 0.3} ${x + d * 80} ${SB_H * 0.62}
-                    Q ${x + d * 96} ${SB_H * 0.74} ${x + d * 104} ${SB_H}
-                    Z"
-                    fill="#4A443C" opacity="0.95"/>
-                </g>
-                <path d="M ${x + d * 40} ${SB_H * 0.26} Q ${x + d * 74} ${SB_H * 0.3} ${x + d * 80} ${SB_H * 0.62}"
-                    fill="none" stroke="#FBF8F1" stroke-width="1.6" opacity="0.35" filter="url(#desenfoque${uid})"/>`;
+            return `<path d="M ${x} ${SB_H} L ${x} ${SB_H * 0.8}
+                Q ${x + d * 4} ${SB_H * 0.52} ${x + d * 27} ${SB_H * 0.47}
+                Q ${x + d * 51} ${SB_H * 0.52} ${x + d * 55} ${SB_H * 0.77}
+                Q ${x + d * 71} ${SB_H * 0.87} ${x + d * 78} ${SB_H} Z"
+                fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T}" stroke-linejoin="round"/>`;
         }
 
-        // ---------- objetos con tono ----------
-        function sbProp(tipo, cx, groundY, s, uid) {
+        // ---------- objetos ----------
+        function sbProp(tipo, cx, groundY, s) {
             s = s || 1;
-            const T = SB_TINTA;
+            const T = SB_T;
             switch (tipo) {
                 case 'monitor': {
                     const w = 58 * s, h = 38 * s, x = cx - w / 2, y = groundY - h - 16 * s;
-                    return `<ellipse cx="${cx}" cy="${y + h / 2}" rx="${w * 0.95}" ry="${h * 0.95}" fill="url(#brillo${uid})" opacity="0.75"/>
-                        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" fill="#3A342C" stroke="${T}" stroke-width="1.3"/>
-                        <rect x="${x + 3 * s}" y="${y + 3 * s}" width="${w - 6 * s}" height="${h - 6 * s}" fill="url(#tela${uid})"/>
-                        <path d="M ${x + 3 * s} ${y + h - 3 * s} L ${x + w - 3 * s} ${y + 3 * s} L ${x + w - 3 * s} ${y + h - 3 * s} Z" fill="#FFFFFF" opacity="0.5"/>
-                        <path d="M ${cx - 5 * s} ${y + h} L ${cx + 5 * s} ${y + h} L ${cx + 9 * s} ${groundY - 4 * s} L ${cx - 9 * s} ${groundY - 4 * s} Z" fill="#4A443C" stroke="${T}" stroke-width="1.1"/>
-                        <rect x="${cx - 16 * s}" y="${groundY - 5 * s}" width="${32 * s}" height="${3 * s}" rx="1" fill="#3A342C" stroke="${T}" stroke-width="1"/>
-                        ${sbSombraSuelo(cx, groundY, 24 * s, 0.16)}`;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <rect x="${x + 4 * s}" y="${y + 4 * s}" width="${w - 8 * s}" height="${h - 8 * s}" fill="none" stroke="${SB_SUAVE}" stroke-width="${SB_T2}"/>
+                        <path d="M ${cx - 5 * s} ${y + h} L ${cx + 5 * s} ${y + h} L ${cx + 9 * s} ${groundY - 4 * s} L ${cx - 9 * s} ${groundY - 4 * s} Z" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <line x1="${cx - 16 * s}" y1="${groundY - 4 * s}" x2="${cx + 16 * s}" y2="${groundY - 4 * s}" stroke="${SB_TINTA}" stroke-width="${T}"/>`;
                 }
                 case 'cama': {
                     const w = 124 * s, h = 28 * s, x = cx - w / 2, y = groundY - h;
-                    return `${sbSombraSuelo(cx, groundY + 1, w * 0.5, 0.16)}
-                        <path d="M ${x} ${y} L ${x + w} ${y - 6 * s} L ${x + w} ${y + h - 6 * s} L ${x} ${y + h} Z" fill="#E4DED1" stroke="${T}" stroke-width="1.3" stroke-linejoin="round"/>
-                        <path d="M ${x} ${y + h * 0.55} L ${x + w} ${y + h * 0.55 - 6 * s} L ${x + w} ${y + h - 6 * s} L ${x} ${y + h} Z" fill="#BDB5A4" opacity="0.9"/>
-                        <path d="M ${x} ${y} L ${x} ${y - 30 * s} L ${x + 8 * s} ${y - 30 * s} L ${x + 8 * s} ${y} Z" fill="#CFC7B6" stroke="${T}" stroke-width="1.2"/>
-                        <ellipse cx="${x + 26 * s}" cy="${y + 6 * s}" rx="${16 * s}" ry="${6 * s}" fill="#F4EFE3" stroke="${T}" stroke-width="1.1"/>`;
+                    return `<path d="M ${x} ${y} L ${x + w} ${y - 6 * s} L ${x + w} ${y + h - 6 * s} L ${x} ${y + h} Z" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round"/>
+                        <path d="M ${x} ${y} L ${x} ${y - 30 * s} L ${x + 8 * s} ${y - 30 * s} L ${x + 8 * s} ${y - 2 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <ellipse cx="${x + 26 * s}" cy="${y + 6 * s}" rx="${16 * s}" ry="${6 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>`;
                 }
                 case 'lixeira': {
                     const tw = 34 * s, bw = 24 * s, h = 38 * s, ty = groundY - h;
-                    return `${sbSombraSuelo(cx, groundY, tw * 0.6, 0.16)}
-                        <path d="M ${cx - tw / 2} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx - bw / 2} ${groundY} Z" fill="#DDD5C4" stroke="${T}" stroke-width="1.3"/>
-                        <path d="M ${cx + tw * 0.12} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx + bw * 0.12} ${groundY} Z" fill="#B0A796" opacity="0.85"/>
-                        <ellipse cx="${cx}" cy="${ty}" rx="${tw / 2}" ry="${5 * s}" fill="#2B2622" opacity="0.35"/>
-                        <ellipse cx="${cx}" cy="${ty}" rx="${tw / 2}" ry="${5 * s}" fill="none" stroke="${T}" stroke-width="1.3"/>`;
+                    return `<path d="M ${cx - tw / 2} ${ty} L ${cx + tw / 2} ${ty} L ${cx + bw / 2} ${groundY} L ${cx - bw / 2} ${groundY} Z" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <ellipse cx="${cx}" cy="${ty}" rx="${tw / 2}" ry="${5 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>`;
                 }
                 case 'caderno': {
                     const w = 46 * s, h = 32 * s, x = cx - w / 2, y = groundY - h;
-                    let lineas = '';
+                    let l = '';
                     for (let i = 1; i <= 3; i++) {
-                        lineas += `<line x1="${x + 5 * s}" y1="${y + 7 * s + i * 6 * s}" x2="${x + w * 0.44}" y2="${y + 6 * s + i * 6 * s}" stroke="#A79E8D" stroke-width="1"/>`;
+                        l += `<line x1="${x + 6 * s}" y1="${y + 7 * s + i * 6 * s}" x2="${x + w * 0.42}" y2="${y + 6 * s + i * 6 * s}" stroke="${SB_SUAVE}" stroke-width="${SB_T2}"/>`;
                     }
-                    return `${sbSombraSuelo(cx, groundY, w * 0.5, 0.18)}
-                        <path d="M ${x} ${y + 4 * s} Q ${cx} ${y - 3 * s} ${x + w} ${y + 4 * s} L ${x + w} ${groundY} Q ${cx} ${groundY - 7 * s} ${x} ${groundY} Z"
-                            fill="#F6F1E4" stroke="${T}" stroke-width="1.3" stroke-linejoin="round"/>
-                        <path d="M ${cx} ${y - 0.5 * s} L ${cx} ${groundY - 3.5 * s}" stroke="${T}" stroke-width="1.1"/>
-                        <path d="M ${cx} ${y} Q ${cx + w * 0.25} ${y + 3 * s} ${x + w} ${y + 4 * s} L ${x + w} ${groundY} Q ${cx + w * 0.25} ${groundY - 5 * s} ${cx} ${groundY - 3.5 * s} Z" fill="#E2DBCB" opacity="0.55"/>
-                        ${lineas}
-                        <ellipse cx="${cx + w * 0.24}" cy="${y + 16 * s}" rx="${6 * s}" ry="${5 * s}" fill="none" stroke="${T}" stroke-width="1.1"/>
-                        <path d="M ${cx + w * 0.18} ${y + 12 * s} l ${-1.5 * s} ${-4 * s} l ${4 * s} ${2 * s} M ${cx + w * 0.3} ${y + 12 * s} l ${1.5 * s} ${-4 * s} l ${-4 * s} ${2 * s}" fill="none" stroke="${T}" stroke-width="1.1"/>`;
-                }
-                case 'brinquedo': {
-                    const hr = 11 * s, brx = 15 * s, bry = 10 * s;
-                    const bcy = groundY - bry, hcy = bcy - bry - hr + 3 * s;
-                    return `${sbSombraSuelo(cx, groundY, brx * 1.1, 0.16)}
-                        <ellipse cx="${cx}" cy="${bcy}" rx="${brx}" ry="${bry}" fill="#E4DED1" stroke="${T}" stroke-width="1.3"/>
-                        <circle cx="${cx}" cy="${hcy}" r="${hr}" fill="#EDE7DA" stroke="${T}" stroke-width="1.3"/>
-                        <path d="M ${cx - hr * 0.75} ${hcy - hr * 0.6} L ${cx - hr * 0.25} ${hcy - hr * 1.45} L ${cx - hr * 0.05} ${hcy - hr * 0.5} Z" fill="#EDE7DA" stroke="${T}" stroke-width="1.1"/>
-                        <path d="M ${cx + hr * 0.75} ${hcy - hr * 0.6} L ${cx + hr * 0.25} ${hcy - hr * 1.45} L ${cx + hr * 0.05} ${hcy - hr * 0.5} Z" fill="#EDE7DA" stroke="${T}" stroke-width="1.1"/>
-                        <circle cx="${cx - hr * 0.35}" cy="${hcy}" r="${hr * 0.12}" fill="${T}"/>
-                        <circle cx="${cx + hr * 0.35}" cy="${hcy}" r="${hr * 0.12}" fill="${T}"/>`;
+                    return `<path d="M ${x} ${y + 4 * s} Q ${cx} ${y - 3 * s} ${x + w} ${y + 4 * s} L ${x + w} ${groundY} Q ${cx} ${groundY - 7 * s} ${x} ${groundY} Z"
+                            fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}" stroke-linejoin="round"/>
+                        <path d="M ${cx} ${y - 0.5 * s} L ${cx} ${groundY - 3.5 * s}" stroke="${SB_TINTA}" stroke-width="${T}"/>${l}
+                        <ellipse cx="${cx + w * 0.24}" cy="${y + 16 * s}" rx="${6 * s}" ry="${5 * s}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>
+                        <path d="M ${cx + w * 0.18} ${y + 12 * s} l ${-1.5 * s} ${-4 * s} l ${4 * s} ${2 * s} M ${cx + w * 0.3} ${y + 12 * s} l ${1.5 * s} ${-4 * s} l ${-4 * s} ${2 * s}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>`;
                 }
                 case 'porta': {
                     const w = 42 * s, h = 96 * s, x = cx - w / 2, y = groundY - h;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#CFC7B6" stroke="${T}" stroke-width="1.3"/>
-                        <rect x="${x + w * 0.55}" y="${y}" width="${w * 0.45}" height="${h}" fill="#AFA695" opacity="0.7"/>
-                        <rect x="${x + 5 * s}" y="${y + 7 * s}" width="${w - 10 * s}" height="${h - 14 * s}" fill="none" stroke="${T}" stroke-width="0.9" opacity="0.5"/>
-                        <circle cx="${x + w - 8 * s}" cy="${y + h / 2}" r="${2.6 * s}" fill="${T}"/>`;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <rect x="${x + 5 * s}" y="${y + 7 * s}" width="${w - 10 * s}" height="${h - 14 * s}" fill="none" stroke="${SB_SUAVE}" stroke-width="${SB_T2}"/>
+                        <circle cx="${x + w - 8 * s}" cy="${y + h / 2}" r="${2.4 * s}" fill="${SB_TINTA}"/>`;
                 }
                 case 'prateleira': {
                     const w = 78 * s, y = groundY - 56 * s;
-                    return `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${3 * s}" fill="#B7AE9C" stroke="${T}" stroke-width="1.1"/>
-                        <rect x="${cx - w / 2 + 6 * s}" y="${y - 22 * s}" width="${13 * s}" height="${22 * s}" fill="#E0D9C9" stroke="${T}" stroke-width="1.1"/>
-                        <rect x="${cx - w / 2 + 21 * s}" y="${y - 17 * s}" width="${10 * s}" height="${17 * s}" fill="#CAC2B0" stroke="${T}" stroke-width="1.1"/>
-                        <rect x="${cx - w / 2 + 33 * s}" y="${y - 19 * s}" width="${12 * s}" height="${19 * s}" fill="#EFE9DB" stroke="${T}" stroke-width="1.1"/>
-                        <rect x="${cx - w / 2}" y="${y + 3 * s}" width="${w}" height="${5 * s}" fill="#2B2622" opacity="0.16"/>`;
+                    return `<line x1="${cx - w / 2}" y1="${y}" x2="${cx + w / 2}" y2="${y}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <rect x="${cx - w / 2 + 6 * s}" y="${y - 22 * s}" width="${13 * s}" height="${22 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>
+                        <rect x="${cx - w / 2 + 21 * s}" y="${y - 17 * s}" width="${10 * s}" height="${17 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>
+                        <rect x="${cx - w / 2 + 33 * s}" y="${y - 19 * s}" width="${12 * s}" height="${19 * s}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>`;
                 }
                 case 'janela': {
                     const w = 56 * s, h = 56 * s, x = cx - w / 2, y = groundY - h - 38 * s;
-                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#tela${uid})" stroke="${T}" stroke-width="1.4"/>
-                        <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="${T}" stroke-width="1.2"/>
-                        <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="${T}" stroke-width="1.2"/>
-                        <path d="M ${x + w} ${y + h} L ${x + w + 26 * s} ${groundY} L ${x + 12 * s} ${groundY} L ${x} ${y + h} Z" fill="#FFFFFF" opacity="0.35"/>`;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>
+                        <line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>
+                        <line x1="${x}" y1="${y + h / 2}" x2="${x + w}" y2="${y + h / 2}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>`;
                 }
                 case 'palavras': {
                     const w = 58 * s;
-                    function bloque(bx, by, bw, bh, rot, op) {
-                        return `<g transform="rotate(${rot} ${bx + bw / 2} ${by + bh / 2})" opacity="${op}">
-                            <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#2B2622"/>
-                            <rect x="${bx + 3 * s}" y="${by + bh * 0.32}" width="${bw - 6 * s}" height="${bh * 0.36}" fill="#F4F0E6"/>
+                    function bloque(bx, by, bw, bh, rot) {
+                        return `<g transform="rotate(${rot} ${bx + bw / 2} ${by + bh / 2})">
+                            <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>
+                            <line x1="${bx + 4 * s}" y1="${by + bh / 2}" x2="${bx + bw - 4 * s}" y2="${by + bh / 2}" stroke="${SB_SUAVE}" stroke-width="${SB_T2}"/>
                         </g>`;
                     }
-                    return bloque(cx - w * 0.9, groundY - 104 * s, w, 15 * s, -9, 0.9)
-                        + bloque(cx - w * 0.1, groundY - 78 * s, w * 0.85, 14 * s, 7, 0.75)
-                        + bloque(cx - w * 0.75, groundY - 48 * s, w * 0.7, 13 * s, -4, 0.6)
-                        + bloque(cx + w * 0.15, groundY - 26 * s, w * 0.5, 11 * s, 12, 0.45);
+                    return bloque(cx - w * 0.9, groundY - 104 * s, w, 14 * s, -9)
+                        + bloque(cx - w * 0.1, groundY - 78 * s, w * 0.85, 13 * s, 7)
+                        + bloque(cx - w * 0.75, groundY - 48 * s, w * 0.7, 12 * s, -4)
+                        + bloque(cx + w * 0.15, groundY - 26 * s, w * 0.5, 11 * s, 12);
                 }
                 case 'formulario': {
                     const w = 48 * s, h = 60 * s, x = cx - w / 2, y = groundY - h;
                     let l = '';
                     for (let i = 1; i <= 4; i++) {
-                        l += `<line x1="${x + 7 * s}" y1="${y + i * 11 * s}" x2="${x + w - 7 * s}" y2="${y + i * 11 * s}" stroke="#B0A796" stroke-width="1.2"/>`;
+                        l += `<line x1="${x + 7 * s}" y1="${y + i * 11 * s}" x2="${x + w - 7 * s}" y2="${y + i * 11 * s}" stroke="${SB_SUAVE}" stroke-width="${SB_T2}"/>`;
                     }
-                    return `<rect x="${x + 2 * s}" y="${y + 2 * s}" width="${w}" height="${h}" fill="#2B2622" opacity="0.18"/>
-                        <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#FBF8F1" stroke="${T}" stroke-width="1.3"/>${l}
-                        <rect x="${x + 7 * s}" y="${y + h - 14 * s}" width="${w - 14 * s}" height="${8 * s}" fill="#2B2622"/>`;
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${SB_PAPEL}" stroke="${SB_TINTA}" stroke-width="${T}"/>${l}
+                        <rect x="${x + 7 * s}" y="${y + h - 14 * s}" width="${w - 14 * s}" height="${8 * s}" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T2}"/>`;
                 }
                 default: {
                     const w = 36 * s, y = groundY - w;
-                    return `${sbSombraSuelo(cx, groundY, w * 0.55, 0.14)}
-                        <rect x="${cx - w / 2}" y="${y}" width="${w}" height="${w}" fill="#DDD5C4" stroke="${T}" stroke-width="1.2"/>
-                        <rect x="${cx}" y="${y}" width="${w / 2}" height="${w}" fill="#B0A796" opacity="0.8"/>`;
+                    return `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${w}" fill="${SB_PAPEL}" stroke="${SB_SUAVE}" stroke-width="${SB_T2}" stroke-dasharray="4,3"/>`;
                 }
             }
         }
@@ -3350,35 +3434,30 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         function sbMovimiento(mov) {
             const m = (mov || '').toLowerCase();
             let o = '', etiqueta = '';
-            const marco = `<rect x="74" y="44" width="172" height="96" fill="none" stroke="#FBF8F1" stroke-width="1.3" stroke-dasharray="6,4" opacity="0.9"/>`;
-            const C = '#FBF8F1';
+            const marco = `<rect x="74" y="44" width="172" height="96" fill="none" stroke="${SB_TINTA}" stroke-width="${SB_T2}" stroke-dasharray="5,4"/>`;
 
             if (m.indexOf('zoom in') >= 0) {
                 etiqueta = 'ZOOM IN';
-                o += marco + sbFlecha(30, 26, 64, 42, C) + sbFlecha(290, 26, 256, 42, C) + sbFlecha(30, 154, 64, 138, C) + sbFlecha(290, 154, 256, 138, C);
+                o += marco + sbFlecha(30, 26, 64, 42) + sbFlecha(290, 26, 256, 42) + sbFlecha(30, 154, 64, 138) + sbFlecha(290, 154, 256, 138);
             } else if (m.indexOf('zoom out') >= 0) {
                 etiqueta = 'ZOOM OUT';
-                o += marco + sbFlecha(64, 42, 30, 26, C) + sbFlecha(256, 42, 290, 26, C) + sbFlecha(64, 138, 30, 154, C) + sbFlecha(256, 138, 290, 154, C);
+                o += marco + sbFlecha(64, 42, 30, 26) + sbFlecha(256, 42, 290, 26) + sbFlecha(64, 138, 30, 154) + sbFlecha(256, 138, 290, 154);
             } else if (m.indexOf('tilt') >= 0) {
                 etiqueta = m.indexOf('zoom') >= 0 ? 'TILT + ZOOM' : 'TILT';
-                o += sbFlecha(302, 142, 302, 40, C);
+                o += sbFlecha(302, 142, 302, 40);
                 if (m.indexOf('zoom') >= 0) o += marco;
             } else if (m.indexOf('pan') >= 0) {
                 etiqueta = 'PAN';
-                o += sbFlecha(72, 166, 248, 166, C);
+                o += sbFlecha(72, 168, 248, 168);
             } else if (m.indexOf('dolly') >= 0) {
                 etiqueta = 'DOLLY IN';
-                o += sbFlecha(160, 174, 160, 126, C);
+                o += sbFlecha(160, 174, 160, 128);
             } else if (m.indexOf('tracking') >= 0) {
                 etiqueta = 'TRACKING';
-                o += `<line x1="58" y1="171" x2="262" y2="171" stroke="${C}" stroke-width="1.2" stroke-dasharray="4,4"/>`
-                    + sbFlecha(150, 164, 258, 164, C) + sbFlecha(170, 164, 62, 164, C);
+                o += `<line x1="58" y1="172" x2="262" y2="172" stroke="${SB_SUAVE}" stroke-width="${SB_T2}" stroke-dasharray="4,4"/>`
+                    + sbFlecha(150, 166, 258, 166) + sbFlecha(170, 166, 62, 166);
             }
-            if (etiqueta) {
-                o += `<rect x="${SB_W - etiqueta.length * 5.6 - 16}" y="7" width="${etiqueta.length * 5.6 + 10}" height="14" fill="#2B2622" opacity="0.55"/>`
-                    + `<text x="${SB_W - 11}" y="17" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="8.5" fill="#FBF8F1" letter-spacing="1">${etiqueta}</text>`;
-            }
-            return o;
+            return o + sbEtiqueta(etiqueta, true);
         }
 
         // ---------- generador principal ----------
@@ -3386,14 +3465,10 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const plano = (planoTexto || '').toLowerCase();
             const cfg = sbConfigAngulo(anguloTexto);
             const groundY = Math.round(SB_H * cfg.ground);
-            const uid = 's' + (seq ? seq.numero : 'x') + '_' + Math.abs((plano + anguloTexto).length);
 
             const vivos = seq ? (seq.personajes || []).filter(function (p) { return ['K-POP', 'POP ART', 'GRAFITE'].indexOf(p) < 0; }) : [];
             const elementos = seq ? detectarElementosEscena(seq.descripcion) : [];
             const deitado = seq ? estaDeitado(seq.descripcion) : false;
-            const nocturna = seq ? esNocturna(seq.descripcion + ' ' + (seq.titulo || '')) : false;
-            const hayPantalla = elementos.indexOf('monitor') >= 0;
-            const luzDer = hayPantalla ? false : true;
 
             const esExtremo = plano.indexOf('extreme') >= 0;
             const esCerca = plano.indexOf('close') >= 0;
@@ -3404,42 +3479,36 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             let esc = '';
 
             if (esExtremo) {
-                esc += vivos.length
-                    ? sbOjos(160, 88, 150)
-                    : sbFondoDesenfocado(uid, elementos, groundY) + sbProp(elementos[0] || 'generico', 160, 162, 3.2, uid);
+                esc += vivos.length ? sbOjos(160, 90, 150) : sbProp(elementos[0] || 'generico', 160, 162, 3.2);
             } else if (esCerca) {
-                esc += sbFondoDesenfocado(uid, elementos, groundY);
                 if (vivos.length) {
-                    esc += sbHombros(160, 150, 122) + sbRostro(160, 74, 54, cfg.perfil, luzDer);
+                    esc += sbHombros(160, 150, 122) + sbRostro(160, 74, 54, cfg.perfil);
                 } else {
-                    esc += sbProp(elementos[0] || 'generico', 160, 164, 2.4, uid);
+                    esc += sbProp(elementos[0] || 'generico', 160, 164, 2.4);
                 }
             } else if (esOTS) {
-                esc += sbSala(uid, groundY, 195, hayPantalla ? 230 : 60);
-                esc += sbCuerpo(206, groundY + 30, SB_H * 0.92 * cfg.escala, { luz: luzDer ? 'der' : 'izq' });
-                esc += sbHombroFrente('izq', uid);
+                esc += sbSala(groundY, 195);
+                esc += sbCuerpo(206, groundY + 30, SB_H * 0.92 * cfg.escala);
+                esc += sbHombroFrente('izq');
             } else {
-                esc += sbSala(uid, groundY, 165, hayPantalla ? 240 : 50);
-                if (cfg.bajo) esc += `<path d="M 0 8 L 120 46 M 320 8 L 200 46" stroke="${SB_LINEA}" stroke-width="0.8" fill="none" opacity="0.25"/>`;
-                if (cfg.alto) esc += `<ellipse cx="160" cy="${groundY - 8}" rx="128" ry="22" fill="#2B2622" opacity="0.07"/>`;
+                esc += sbSala(groundY, 165);
+                if (cfg.bajo) esc += sbLinea(0, 8, 120, 46, true) + sbLinea(SB_W, 8, 200, 46, true);
 
                 if (esMedium || esTwo) {
                     const h = SB_H * 1.3 * cfg.escala;
                     const base = SB_H + h * 0.42;
                     if (esTwo || vivos.length >= 2) {
-                        esc += sbCuerpo(210, base - 8, h * 0.94, { luz: 'izq' });
-                        esc += sbCuerpo(104, base, h, { luz: luzDer ? 'der' : 'izq' });
+                        esc += sbCuerpo(210, base - 8, h * 0.94) + sbCuerpo(104, base, h);
                     } else {
-                        esc += sbProp(elementos[0] || 'monitor', 252, groundY, 1.1, uid);
-                        esc += sbCuerpo(120, base, h, { luz: luzDer ? 'der' : 'izq' });
+                        esc += sbProp(elementos[0] || 'monitor', 252, groundY, 1.1) + sbCuerpo(120, base, h);
                     }
                 } else {
                     const h = SB_H * 0.6 * cfg.escala;
                     if (deitado && elementos.indexOf('cama') >= 0) {
-                        esc += sbProp('cama', 112, groundY, 1.2, uid) + sbCuerpoDeitado(112, groundY - 30, 108);
+                        esc += sbProp('cama', 112, groundY, 1.2) + sbCuerpoDeitado(112, groundY - 30, 108);
                         const otros = elementos.filter(function (e) { return e !== 'cama'; });
-                        if (vivos.length > 1) esc += sbCuerpo(254, groundY, h, { luz: 'izq' });
-                        else if (otros.length) esc += sbProp(otros[0], 254, groundY, 1.1, uid);
+                        if (vivos.length > 1) esc += sbCuerpo(254, groundY, h);
+                        else if (otros.length) esc += sbProp(otros[0], 254, groundY, 1.1);
                     } else {
                         const piezas = [];
                         const nPer = Math.min(vivos.length, 2);
@@ -3447,31 +3516,21 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                         elementos.slice(0, Math.max(1, 3 - piezas.length)).forEach(function (e) { piezas.push({ t: 'e', k: e }); });
                         if (!piezas.length) piezas.push({ t: 'e', k: 'generico' });
                         const n = piezas.length;
-                        // los objetos se dibujan primero (fondo), las personas después (frente)
                         piezas.forEach(function (pz, i) {
-                            if (pz.t !== 'e') return;
-                            esc += sbProp(pz.k, (SB_W / (n + 1)) * (i + 1), groundY, 1.1, uid);
+                            if (pz.t === 'e') esc += sbProp(pz.k, (SB_W / (n + 1)) * (i + 1), groundY, 1.1);
                         });
                         piezas.forEach(function (pz, i) {
-                            if (pz.t !== 'p') return;
-                            esc += sbCuerpo((SB_W / (n + 1)) * (i + 1), groundY, h, { luz: luzDer ? 'der' : 'izq' });
+                            if (pz.t === 'p') esc += sbCuerpo((SB_W / (n + 1)) * (i + 1), groundY, h);
                         });
                     }
                 }
             }
 
-            const grupo = `<g transform="rotate(${cfg.rot} 160 90)">${esc}</g>`;
-            const etiquetaAng = cfg.etiqueta
-                ? `<rect x="7" y="7" width="${cfg.etiqueta.length * 5.6 + 10}" height="14" fill="#2B2622" opacity="0.55"/>`
-                  + `<text x="12" y="17" font-family="Helvetica, Arial, sans-serif" font-size="8.5" fill="#FBF8F1" letter-spacing="1">${cfg.etiqueta}</text>`
-                : '';
-
             return `<svg viewBox="0 0 ${SB_W} ${SB_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`
-                + sbDefs(uid, nocturna)
-                + `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="#E9E3D6"/>`
-                + grupo + sbVineta(uid) + sbGrano(uid)
-                + sbMarcasEncuadre() + sbMovimiento(movimientoTexto) + etiquetaAng
-                + `<rect x="0.6" y="0.6" width="${SB_W - 1.2}" height="${SB_H - 1.2}" fill="none" stroke="${SB_TINTA}" stroke-width="1.2"/>`
+                + `<rect x="0" y="0" width="${SB_W}" height="${SB_H}" fill="${SB_PAPEL}"/>`
+                + `<g transform="rotate(${cfg.rot} 160 90)">${esc}</g>`
+                + sbMovimiento(movimientoTexto) + sbEtiqueta(cfg.etiqueta, false)
+                + `<rect x="0.5" y="0.5" width="${SB_W - 1}" height="${SB_H - 1}" fill="none" stroke="${SB_TINTA}" stroke-width="1"/>`
                 + `</svg>`;
         }
 
@@ -3512,6 +3571,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 plano: extraerValor(partes, 'PLANO'),
                 angulo: extraerValor(partes, 'ÁNGULO'),
                 movimiento: extraerValor(partes, 'MOVIMENTO'),
+                arte: extraerValor(partes, 'ARTE'),
                 notas: extraerValor(partes, 'NOTAS')
             };
         }
@@ -3536,6 +3596,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 const plano = extraerValor(partes, 'PLANO');
                 const angulo = extraerValor(partes, 'ÁNGULO');
                 const movimiento = extraerValor(partes, 'MOVIMENTO');
+                const arte = extraerValor(partes, 'ARTE');
                 const notasTec = extraerValor(partes, 'NOTAS');
                 const moodColor = getMoodColor(seqNum, totalSeqs);
 
@@ -3553,16 +3614,16 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
                 html += `
                     <div class="storyboard-card">
-                        <div style="height: 8px; background: linear-gradient(90deg, #2B2622, ${moodColor}, #2B2622); margin: -12px -12px 10px -12px; border-radius: 0; grid-column: 1 / -1;"></div>
                         <div style="font-size: 11px;">
-                            <div style="background: #2B2622; color: #FBF8F1; padding: 10px; border-radius: 0; text-align: center; margin-bottom: 8px;">
-                                <strong style="font-size: 14px;">SEQ ${seqNum}</strong>
-                                ${seq ? `<div style="font-size: 9px; margin-top: 3px; opacity: 0.9;">${seq.titulo}</div>` : ''}
+                            <div style="border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px;">
+                                <strong style="font-size: 13px; letter-spacing: 2px;">SEQ ${seqNum}</strong>
+                                ${seq ? `<div style="font-size: 9px; margin-top: 4px; color: var(--gray-mid); letter-spacing: 1px; text-transform: uppercase;">${seq.titulo}</div>` : ''}
                             </div>
                             ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: #8C8375; font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
                             ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: #8C8375; font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
                             ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: #8C8375; font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
                             <div class="sb-meta">
+                                ${arte ? `<b>ARTE</b><span title="${arte.replace(/"/g, '&quot;')}">${arte}</span>` : ''}
                                 ${notasTec ? `<b>NOTAS</b>${notasTec}` : ''}
                                 ${som ? `<b>🎵 SOM</b><span title="${som.replace(/"/g, '&quot;')}">${recortarTexto(som, 80)}</span>` : ''}
                                 ${anim ? `<b>🎨 ANIM</b><span title="${anim.replace(/"/g, '&quot;')}">${recortarTexto(anim, 80)}</span>` : ''}
@@ -3695,6 +3756,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             mckeeRespuestas = JSON.parse(pget('mckeeRespuestas') || '{}');
 
             const texto = document.getElementById('guiaoLiterario').value;
+            ultimoTextoGuardado = texto;
+            pintarEstadisticas();
             secuenciasParseadas = parseGuiaoLiterario(texto);
             atualizarDesgloces();
             atualizarStoryboard(obtenerTecnicoActual());
