@@ -409,6 +409,37 @@ input[type="text"]:focus { border-bottom-color: var(--acento); border-color: var
 .fila-bloque .items .item { display: block; white-space: normal; overflow-wrap: anywhere; padding: 3px 0 3px var(--e3); text-indent: calc(var(--e3) * -1); }
 .fila-bloque .items .item + .item::before { content: none; }
 
+/* Vista completa: el panel de salidas ocupa la pantalla. Una clase, cero movimiento de DOM. */
+body.vista-completa .panel.right {
+  position: fixed; inset: 0; z-index: 9000;
+  background: var(--fondo);
+  padding: var(--e4) var(--e6) var(--e7);
+  overflow-y: auto;
+  border: none;
+}
+body.vista-completa .panel.right > .tab-content { max-width: 1100px; margin-inline: auto; }
+body.vista-completa .panel.right .tabs {
+  position: sticky; top: calc(var(--e4) * -1); z-index: 2;
+  background: var(--fondo);
+  max-width: 1100px; margin-inline: auto;
+  padding: var(--e4) 0 var(--e3);
+}
+body.vista-completa .panel.right .tab-button { padding: 6px 14px; font-size: 14px; }
+body.vista-completa .layout { overflow: hidden; }
+
+/* En vista completa los desgloses respiran en varias columnas */
+body.vista-completa #desgloces-tab .grupo,
+body.vista-completa #rodaje-tab .grupo,
+body.vista-completa #ficha-tab .grupo { break-inside: avoid; }
+@media (min-width: 1100px) {
+  body.vista-completa #desglocesContainer,
+  body.vista-completa #fichaContainer { columns: 2; column-gap: var(--e7); }
+}
+
+.vista-solo-completa { display: none; }
+body.vista-completa .vista-solo-completa { display: inline-flex; }
+body.vista-completa .vista-solo-dividida { display: none; }
+
 .pie { margin-top: var(--e3); color: var(--texto-3); font: 400 12px/18px var(--sans); max-width: var(--medida-prosa); }
 
 .campo-idea .hint {
@@ -994,6 +1025,10 @@ textarea:focus { border-color: var(--acento); border-bottom-color: var(--acento)
   height: auto;
   padding: 0 max(0px, calc((100% - var(--medida-guion)) / 2)) 50vh;
 }
+/* Sin esto las cuatro pestañas se dibujan apiladas a la vez: es la regla base del sistema de tabs. */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
 #literario-tab.tab-content.active,
 #tecnico-tab.tab-content.active {
   display: flex;
@@ -1423,11 +1458,14 @@ header p { display: none; }
                 <button class="tab-button" onclick="abrirTab('storyboard', event)">Storyboard</button>
                 <button class="tab-button" onclick="abrirTab('rodaje', event)">Rodaje</button>
                 <button class="tab-button" onclick="abrirTab('ficha', event)">Ficha</button>
+                <span class="fs-sep"></span>
+                <a class="btn-texto vista-solo-completa" onclick="vistaCompleta(false)" title="Volver (Esc)">Dividir</a>
+                <a class="btn-texto vista-solo-dividida" onclick="vistaCompleta(true)" title="Ver en pantalla completa">Pantalla completa</a>
            </div>
 
             <!-- Tab: Desgloces -->
             <div id="desgloces-tab" class="tab-content active">
-                <button onclick="exportarPDF('desglocesContainer', 'desgloses')" style="width: 100%; margin-bottom: 15px;">Exportar PDF</button>
+                <button onclick="exportarPDF('desglocesContainer', 'desgloses')" style="margin-bottom: 15px;">Exportar PDF</button>
                 <div id="desglocesContainer">
                     <p style="color: var(--texto-3); text-align: center; padding: 40px 20px;">Cargando desgloses...</p>
                </div>
@@ -1435,7 +1473,7 @@ header p { display: none; }
 
             <!-- Tab: Storyboard -->
             <div id="storyboard-tab" class="tab-content">
-                <button onclick="exportarPDF('storyboardContainer', 'storyboard')" style="width: 100%; margin-bottom: 15px;">Exportar Storyboard PDF</button>
+                <button onclick="exportarPDF('storyboardContainer', 'storyboard')" style="margin-bottom: 15px;">Exportar Storyboard PDF</button>
                 <div id="storyboardContainer">
                     <p style="color: var(--texto-3); text-align: center; padding: 40px 20px;">Completa el guion técnico para ver el storyboard</p>
                </div>
@@ -1443,7 +1481,7 @@ header p { display: none; }
 
             <!-- Tab: Plan de Rodaje (NUEVO) -->
             <div id="rodaje-tab" class="tab-content">
-                <button onclick="exportarPDF('rodajeContainer', 'plan-de-rodaje')" style="width: 100%; margin-bottom: 15px;">Exportar Plan de Rodaje PDF</button>
+                <button onclick="exportarPDF('rodajeContainer', 'plan-de-rodaje')" style="margin-bottom: 15px;">Exportar Plan de Rodaje PDF</button>
                 <div id="rodajeContainer">
                     <p style="color: var(--texto-3); text-align: center; padding: 40px 20px;">Guarda el guion literario para generar el plan de rodaje</p>
                </div>
@@ -1451,7 +1489,7 @@ header p { display: none; }
 
             <!-- Tab: Ficha de Historia (McKee) -->
             <div id="ficha-tab" class="tab-content">
-                <button onclick="exportarPDF('fichaContainer', 'ficha-historia')" style="width: 100%; margin-bottom: 15px;">Exportar Ficha PDF</button>
+                <button onclick="exportarPDF('fichaContainer', 'ficha-historia')" style="margin-bottom: 15px;">Exportar Ficha PDF</button>
                 <div id="fichaContainer">
                     <p style="color: var(--texto-3); text-align: center; padding: 40px 20px;">Abrí la sesión de preguntas para construir tu ficha de historia</p>
                </div>
@@ -2296,7 +2334,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                         const anim = linea.split(':')[1].split('.').map(a =>a.trim()).filter(a =>a);
                         secActual.animacoes = anim;
                     } else if (linea.match(/^(INT\.|EXT\.)/)) {
-                        secActual.locaciones.push(linea.trim());
+                        secActual.locaciones.push(normalizarLocacion(linea));
                     } else {
                         // Dos formatos de diálogo:
                         //   a) NOMBRE: texto            (formato compacto)
@@ -2337,7 +2375,27 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 seq.props = extraerProps(seq.descripcion, seq.personajes);
             });
 
+            // CADERNO y CADERNO DE DESENHOS son el mismo objeto: se queda el nombre completo
+            const todos = [...new Set(sequencias.flatMap(s => s.props))];
+            const canon = {};
+            todos.forEach(corto => {
+                const largo = todos.find(x => x !== corto && x.split(' ')[0] === corto.split(' ')[0] && x.length > corto.length);
+                if (largo) canon[corto] = largo;
+            });
+            sequencias.forEach(s => {
+                s.props = [...new Set(s.props.map(x => canon[x] || x))];
+            });
+
             return sequencias;
+        }
+
+        // "INT. QUARTO DA ARTISTA / PANTALLA - NOITE" -> "INT. QUARTO DA ARTISTA - NOITE"
+        // Un sub-espacio del mismo decorado no es una localización nueva: no es otro día de rodaje.
+        function normalizarLocacion(loc) {
+            if (!loc) return loc;
+            const m = loc.match(/^\s*(INT\.|EXT\.)\s*([^\/]+?)\s*(?:\/[^-]*)?(-\s*.+)?$/i);
+            if (!m) return loc.trim();
+            return (m[1].toUpperCase() + ' ' + m[2].trim() + ' ' + (m[3] || '')).replace(/\s+/g, ' ').trim();
         }
 
         function extraerProps(descripcion, personajes) {
@@ -2373,6 +2431,16 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 if (tab === 'ficha') atualizarFichaMcKee();
             }
             if (tab === 'literario') actualizarNudgeMcKee();
+
+            // Las salidas se abren a pantalla completa: en una tira de 340px no se leen
+            if (['desgloces', 'storyboard', 'rodaje', 'ficha'].indexOf(tab) >= 0) vistaCompleta(true);
+            else vistaCompleta(false);
+        }
+
+        function vistaCompleta(abrir) {
+            document.body.classList.toggle('vista-completa', !!abrir);
+            try { localStorage.setItem('vistaCompleta', abrir ? '1' : '0'); } catch (e) {}
+            if (abrir) document.querySelector('.panel.right').scrollTop = 0;
         }
 
         function obtenerTecnicoActual() {
@@ -2446,7 +2514,13 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         document.addEventListener('keydown', function(e) {
             const fsEl = document.getElementById('fsGuiao');
-            if (!fsEl || fsEl.style.display !== 'flex') return;
+            const enFs = fsEl && fsEl.style.display === 'flex';
+            // Esc cierra primero la pantalla completa del guion; si no, la de las salidas
+            if (e.key === 'Escape' && !enFs && document.body.classList.contains('vista-completa')) {
+                vistaCompleta(false);
+                return;
+            }
+            if (!enFs) return;
             if (e.key === 'Escape') { cerrarGuiaoFullscreen(); return; }
             if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) { e.preventDefault(); fsZoom(1); }
             if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); fsZoom(-1); }
@@ -2579,13 +2653,32 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 return;
             }
 
-            // Agrupar secuencias por locación (misma locación = mismo día de rodaje)
+            // Las jornadas salen de la CARGA DE PLANOS, no de la cantidad de locaciones.
+            // Diez secuencias en un mismo cuarto no son un día de rodaje: son cuatro.
+            const PLANOS_POR_JORNADA = 14;   // jornada de diez horas en un rodaje chico
+            const PLANOS_SI_NO_HAY_DATO = 4; // una secuencia sin decupagem se estima en cuatro planos
+
             const grupos = {};
+            const cargaDia = {};
+            let jornada = 0, cargaActual = Infinity, locActual = null;
+
             secuenciasParseadas.forEach(seq => {
                 const loc = seq.locaciones[0] || 'LOCACIÓN A DEFINIR';
-                if (!grupos[loc]) grupos[loc] = [];
-                grupos[loc].push(seq);
+                const planos = partirPlanos(datosTecnicosSeq(seq.numero).planos).length || PLANOS_SI_NO_HAY_DATO;
+                // se abre jornada nueva al cambiar de locación o al pasarse de carga
+                if (loc !== locActual || cargaActual + planos > PLANOS_POR_JORNADA) {
+                    jornada++;
+                    cargaActual = 0;
+                    locActual = loc;
+                }
+                const clave = 'J' + jornada + ' — ' + loc;
+                if (!grupos[clave]) { grupos[clave] = []; cargaDia[clave] = 0; }
+                grupos[clave].push(seq);
+                cargaDia[clave] += planos;
+                cargaActual += planos;
             });
+
+            const totalPlanos = Object.values(cargaDia).reduce((a, b) => a + b, 0);
 
             const tecnicoTexto = document.getElementById('guiaoTecnico').value;
             const tecnicoPorSeq = {};
@@ -2596,21 +2689,23 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
             let html = `
                 <div class="metricas">
-                    <div><span class="cifra">${Object.keys(grupos).length}</span><span class="et">Días de rodaje (est.)</span></div>
-                    <div><span class="cifra">${secuenciasParseadas.length}</span><span class="et">Secuencias totales</span></div>
+                    <div><span class="cifra">${Object.keys(grupos).length}</span><span class="et">jornadas</span></div>
+                    <div><span class="cifra">${totalPlanos}</span><span class="et">planos</span></div>
+                    <div><span class="cifra">${secuenciasParseadas.length}</span><span class="et">secuencias</span></div>
                </div>
-                <p style="font-size: 10px; color: var(--texto-3); margin-bottom: 15px;">Criterio: secuencias en la misma locación se agrupan en el mismo día para optimizar producción. Ajusta según tu equipo.</p>
+                <p class="pie">Una jornada son ${PLANOS_POR_JORNADA} planos en diez horas, que es el ritmo de un rodaje chico. Se abre jornada nueva al cambiar de localización o al pasarse de carga. Las secuencias sin decupagem se estiman en ${PLANOS_SI_NO_HAY_DATO} planos.</p>
             `;
 
             let dia = 1;
             for (const [loc, seqs] of Object.entries(grupos)) {
-                const cast = [...new Set(seqs.flatMap(s =>s.personajes.filter(p => !['K-POP', 'POP ART', 'GRAFITE'].includes(p))))];
-                const castDigital = [...new Set(seqs.flatMap(s =>s.personajes.filter(p => ['K-POP', 'POP ART', 'GRAFITE'].includes(p))))];
+                const cast = [...new Set(seqs.flatMap(s =>s.personajes.filter(p => !esVozOAnimacion(p))))];
+                const castDigital = [...new Set(seqs.flatMap(s =>s.personajes.filter(esVozOAnimacion)))];
                 const props = [...new Set(seqs.flatMap(s =>s.props))];
                 const conAnimacion = seqs.filter(s =>s.animacoes.length > 0).map(s =>s.numero);
                 const conSom = seqs.filter(s =>s.son).map(s =>s.numero);
 
-                html += `<div class="rodaje-dia">DÍA ${dia} — ${loc}</div>`;
+                const nLoc = loc.replace(/^J\d+ — /, '');
+                html += `<div class="rodaje-dia">JORNADA ${dia} — ${nLoc}<span class="n">${cargaDia[loc]} planos</span></div>`;
                 html += `<div class="rodaje-body">`;
 
                 html += `<div style="margin-bottom: 10px;"><strong style="color: var(--primary); font-size: 11px;">Secuencias a rodar (${seqs.length}):</strong></div>`;
@@ -3564,7 +3659,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     <div><span class="cifra">${avisos}</span><span class="et">Revisar</span></div>
                     <div><span class="cifra">${faltas}</span><span class="et">Falta</span></div>
                </div>
-                <button onclick="abrirSesionMcKee()" style="width: 100%; margin-bottom: 15px;">Continuar sesión de preguntas</button>
+                <button onclick="abrirSesionMcKee()" style="margin-bottom: 15px;">Continuar sesión de preguntas</button>
             `;
 
             html += `<div class="grupo"><h3>Diagnóstico McKee</h3>`;
