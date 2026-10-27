@@ -434,6 +434,17 @@ body.vista-completa #ficha-tab .grupo { break-inside: avoid; }
 @media (min-width: 1100px) {
   body.vista-completa #desglocesContainer,
   body.vista-completa #fichaContainer { columns: 2; column-gap: var(--e7); }
+  /* El storyboard no va en columnas de texto: va en rejilla, que es como se mira.
+     Y dentro de media rejilla la vineta se apila: el boceto arriba a todo el ancho
+     y el pie debajo. Dos columnas de 550px dejaban el pie en 182px, que es menos
+     de lo que mide una linea de accion. */
+  body.vista-completa #storyboardContainer {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--e7);
+  }
+  body.vista-completa #storyboardContainer .sb-barra { grid-column: 1 / -1; }
+  body.vista-completa #storyboardContainer .storyboard-card {
+    grid-template-columns: minmax(0, 1fr); gap: var(--e3);
+  }
 }
 
 .vista-solo-completa { display: none; }
@@ -632,14 +643,23 @@ input:focus-visible, textarea:focus-visible,
 /* ═══ STORYBOARD ═══ */
 .storyboard-card {
   display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
-  gap: var(--e4);
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: var(--e5);
   padding: var(--e5) 0;
   margin-bottom: 0;
   border: 0;
   border-top: 1px solid var(--linea);
   border-radius: 0;
   background: none;
+}
+/* El boceto va a la izquierda aunque en el HTML venga después: la ficha se lee
+   después de ver el plano, no antes. */
+.storyboard-card .sb-panel-wrap { order: -1; }
+/* La nota es lo ultimo de la vineta: entre el boceto y el pie de foto no se lee
+   como una nota, se lee como parte del plano. */
+.storyboard-card .sb-nota { order: 9; grid-column: 1 / -1; }
+@media (max-width: 700px) {
+  .storyboard-card { grid-template-columns: minmax(0, 1fr); gap: var(--e3); }
 }
 .storyboard-canvas {
   aspect-ratio: 16 / 9;
@@ -655,22 +675,71 @@ input:focus-visible, textarea:focus-visible,
   letter-spacing: 0;
 }
 .sb-panel-wrap { display: flex; flex-direction: column; gap: var(--e3); min-width: 0; }
-.sb-meta {
-  margin-top: var(--e3);
-  padding-top: var(--e3);
-  border-top: 1px solid var(--linea);
-  color: var(--texto-2);
-  font: 400 13px/19px var(--sans);
-  letter-spacing: 0;
+/* ═══ FICHA DE LA VIÑETA: etiqueta a la izquierda, valor a la derecha ═══ */
+.sb-info { min-width: 0; }
+.sb-cab {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--e3);
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--linea);
 }
-.sb-meta b {
-  display: block;
+.sb-cab strong { font: 600 15px/20px var(--sans); letter-spacing: .5px; color: var(--texto-1); }
+.sb-acto { font: 400 11px/16px var(--sans); color: var(--texto-3); white-space: nowrap; }
+.sb-titulo {
   margin-top: var(--e2);
-  color: var(--texto-2);
-  font: 500 13px/18px var(--sans);
-  font-size: 13px;
-  text-transform: none;
+  font: 500 13px/18px var(--sans); color: var(--texto-2);
+  text-transform: uppercase; letter-spacing: .6px;
 }
+.sb-accion {
+  margin-top: var(--e2);
+  font: 400 14px/21px var(--sans); color: var(--texto-1);
+  overflow-wrap: anywhere;
+}
+.sb-ficha {
+  display: grid; grid-template-columns: 84px minmax(0, 1fr);
+  gap: 2px var(--e3); margin: var(--e3) 0 0;
+}
+.sb-ficha dt {
+  font: 400 11px/18px var(--sans); color: var(--texto-3); text-align: right;
+}
+.sb-ficha dd {
+  margin: 0; font: 400 13px/18px var(--sans); color: var(--texto-1);
+  overflow-wrap: anywhere;
+}
+.sb-vacio-txt { margin-top: var(--e3); font: 400 12px/18px var(--sans); color: var(--texto-3); }
+
+/* ═══ BARRA DEL STORYBOARD: secuencia / plano ═══ */
+.sb-barra {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e3); flex-wrap: wrap; margin-bottom: var(--e3);
+}
+.sb-seg { display: flex; gap: 2px; padding: 2px; background: var(--relleno); border-radius: var(--r2); }
+.sb-seg button {
+  width: auto; min-height: 0; margin: 0; padding: 6px 14px;
+  background: transparent; border: 0; border-radius: var(--r1);
+  font: 400 13px/18px var(--sans); color: var(--texto-2); letter-spacing: 0;
+}
+.sb-seg button.on { background: var(--fondo); color: var(--texto-1); font-weight: 500; }
+.sb-cuenta { font: 400 12px/16px var(--sans); color: var(--texto-3); }
+
+/* ═══ ESTADO VACÍO: dice qué hacer, no cuántos ceros hay ═══ */
+.vacio {
+  max-width: 46ch; margin: var(--e7) auto; padding: 0 var(--e4);
+  text-align: center;
+}
+.vacio h3 {
+  margin: 0 0 var(--e2);
+  font: 600 17px/24px var(--sans); color: var(--texto-1); letter-spacing: 0;
+  border: 0; padding: 0;
+}
+.vacio p { margin: 0; font: 400 14px/22px var(--sans); color: var(--texto-3); }
+
+.sep-proyecto {
+  width: 1px; align-self: stretch; margin: 0 var(--e1);
+  background: var(--linea-fuerte);
+}
+:root.exportando .sb-acto, :root.exportando .sb-ficha dt { color: #333; }
+:root.exportando .sb-ficha dd, :root.exportando .sb-accion { color: #000; }
+:root.exportando .sb-cab { border-bottom-color: #000; }
 /* El border: 1px dashed se va: una línea de puntos lee como wireframe sin terminar.
    Un relleno gris claro con radio de 8px dice "vacío" mejor, y el aspect-ratio encuadra como un plano. */
 
@@ -1287,6 +1356,17 @@ header p { display: none; }
    escritorio que se maneja con teclado, y engordar las filas de un inspector de 292px por una
    restricción táctil importa un problema que no existe. */
 
+/* Aviso de almacenamiento: una banda, no un alert. Un modal bloqueante en mitad de
+   una frase es peor que el problema que anuncia. */
+.aviso {
+  display: flex; align-items: baseline; gap: var(--e3); flex-wrap: wrap;
+  padding: var(--e3) var(--e4);
+  background: var(--relleno); border-bottom: 1px solid var(--linea-fuerte);
+  font: 400 13px/19px var(--sans); color: var(--texto-1);
+}
+.aviso[hidden] { display: none; }
+.aviso .txt { flex: 1 1 320px; min-width: 0; }
+
 /* ═══ MODO EXPORTACIÓN ═══
    html2pdf rasteriza el DOM VIVO con los estilos de pantalla: el bloque @media print
    nunca se aplica. Esta clase se activa justo antes de rasterizar y se quita después.
@@ -1350,7 +1430,10 @@ html.exportando .rodaje-dia {
   padding: 7px 10px; font-weight: 700; margin-top: 16px;
 }
 html.exportando .rodaje-dia .n { color: #fff !important; }
-html.exportando .storyboard-canvas { border: 1px solid #000; }
+html.exportando .storyboard-canvas { border: 1px solid #000; background: #FFF !important; }
+html.exportando .sb-barra, html.exportando .sb-seg, html.exportando .sb-vacio-txt { display: none !important; }
+html.exportando .storyboard-card { border-top: 1px solid #9A9A9A; }
+html.exportando #storyboardContainer { display: block !important; }
 
 /* Portada del documento */
 .pdf-portada { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #000; }
@@ -1360,6 +1443,11 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
     </style>
 </head>
 <body>
+    <div id="avisoAlmacen" class="aviso" hidden>
+        <span class="txt"></span>
+        <a class="btn-texto" onclick="exportarProyecto()">Descargar copia</a>
+        <a class="btn-texto" onclick="this.closest('.aviso').hidden = true">Cerrar</a>
+    </div>
     <header>
         <div class="marca">
             <h1>Ade</h1>
@@ -1374,6 +1462,11 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             <a onclick="renombrarProyecto()">Renombrar</a>
             <a onclick="duplicarProyecto()">Duplicar</a>
             <a onclick="borrarProyecto()">Borrar</a>
+            <span class="sep-proyecto"></span>
+            <a onclick="exportarProyecto()" title="Descargar este proyecto como archivo .json">Copia de seguridad</a>
+            <a onclick="document.getElementById('archivoImportar').click()" title="Recuperar un proyecto desde un archivo .json">Importar</a>
+            <a onclick="exportarGuionTexto()" title="Descargar sólo el guion literario en texto">Guion .fountain</a>
+            <input type="file" id="archivoImportar" accept="application/json,.json" hidden onchange="importarProyecto(this)">
        </div>
     </header>
 
@@ -1495,7 +1588,7 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
                     <p style="font-size: 11px; margin-top: 8px;">Ya hay un guion técnico predefinido. Puedes editarlo directamente abajo o usar el asistente para refinarlo secuencia por secuencia.</p>
                </div>
 
-                <button onclick="iniciarAsistenteTecnico()" style="width: 100%; padding: 12px; margin-bottom: 15px; font-weight: 700; background: var(--texto-1); color: var(--secondary); font-size: 13px;">
+                <button onclick="iniciarAsistenteTecnico()" style="width: 100%; padding: 12px; margin-bottom: 15px; font-weight: 700; background: var(--texto-1); color: var(--fondo); font-size: 13px;">
                      Iniciar Asistente Técnico
                </button>
 
@@ -1602,12 +1695,12 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
     <!-- Modal Asistente -->
     <div id="asistenteModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--linea-fuerte);">
                 <div>
                     <h2 style="margin:0; font-family:'Playfair Display',Georgia,serif; font-size:26px; font-weight:600;">Asistente de Escritura</h2>
                     <p style="font-size: 11px; color: var(--texto-3); margin: 8px 0 0 0;" id="progressText"></p>
                </div>
-                <button onclick="cerrarAsistente()" style="background: var(--secondary); padding: 6px 12px; font-size: 14px;"></button>
+                <button onclick="cerrarAsistente()" style="background: var(--relleno); padding: 6px 12px; font-size: 14px;"></button>
            </div>
             <div id="asistenteContent"></div>
        </div>
@@ -1646,26 +1739,91 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
         let proyectos = [];
         let proyectoActivo = '';
 
+        // ── Almacenamiento que no puede tumbar la aplicación ─────────────────
+        // localStorage lanza excepción en modo privado, con las cookies bloqueadas,
+        // dentro de un iframe aislado, al abrir el archivo con doble clic (file://
+        // y data: no tienen origen) y al llenarse la cuota. Cualquiera de esas
+        // excepciones mataba el arranque y el usuario veía una pantalla en blanco
+        // sin una sola explicación. Ahora el trabajo sigue vivo en memoria y se
+        // avisa una vez, sin bloquear.
+        const memoria = {};
+        let almacenRoto = false;
+
+        function avisarAlmacen(texto) {
+            if (almacenRoto) return;
+            almacenRoto = true;
+            const b = document.getElementById('avisoAlmacen');
+            if (!b) return;
+            b.querySelector('.txt').textContent = texto;
+            b.hidden = false;
+        }
+
+        function lsGet(clave) {
+            try {
+                const v = localStorage.getItem(clave);
+                if (v !== null) return v;
+            } catch (e) {
+                avisarAlmacen('Este navegador no deja guardar (modo privado, cookies bloqueadas, o el archivo abierto con doble clic). Tu trabajo vive sólo en esta pestaña: descargá la copia de seguridad antes de cerrarla.');
+            }
+            return Object.prototype.hasOwnProperty.call(memoria, clave) ? memoria[clave] : null;
+        }
+
+        function lsSet(clave, valor) {
+            memoria[clave] = valor;
+            try { localStorage.setItem(clave, valor); return true; }
+            catch (e) {
+                avisarAlmacen(e && e.name === 'QuotaExceededError'
+                    ? 'El navegador se quedó sin espacio. Lo que ves sigue completo, pero ya no se guarda solo: descargá la copia de seguridad y borrá algún proyecto viejo.'
+                    : 'Este navegador no deja guardar (modo privado, cookies bloqueadas, o el archivo abierto con doble clic). Tu trabajo vive sólo en esta pestaña: descargá la copia de seguridad antes de cerrarla.');
+                return false;
+            }
+        }
+
+        function lsDel(clave) {
+            delete memoria[clave];
+            try { localStorage.removeItem(clave); } catch (e) {}
+        }
+
+        // Un dato corrupto en el almacén no puede impedir que la aplicación abra.
+        function jsonSeguro(texto, pordefecto) {
+            if (!texto) return pordefecto;
+            try {
+                const v = JSON.parse(texto);
+                return (v && typeof v === 'object') ? v : pordefecto;
+            } catch (e) { return pordefecto; }
+        }
+
+        // Texto de la persona metido dentro de HTML. Un proyecto llamado <Sin título>
+        // vaciaba el selector, y un campo ARTE con comillas partía la tarjeta del
+        // storyboard por la mitad.
+        function esc(t) {
+            return String(t == null ? '' : t)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
         function pk(clave) { return 'proy:' + proyectoActivo + ':' + clave; }
-        function pget(clave) { return localStorage.getItem(pk(clave)); }
-        function pset(clave, valor) { localStorage.setItem(pk(clave), valor); }
+        function pget(clave) { return lsGet(pk(clave)); }
+        function pset(clave, valor) { return lsSet(pk(clave), valor); }
 
         function initProyectos() {
-            proyectos = JSON.parse(localStorage.getItem('proyectos') || '[]');
+            proyectos = jsonSeguro(lsGet('proyectos'), []);
+            if (!Array.isArray(proyectos)) proyectos = [];
+            proyectos = proyectos.filter(p => p && typeof p.id === 'string');
             if (!proyectos.length) {
                 // Primera vez: migra el trabajo existente al proyecto inicial
                 const id = 'p' + Date.now();
                 proyectos = [{ id: id, nombre: 'Você é', tipo: 'corto' }];
-                localStorage.setItem('proyectos', JSON.stringify(proyectos));
+                lsSet('proyectos', JSON.stringify(proyectos));
                 proyectoActivo = id;
                 CLAVES_PROYECTO.forEach(c => {
-                    const v = localStorage.getItem(c);
-                    if (v !== null) { pset(c, v); localStorage.removeItem(c); }
+                    const v = lsGet(c);
+                    if (v !== null) { pset(c, v); lsDel(c); }
                 });
             }
-            proyectoActivo = localStorage.getItem('proyectoActivo') || proyectos[0].id;
+            proyectoActivo = lsGet('proyectoActivo') || proyectos[0].id;
             if (!proyectos.some(p =>p.id === proyectoActivo)) proyectoActivo = proyectos[0].id;
-            localStorage.setItem('proyectoActivo', proyectoActivo);
+            lsSet('proyectoActivo', proyectoActivo);
             pintarSelectorProyectos();
         }
 
@@ -1683,7 +1841,7 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
         function pintarSelectorProyectos() {
             const sel = document.getElementById('selProyecto');
             sel.innerHTML = proyectos.map(p =>
-                `<option value="${p.id}"${p.id === proyectoActivo ? ' selected' : ''}>${p.nombre}</option>`).join('');
+                `<option value="${esc(p.id)}"${p.id === proyectoActivo ? ' selected' : ''}>${esc(p.nombre)}</option>`).join('');
             const et = document.getElementById('tipoProyecto');
             if (et) et.textContent = TIPOS_PROYECTO[proyectoActual().tipo] || TIPOS_PROYECTO.corto;
         }
@@ -1693,10 +1851,27 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             const orden = ['corto', 'largo', 'serie'];
             const siguiente = orden[(orden.indexOf(actual.tipo || 'corto') + 1) % orden.length];
             actual.tipo = siguiente;
-            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            lsSet('proyectos', JSON.stringify(proyectos));
             pintarSelectorProyectos();
             atualizarFichaMcKee();
             actualizarNudgeMcKee();
+        }
+
+        const CAMPOS_IDEA = {
+            idea: 'ideaLibre', titulo: 'ideaTitulo', protRaw: 'ideaProtagonista',
+            deseo: 'ideaDeseo', obstaculo: 'ideaObstaculo', giro: 'ideaGiro',
+            final: 'ideaFinal', loc: 'ideaLocacion'
+        };
+
+        function guardarIdea() {
+            const datos = {};
+            let algo = false;
+            Object.keys(CAMPOS_IDEA).forEach(k => {
+                const el = document.getElementById(CAMPOS_IDEA[k]);
+                datos[k] = el ? el.value : '';
+                if (datos[k].trim()) algo = true;
+            });
+            if (algo) pset('ideaCorto', JSON.stringify(datos));
         }
 
         function guardarEstadoActual() {
@@ -1704,12 +1879,13 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             const gt = document.getElementById('guiaoTecnico');
             if (gl) pset('guiaoLiterario', gl.value);
             if (gt) pset('guiaoTecnico', gt.value);
+            guardarIdea();
         }
 
         function cambiarProyecto(id) {
             if (id === proyectoActivo) return;
             guardarEstadoActual();
-            localStorage.setItem('proyectoActivo', id);
+            lsSet('proyectoActivo', id);
             location.reload();
         }
 
@@ -1722,12 +1898,12 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             const tipo = resp === '2' ? 'largo' : (resp === '3' ? 'serie' : 'corto');
             const conPlantilla = tipo === 'corto' && confirm('¿Empezar con el guion de ejemplo como plantilla?\n\nAceptar = plantilla   •   Cancelar = proyecto en blanco');
             proyectos.push({ id: id, nombre: nombre.trim(), tipo: tipo });
-            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            lsSet('proyectos', JSON.stringify(proyectos));
             if (!conPlantilla) {
-                localStorage.setItem('proy:' + id + ':guiaoLiterario', '');
-                localStorage.setItem('proy:' + id + ':guiaoTecnico', '');
+                lsSet('proy:' + id + ':guiaoLiterario', '');
+                lsSet('proy:' + id + ':guiaoTecnico', '');
             }
-            localStorage.setItem('proyectoActivo', id);
+            lsSet('proyectoActivo', id);
             location.reload();
         }
 
@@ -1736,7 +1912,7 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             const nombre = prompt('Nuevo nombre:', actual.nombre);
             if (!nombre || !nombre.trim()) return;
             actual.nombre = nombre.trim();
-            localStorage.setItem('proyectos', JSON.stringify(proyectos));
+            lsSet('proyectos', JSON.stringify(proyectos));
             pintarSelectorProyectos();
         }
 
@@ -1748,11 +1924,11 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             const nuevoId = 'p' + Date.now();
             CLAVES_PROYECTO.forEach(c => {
                 const v = pget(c);
-                if (v !== null) localStorage.setItem('proy:' + nuevoId + ':' + c, v);
+                if (v !== null) lsSet('proy:' + nuevoId + ':' + c, v);
             });
             proyectos.push({ id: nuevoId, nombre: nombre.trim(), tipo: actual.tipo || 'corto' });
-            localStorage.setItem('proyectos', JSON.stringify(proyectos));
-            localStorage.setItem('proyectoActivo', nuevoId);
+            lsSet('proyectos', JSON.stringify(proyectos));
+            lsSet('proyectoActivo', nuevoId);
             location.reload();
         }
 
@@ -1760,10 +1936,10 @@ html.exportando .storyboard-canvas { border: 1px solid #000; }
             if (proyectos.length === 1) { alert('No puedes borrar el único proyecto.'); return; }
             const actual = proyectos.find(p =>p.id === proyectoActivo);
             if (!confirm('¿Borrar "' + actual.nombre + '" y todo su contenido? Esto no se puede deshacer.')) return;
-            CLAVES_PROYECTO.forEach(c =>localStorage.removeItem(pk(c)));
+            CLAVES_PROYECTO.forEach(c =>lsDel(pk(c)));
             proyectos = proyectos.filter(p =>p.id !== proyectoActivo);
-            localStorage.setItem('proyectos', JSON.stringify(proyectos));
-            localStorage.setItem('proyectoActivo', proyectos[0].id);
+            lsSet('proyectos', JSON.stringify(proyectos));
+            lsSet('proyectoActivo', proyectos[0].id);
             location.reload();
         }
 
@@ -2138,6 +2314,8 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
                 if (texto) {
                     const area = document.getElementById('ideaLibre');
                     area.value = (area.value ? area.value + ' ' : '') + texto.trim();
+                    guardarIdea();
+                    marcarEstadoGuardado('guardado');
                 }
             };
 
@@ -2161,6 +2339,7 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
         function limpiarIdea() {
             if (confirm('¿Borrar la idea escrita?')) {
                 document.getElementById('ideaLibre').value = '';
+                guardarIdea();
             }
         }
 
@@ -2527,20 +2706,50 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function vistaCompleta(abrir) {
             document.body.classList.toggle('vista-completa', !!abrir);
-            try { localStorage.setItem('vistaCompleta', abrir ? '1' : '0'); } catch (e) {}
+            lsSet('vistaCompleta', abrir ? '1' : '0');
             if (abrir) document.querySelector('.panel.right').scrollTop = 0;
         }
 
         function obtenerTecnicoActual() {
-            // Si el guion técnico está vacío o en formato viejo sin datos, usar el predefinido
             let tecnico = document.getElementById('guiaoTecnico').value.trim();
+
             if (!tecnico || !tecnico.match(/SEQUÊNCIA\s+\d+/i)) {
-                tecnico = generarTecnicoSugerido(Math.max(secuenciasParseadas.length, 1));
+                // Sin guion literario no hay nada que decupar: no inventamos una
+                // secuencia 1 fantasma en un proyecto vacío.
+                tecnico = secuenciasParseadas.length
+                    ? generarTecnicoSugerido(secuenciasParseadas.length)
+                    : '';
+            } else {
+                tecnico = completarTecnicoFaltante(tecnico);
+            }
+
+            if (tecnico !== document.getElementById('guiaoTecnico').value) {
                 document.getElementById('guiaoTecnico').value = tecnico;
                 pset('guiaoTecnico', tecnico);
             }
             // Compatibilidad con formato antiguo (ÂNGULO con acento circunflejo)
             return tecnico.replace(/ÂNGULO/g, 'ÁNGULO');
+        }
+
+        // Añade una línea técnica por cada secuencia del literario que no tenga una.
+        // No borra las sobrantes: una secuencia que hoy no está puede volver mañana,
+        // y su decupagem costó trabajo.
+        function completarTecnicoFaltante(tecnico) {
+            const lineas = tecnico.split('\n');
+            const falta = secuenciasParseadas.filter(seq =>
+                !lineas.some(l => new RegExp('SEQU[ÊE]NCIA\\s+' + seq.numero + '(\\D|$)', 'i').test(l)));
+            if (!falta.length) return tecnico;
+            const sugeridas = generarTecnicoSugerido(Math.max(...secuenciasParseadas.map(s => s.numero))).split('\n');
+            falta.forEach(seq => {
+                const base = sugeridas[seq.numero - 1] || sugeridas[sugeridas.length - 1];
+                lineas.push(base.replace(/^SEQU[ÊE]NCIA\s+\d+/i, 'SEQUÊNCIA ' + seq.numero));
+            });
+            // Orden por número: el guion técnico se lee como se rueda
+            return lineas.filter(l => l.trim()).sort((a, b) => {
+                const na = (a.match(/SEQU[ÊE]NCIA\s+(\d+)/i) || [0, 1e9])[1];
+                const nb = (b.match(/SEQU[ÊE]NCIA\s+(\d+)/i) || [0, 1e9])[1];
+                return na - nb;
+            }).join('\n');
         }
 
         function toggleAsistencia(tipo) {
@@ -2554,8 +2763,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== PANTALLA COMPLETA DEL GUION ====================
-        let fsFuente = parseInt(localStorage.getItem('fsGuiaoZoom')) || 18;
-        let fsAncho = localStorage.getItem('fsGuiaoAncho') || 'lectura';
+        let fsFuente = parseInt(lsGet('fsGuiaoZoom')) || 18;
+        let fsAncho = lsGet('fsGuiaoAncho') || 'lectura';
 
         function abrirGuiaoFullscreen() {
             document.getElementById('fsGuiaoTexto').value = document.getElementById('guiaoLiterario').value;
@@ -2582,13 +2791,13 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         function fsZoom(dir) {
             if (dir === 0) fsFuente = 18;
             else fsFuente = Math.min(48, Math.max(10, fsFuente + dir * 2));
-            localStorage.setItem('fsGuiaoZoom', fsFuente);
+            lsSet('fsGuiaoZoom', fsFuente);
             fsAplicar();
         }
 
         function fsAnchoToggle() {
             fsAncho = fsAncho === 'lectura' ? 'completo' : 'lectura';
-            localStorage.setItem('fsGuiaoAncho', fsAncho);
+            lsSet('fsGuiaoAncho', fsAncho);
             fsAplicar();
         }
 
@@ -2633,7 +2842,20 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== DESGLOCES ====================
+        // Un proyecto nuevo mostraba "0 Secuencias" en Desgloses, "Guarda el guion
+        // literario primero" en Rodaje y el storyboard del proyecto anterior. Tres
+        // pantallas que no se ponían de acuerdo sobre si había trabajo o no.
+        function estadoVacio(titulo, texto) {
+            return `<div class="vacio"><h3>${esc(titulo)}</h3><p>${esc(texto)}</p></div>`;
+        }
+
         function atualizarDesgloces() {
+            if (!secuenciasParseadas.length) {
+                document.getElementById('desglocesContainer').innerHTML = estadoVacio(
+                    'Todavía no hay nada que desglosar',
+                    'Los desgloses salen de leer el guion literario: personajes, locaciones, utilería, sonido y animación. Escribí la idea en la pestaña Idea y generá el guion, o pegá uno en Literario.');
+                return;
+            }
             let html = '';
 
             const personajesUnicos = [...new Set(secuenciasParseadas.flatMap(s =>s.personajes))];
@@ -2651,7 +2873,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 html += `<div class="grupo"><h3>Personajes Vivos (elenco real)</h3>`;
                 vivos.forEach(p => {
                     const seqs = secuenciasParseadas.filter(s =>s.personajes.includes(p)).map(s =>s.numero).join(', ');
-                    html += `<div class="fila-bloque"><strong>${p}</strong><br><span style="color: var(--texto-3);">Secuencias: ${seqs}</span></div>`;
+                    html += `<div class="fila-bloque"><strong>${esc(p)}</strong><br><span style="color: var(--texto-3);">Secuencias: ${seqs}</span></div>`;
                 });
                 html += `</div>`;
             }
@@ -2660,7 +2882,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 html += `<div class="grupo"><h3>Personajes Digitales (animación, no elenco)</h3>`;
                 digitales.forEach(p => {
                     const seqs = secuenciasParseadas.filter(s =>s.personajes.includes(p)).map(s =>s.numero).join(', ');
-                    html += `<div class="fila-bloque"><strong>${p}</strong> <span style="color: var(--texto-3);">— Seq: ${seqs}</span></div>`;
+                    html += `<div class="fila-bloque"><strong>${esc(p)}</strong> <span style="color: var(--texto-3);">— Seq: ${seqs}</span></div>`;
                 });
                 html += `</div>`;
             }
@@ -2669,7 +2891,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (locacionesUnicas.length > 0) {
                 html += `<div class="grupo"><h3>Locaciones</h3>`;
                 locacionesUnicas.forEach(l => {
-                    html += `<div class="fila-bloque">${l}</div>`;
+                    html += `<div class="fila-bloque">${esc(l)}</div>`;
                 });
                 html += `</div>`;
             }
@@ -2679,7 +2901,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 html += `<div class="grupo"><h3>Arte / Props detectados</h3>`;
                 propsUnicos.forEach(p => {
                     const seqs = secuenciasParseadas.filter(s =>s.props.includes(p)).map(s =>s.numero).join(', ');
-                    html += `<div class="fila-bloque"> ${p} <span style="color: var(--texto-3);">— Seq: ${seqs}</span></div>`;
+                    html += `<div class="fila-bloque">${esc(p)} <span style="color: var(--texto-3);">— Seq: ${seqs}</span></div>`;
                 });
                 html += `</div>`;
             }
@@ -2688,7 +2910,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (animSecs.length > 0) {
                 html += `<div class="grupo"><h3>Animación por secuencia</h3>`;
                 animSecs.forEach(s => {
-                    html += `<div class="fila-bloque"><strong>Seq ${s.numero}:</strong> ${s.animacoes.join('. ')}</div>`;
+                    html += `<div class="fila-bloque"><strong>Seq ${s.numero}:</strong> ${esc(s.animacoes.join('. '))}</div>`;
                 });
                 html += `</div>`;
             }
@@ -2697,7 +2919,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (somSecs.length > 0) {
                 html += `<div class="grupo"><h3>Sonido/Música por secuencia</h3>`;
                 somSecs.forEach(s => {
-                    html += `<div class="fila-bloque"><strong>Seq ${s.numero}:</strong> ${s.son}</div>`;
+                    html += `<div class="fila-bloque"><strong>Seq ${s.numero}:</strong> ${esc(s.son)}</div>`;
                 });
                 html += `</div>`;
             }
@@ -2713,8 +2935,8 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                     + `<div><span class="cifra">${planosSecs.length}</span><span class="et">secuencias cubiertas</span></div>`
                     + `<div><span class="cifra">${Math.ceil(total / 14)}</span><span class="et">jornadas estimadas</span></div></div>`;
                 planosSecs.forEach(x => {
-                    html += `<div class="fila-bloque"><strong>Seq ${x.seq.numero}</strong> — ${x.seq.titulo}`
-                        + `<div class="items">${x.planos.map(pl => `<span class="item">${pl}</span>`).join('')}</div></div>`;
+                    html += `<div class="fila-bloque"><strong>Seq ${x.seq.numero}</strong> — ${esc(x.seq.titulo)}`
+                        + `<div class="items">${x.planos.map(pl => `<span class="item">${esc(pl)}</span>`).join('')}</div></div>`;
                 });
                 html += `<p class="pie">Catorce planos por jornada de diez horas es el ritmo de un rodaje chico con una sola localización. Se edita en Técnico, campo PLANOS.</p></div>`;
             }
@@ -2726,9 +2948,9 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (arteSecs.length > 0) {
                 html += `<div class="grupo"><h3>Desglose de arte por secuencia</h3>`;
                 arteSecs.forEach(x => {
-                    html += `<div class="fila-bloque"><strong>Seq ${x.seq.numero}</strong> — ${x.seq.titulo}<br><span style="color: var(--gray-dark);">${x.arte}</span></div>`;
+                    html += `<div class="fila-bloque"><strong>Seq ${x.seq.numero}</strong> — ${esc(x.seq.titulo)}<br><span style="color: var(--texto-2);">${esc(x.arte)}</span></div>`;
                 });
-                html += `<div style="font-size: 10px; color: var(--gray-mid); margin-top: 8px;">Se edita en la pestaña Técnico, campo ARTE de cada secuencia.</div></div>`;
+                html += `<div style="font-size: 10px; color: var(--texto-3); margin-top: 8px;">Se edita en la pestaña Técnico, campo ARTE de cada secuencia.</div></div>`;
             }
 
             document.getElementById('desglocesContainer').innerHTML = html || '<p style="color: var(--texto-3);">Sin desgloses</p>';
@@ -2737,7 +2959,9 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         // ==================== PLAN DE RODAJE ====================
         function atualizarPlanRodaje() {
             if (secuenciasParseadas.length === 0) {
-                document.getElementById('rodajeContainer').innerHTML = '<p style="color: var(--texto-3); text-align: center; padding: 40px 20px;">Guarda el guion literario primero</p>';
+                document.getElementById('rodajeContainer').innerHTML = estadoVacio(
+                    'Todavía no hay plan de rodaje',
+                    'Las jornadas se calculan con las secuencias, sus locaciones y la carga de planos. En cuanto haya guion literario, el plan aparece solo.');
                 return;
             }
 
@@ -2793,10 +3017,10 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 const conSom = seqs.filter(s =>s.son).map(s =>s.numero);
 
                 const nLoc = loc.replace(/^J\d+ — /, '');
-                html += `<div class="rodaje-dia">JORNADA ${dia} — ${nLoc}<span class="n">${cargaDia[loc]} planos</span></div>`;
+                html += `<div class="rodaje-dia">JORNADA ${dia} — ${esc(nLoc)}<span class="n">${cargaDia[loc]} planos</span></div>`;
                 html += `<div class="rodaje-body">`;
 
-                html += `<div style="margin-bottom: 10px;"><strong style="color: var(--primary); font-size: 11px;">Secuencias a rodar (${seqs.length}):</strong></div>`;
+                html += `<div style="margin-bottom: 10px;"><strong style="color: var(--texto-1); font-size: 11px;">Secuencias a rodar (${seqs.length}):</strong></div>`;
                 seqs.forEach(s => {
                     const d = datosTecnicosSeq(s.numero);
                     const planosSeq = partirPlanos(d.planos);
@@ -2805,31 +3029,31 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                         ['Arte', d.arte], ['Notas', d.notas]
                     ].filter(x => x[1]);
                     html += `<div class="rodaje-seq">
-                        <strong>SEQ ${s.numero} — ${s.titulo}</strong>
-                        ${campos.length ? `<dl class="tec">${campos.map(c => `<dt>${c[0]}</dt><dd>${c[1]}</dd>`).join('')}</dl>` : '<p class="pie">Sin decupagem técnica</p>'}
-                        ${planosSeq.length ? `<dl class="tec"><dt>Planos</dt><dd><span class="items">${planosSeq.map(x => `<span class="item">${x}</span>`).join('')}</span></dd></dl>` : ''}
+                        <strong>SEQ ${s.numero} — ${esc(s.titulo)}</strong>
+                        ${campos.length ? `<dl class="tec">${campos.map(c => `<dt>${c[0]}</dt><dd>${esc(c[1])}</dd>`).join('')}</dl>` : '<p class="pie">Sin decupagem técnica</p>'}
+                        ${planosSeq.length ? `<dl class="tec"><dt>Planos</dt><dd><span class="items">${planosSeq.map(x => `<span class="item">${esc(x)}</span>`).join('')}</span></dd></dl>` : ''}
                     </div>`;
                 });
 
-                html += `<div style="margin-top: 12px;"><strong style="color: var(--primary); font-size: 11px;">Elenco necesario:</strong><br>`;
-                html += cast.length ? cast.map(c => `<span class="tag"> ${c}</span>`).join('') : '<span class="tag">Sin elenco (solo pantalla/animación)</span>';
+                html += `<div style="margin-top: 12px;"><strong style="color: var(--texto-1); font-size: 11px;">Elenco necesario:</strong><br>`;
+                html += cast.length ? cast.map(c => `<span class="tag">${esc(c)}</span>`).join('') : '<span class="tag">Sin elenco (solo pantalla/animación)</span>';
                 html += `</div>`;
 
                 if (props.length > 0) {
-                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">Arte / Props preparar:</strong><br>`;
-                    html += props.map(p => `<span class="tag"> ${p}</span>`).join('');
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--texto-1); font-size: 11px;">Arte / Props preparar:</strong><br>`;
+                    html += props.map(p => `<span class="tag">${esc(p)}</span>`).join('');
                     html += `</div>`;
                 }
 
                 if (castDigital.length > 0 || conAnimacion.length > 0) {
-                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">Post-producción / Animación:</strong><br>`;
-                    castDigital.forEach(c => { html += `<span class="tag"> ${c}</span>`; });
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--texto-1); font-size: 11px;">Post-producción / Animación:</strong><br>`;
+                    castDigital.forEach(c => { html += `<span class="tag">${esc(c)}</span>`; });
                     if (conAnimacion.length > 0) html += `<span class="tag">Animación en Seq: ${conAnimacion.join(', ')}</span>`;
                     html += `</div>`;
                 }
 
                 if (conSom.length > 0) {
-                    html += `<div style="margin-top: 10px;"><strong style="color: var(--primary); font-size: 11px;">Sonido:</strong><br><span class="tag">Diseño de sonido en Seq: ${conSom.join(', ')}</span></div>`;
+                    html += `<div style="margin-top: 10px;"><strong style="color: var(--texto-1); font-size: 11px;">Sonido:</strong><br><span class="tag">Diseño de sonido en Seq: ${conSom.join(', ')}</span></div>`;
                 }
 
                 html += `</div>`;
@@ -2892,7 +3116,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">¿Qué tipo de plano?</div>
+                    <div style="font-weight: 700; color: var(--texto-1); margin-bottom: 10px; font-size: 13px;">¿Qué tipo de plano?</div>
                     <div>
                         ${opcionesPlano.map(op => `
                             <button class="option-btn ${respuestasAsistente[seq.numero]?.plano === op ? 'selected' : ''}"
@@ -2904,7 +3128,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">¿Ángulo de cámara?</div>
+                    <div style="font-weight: 700; color: var(--texto-1); margin-bottom: 10px; font-size: 13px;">¿Ángulo de cámara?</div>
                     <div>
                         ${opcionesAngulo.map(op => `
                             <button class="option-btn ${respuestasAsistente[seq.numero]?.angulo === op ? 'selected' : ''}"
@@ -2916,7 +3140,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">¿Movimiento de cámara?</div>
+                    <div style="font-weight: 700; color: var(--texto-1); margin-bottom: 10px; font-size: 13px;">¿Movimiento de cámara?</div>
                     <div>
                         ${opcionesMovimiento.map(op => `
                             <button class="option-btn ${respuestasAsistente[seq.numero]?.movimiento === op ? 'selected' : ''}"
@@ -2928,21 +3152,21 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 6px; font-size: 13px;">Desglose de arte</div>
-                    <div style="font-size: 10px; color: var(--gray-mid); margin-bottom: 8px;">Qué hay que conseguir, fabricar o vestir para esta secuencia. ${sugerenciaArte(seq) ? 'Detectado en el guion: ' + sugerenciaArte(seq) : ''}</div>
-                    <input type="text" placeholder="Utilería, decorado, vestuario, maquillaje..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 0; font-size: 12px;"
+                    <div style="font-weight: 700; color: var(--texto-1); margin-bottom: 6px; font-size: 13px;">Desglose de arte</div>
+                    <div style="font-size: 10px; color: var(--texto-3); margin-bottom: 8px;">Qué hay que conseguir, fabricar o vestir para esta secuencia. ${sugerenciaArte(seq) ? 'Detectado en el guion: ' + esc(sugerenciaArte(seq)) : ''}</div>
+                    <input type="text" placeholder="Utilería, decorado, vestuario, maquillaje..." style="width: 100%; padding: 10px; border: 1px solid var(--linea); border-radius: 0; font-size: 12px;"
                         value="${(respuestasAsistente[seq.numero]?.arte || '').replace(/"/g, '&quot;')}"
                         onchange="respuestasAsistente[${seq.numero}] = respuestasAsistente[${seq.numero}] || {}; respuestasAsistente[${seq.numero}].arte = this.value;">
                </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 13px;">Notas técnicas</div>
-                    <input type="text" placeholder="Notas, detalles..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 0; font-size: 12px;"
+                    <div style="font-weight: 700; color: var(--texto-1); margin-bottom: 10px; font-size: 13px;">Notas técnicas</div>
+                    <input type="text" placeholder="Notas, detalles..." style="width: 100%; padding: 10px; border: 1px solid var(--linea); border-radius: 0; font-size: 12px;"
                         value="${(respuestasAsistente[seq.numero]?.notas || '').replace(/"/g, '&quot;')}"
                         onchange="respuestasAsistente[${seq.numero}] = respuestasAsistente[${seq.numero}] || {}; respuestasAsistente[${seq.numero}].notas = this.value;">
                </div>
 
-                <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--linea);">
                     <button onclick="pasoAnteriorAsistente()" style="flex: 1; ${pasoActual === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">Anterior</button>
                     <button onclick="pasoSiguienteAsistente()" style="flex: 1;">Siguiente</button>
                </div>
@@ -3745,6 +3969,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const cont = document.getElementById('fichaContainer');
             if (!cont) return;
 
+            const respondidas = Object.keys(mckeeRespuestas).filter(k => (mckeeRespuestas[k] || '').trim()).length;
+            if (!respondidas) {
+                cont.innerHTML = estadoVacio('La ficha se arma con tus respuestas',
+                    'Son ' + totalPreguntasHistoria() + ' preguntas sobre deseo, antagonismo, giro y tema, en el orden de El guion de McKee. Podés contestar las que quieras y salir cuando quieras: el diagnóstico aparece a partir de la primera.')
+                    + '<div style="text-align:center;margin-top:var(--e5);"><button onclick="abrirSesionMcKee()" style="width:auto;padding:12px 24px;">Empezar las preguntas</button></div>';
+                return;
+            }
+
             const diag = diagnosticoMcKee();
             const faltas = diag.filter(x =>x.nivel === 'falta').length;
             const avisos = diag.filter(x =>x.nivel === 'aviso').length;
@@ -3775,7 +4007,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 conRespuesta.forEach(p => {
                     html += `<div class="fila-bloque">
                         <div style="color: var(--texto-3); font-size: 9px; margin-bottom: 3px;">${p.q}</div>
-                        <div style="color: var(--texto-1); line-height: 1.5;">${(mckeeRespuestas[p.id] || '').replace(/</g, '&lt;')}</div>
+                        <div style="color: var(--texto-1); line-height: 1.5;">${esc(mckeeRespuestas[p.id] || '')}</div>
                    </div>`;
                 });
                 html += `</div>`;
@@ -3825,7 +4057,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         let autoTimer = null;
         let ultimoTextoGuardado = null;
         let fsIndiceVisible = false;
-        let fsMaquina = localStorage.getItem('fsMaquina') === '1';
+        let fsMaquina = lsGet('fsMaquina') === '1';
 
         function estadisticasGuion(texto) {
             const t = texto || '';
@@ -3917,7 +4149,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                         '<span class="n">' + String(s.numero).padStart(2, '0') + '</span>' +
                         '<span class="t">' + (s.titulo || 'sin título') + '</span></a>';
                 }).join('')
-                : '<p style="font-size:10px; color:var(--gray-light); letter-spacing:1px;">Sin secuencias</p>';
+                : '<p style="font-size:10px; color:var(--texto-4); letter-spacing:1px;">Sin secuencias</p>';
         }
 
         function fsIndiceToggle() {
@@ -3959,7 +4191,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
         function fsMaquinaToggle() {
             fsMaquina = !fsMaquina;
-            localStorage.setItem('fsMaquina', fsMaquina ? '1' : '0');
+            lsSet('fsMaquina', fsMaquina ? '1' : '0');
             document.getElementById('fsMaquinaBtn').setAttribute('aria-pressed', fsMaquina ? 'true' : 'false');
             if (fsMaquina) centrarCursor();
         }
@@ -4022,7 +4254,10 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 ['porta', /\b(portas?|puertas?)\b/],
                 ['prateleira', /\b(prateleiras?|estantes?|repisas?)\b/],
                 ['janela', /\b(janelas?|ventanas?)\b/],
-                ['formulario', /\b(formul[áa]rio|formulario|upload|concurso|inscri)\b/]
+                ['formulario', /\b(formul[áa]rio|formulario|upload|concurso|inscri)\b/],
+                ['monitor', /\b(telas?|screens?)\b/],
+                ['caderno', /\b(livros?|libros?|folhas?|hojas?|l[áa]pis|l[áa]piz|caneta)\b/],
+                ['cama', /\b(colch[ãa]o|almofadas?|almohadas?|len[çc][óo]l)\b/]
             ];
             const encontrados = [];
             mapa.forEach(function (par) { if (par[1].test(t)) encontrados.push(par[0]); });
@@ -4282,14 +4517,28 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ---------- generador principal ----------
-        function generarBocetoSVG(seq, planoTexto, anguloTexto, movimientoTexto) {
+        // ¿La línea de un plano habla de una persona, o sólo de un objeto?
+        // "Insert de tela, 50mm — os arquivos caindo" no lleva a nadie en cuadro.
+        const SB_RE_PERSONA = /\b(m[ãa]os?|manos?|rosto|rostro|cara|olhos|ojos|perfil|ombro|hombro|costas|espalda|corpo|cuerpo|ela\b|artista|m[ãa]e|madre|atriz|actriz|personagem|personaje|dedos?|p[ée]s?|nuca)\b/i;
+
+        function generarBocetoSVG(seq, planoTexto, anguloTexto, movimientoTexto, textoPlano) {
             const plano = (planoTexto || '').toLowerCase();
             const cfg = sbConfigAngulo(anguloTexto);
             const groundY = Math.round(SB_H * cfg.ground);
 
-            const vivos = seq ? (seq.personajes || []).filter(function (p) { return !esVozOAnimacion(p); }) : [];
-            const elementos = seq ? detectarElementosEscena(seq.descripcion) : [];
-            const deitado = seq ? estaDeitado(seq.descripcion) : false;
+            // Con texto de plano manda el plano; sin él, la secuencia entera.
+            const fuente = textoPlano || (seq ? seq.descripcion : '');
+            const todosVivos = seq ? (seq.personajes || []).filter(function (p) { return !esVozOAnimacion(p); }) : [];
+            const vivos = textoPlano
+                ? (SB_RE_PERSONA.test(textoPlano) || todosVivos.some(function (n) {
+                      return new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(textoPlano);
+                  }) ? todosVivos.slice(0, 2) : [])
+                : todosVivos;
+            const detectados = detectarElementosEscena(fuente);
+            const elementos = (textoPlano && !detectados.length)
+                ? detectarElementosEscena(seq ? seq.descripcion : '')
+                : detectados;
+            const deitado = estaDeitado(fuente);
 
             const esExtremo = plano.indexOf('extreme') >= 0;
             const esCerca = plano.indexOf('close') >= 0;
@@ -4355,14 +4604,6 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                 + `</svg>`;
         }
 
-        function getMoodColor(seqNum, totalSeqs) {
-            const ratio = seqNum / totalSeqs;
-            if (ratio < 0.25) return '#404040'; // oscuro: tensión inicial
-            if (ratio < 0.5) return '#505050';  // gris oscuro: conflicto
-            if (ratio < 0.75) return '#606060'; // gris: clímax
-            return '#707070'; // gris claro: resolución
-        }
-
         const SB_PLANOS = [
             ['Wide shot', 'WIDE'],
             ['Medium shot', 'MED'],
@@ -4411,77 +4652,184 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             return t.length >n ? t.substring(0, n).trim() + '…' : t;
         }
 
-        function atualizarStoryboard(guiaoTecnico) {
-            const lineas = guiaoTecnico.split('\n').filter(l =>l.trim());
-            let html = '';
-            const totalSeqs = lineas.length;
+        // Una viñeta por secuencia es una portada, no un storyboard: quien ilustra y
+        // quien tira la cámara trabajan por PLANO. El campo PLANOS del guion técnico
+        // ya trae los planos numerados; de ahí sale la vista por plano.
+        let sbVista = lsGet('sbVista') === 'plano' ? 'plano' : 'secuencia';
 
-            lineas.forEach(linea => {
-                const partes = linea.split('|').map(p =>p.trim());
-                const seqMatch = partes[0].match(/\d+/);
-                if (!seqMatch) return;
+        const SB_PISTAS_PLANO = [
+            [/\b(insert|macro|extreme close|ecu|detalhe|detalle)\b/i, 'Extreme close-up'],
+            [/\b(over the shoulder|ots|sobre o ombro|sobre el hombro)\b/i, 'Over the shoulder'],
+            [/\b(two[ -]?shot|plano conjunto|dois personagens)\b/i, 'Two-shot'],
+            [/\b(close[ -]?up|primeiro plano|primer plano|close)\b/i, 'Close-up'],
+            [/\b(plano geral|plano general|gran plano|wide|geral do|general del)\b/i, 'Wide shot'],
+            [/\b(plano m[ée]dio|plano medio|medium|americano)\b/i, 'Medium shot']
+        ];
 
-                const seqNum = parseInt(seqMatch[0]);
-                const seq = secuenciasParseadas.find(s =>s.numero === seqNum);
-                const plano = extraerValor(partes, 'PLANO');
-                const angulo = extraerValor(partes, 'ÁNGULO');
-                const movimiento = extraerValor(partes, 'MOVIMENTO');
-                const arte = extraerValor(partes, 'ARTE');
-                const planosSeq = extraerValor(partes, 'PLANOS');
-                const notasTec = extraerValor(partes, 'NOTAS');
-                const moodColor = getMoodColor(seqNum, totalSeqs);
+        const SB_PISTAS_ANGULO = [
+            [/\b(holand[êe]s|dutch|inclinad)/i, 'Holandés'],
+            [/\b(contrapicad|contra-picad|de baixo|desde abajo|inferior|baixo|bajo)\b/i, 'Inferior'],
+            [/\b(picad|cenital|zenital|de cima|desde arriba|superior)\b/i, 'Superior'],
+            [/\b(perfil)\b/i, 'Perfil'],
+            [/(3\/4|tr[êe]s quartos|tres cuartos|45\s*°|45 graus)/i, '45°'],
+            [/\b(frontal|n[íi]vel|nivel)\b/i, 'Nivel']
+        ];
 
-                const som = seq && seq.son ? seq.son : '';
-                const anim = seq && seq.animacoes.length ? seq.animacoes.join('. ') : '';
-                const notaUser = notasStoryboard[seqNum] || '';
-
-                const chipsPlano = SB_PLANOS.map(op =>
-                    `<button class="sb-chip ${op[0] === plano ? 'on' : ''}" title="${op[0]}" onclick="cambiarPlano(${seqNum}, '${op[0]}')">${op[1]}</button>`
-                ).join('');
-
-                const chipsAngulo = SB_ANGULOS.map(op =>
-                    `<button class="sb-chip ${op[0] === angulo ? 'on' : ''}" title="${op[0]}" onclick="cambiarAngulo(${seqNum}, '${op[0]}')">${op[1]}</button>`
-                ).join('');
-
-                html += `
-                    <div class="storyboard-card">
-                        <div style="font-size: 11px;">
-                            <div style="border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px;">
-                                <strong style="font-size: 13px; letter-spacing: 2px;">SEQ ${seqNum}</strong>
-                                ${seq ? `<div style="font-size: 9px; margin-top: 4px; color: var(--gray-mid); letter-spacing: 1px; text-transform: uppercase;">${seq.titulo}</div>` : ''}
-                           </div>
-                            ${plano ? `<div><strong style="font-size: 10px;">PLANO</strong><span style="display: block; color: var(--texto-2); font-size: 10px; margin-top: 3px;">${plano}</span></div>` : ''}
-                            ${angulo ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">ÁNGULO</strong><span style="display: block; color: var(--texto-2); font-size: 10px; margin-top: 3px;">${angulo}</span></div>` : ''}
-                            ${movimiento ? `<div style="margin-top: 6px;"><strong style="font-size: 10px;">MOV</strong><span style="display: block; color: var(--texto-2); font-size: 10px; margin-top: 3px;">${movimiento}</span></div>` : ''}
-                            <div class="sb-meta">
-                                ${planosSeq ? `<b>PLANOS</b><span>${planosSeq.split(/(?=\s\d+\.\d)/).map(x => x.trim()).filter(Boolean).join('<br>')}</span>` : ''}
-                                ${arte ? `<b>ARTE</b><span title="${arte.replace(/"/g, '&quot;')}">${arte}</span>` : ''}
-                                ${notasTec ? `<b>NOTAS</b>${notasTec}` : ''}
-                                ${som ? `<b>SOM</b><span title="${som.replace(/"/g, '&quot;')}">${recortarTexto(som, 80)}</span>` : ''}
-                                ${anim ? `<b>ANIM</b><span title="${anim.replace(/"/g, '&quot;')}">${recortarTexto(anim, 80)}</span>` : ''}
-                           </div>
-                       </div>
-                        <div class="sb-panel-wrap">
-                            <div class="storyboard-canvas" id="canvas-${seqNum}">${generarBocetoSVG(seq, plano, angulo, movimiento)}</div>
-                            <div class="sb-chips"><span class="sb-chip-label">PLANO</span>${chipsPlano}</div>
-                            <div class="sb-chips"><span class="sb-chip-label">ÁNGULO</span>${chipsAngulo}</div>
-                            <input class="sb-nota" placeholder="Nota del ilustrador para esta viñeta..." value="${notaUser.replace(/"/g, '&quot;')}" onchange="guardarNotaPanel(${seqNum}, this.value)">
-                       </div>
-                   </div>
-                `;
-            });
-
-            document.getElementById('storyboardContainer').innerHTML = html || '<p style="color: var(--texto-3);">Sin storyboard</p>';
+        function sbInferir(texto, pistas, pordefecto) {
+            for (let i = 0; i < pistas.length; i++) {
+                if (pistas[i][0].test(texto)) return pistas[i][1];
+            }
+            return pordefecto;
         }
 
-        function guardarNotaPanel(seqNum, valor) {
-            notasStoryboard[seqNum] = valor;
+        // "1.1 Insert de tela, frontal, 50mm T2.8 — os arquivos caindo"
+        function sbDesglosarPlanos(seq, d) {
+            return partirPlanos(d.planos).map(txt => {
+                const num = (txt.match(/^(\d+\.\d+)/) || [])[1] || '';
+                const cuerpo = txt.replace(/^\d+\.\d+\s*/, '');
+                const lente = (txt.match(/(\d{2,3})\s*mm/i) || [])[0] || '';
+                return {
+                    seq: seq,
+                    num: num,
+                    texto: cuerpo,
+                    lente: lente,
+                    plano: sbInferir(cuerpo, SB_PISTAS_PLANO, d.plano || 'Medium shot'),
+                    angulo: sbInferir(cuerpo, SB_PISTAS_ANGULO, d.angulo || 'Nivel'),
+                    movimiento: d.movimiento || ''
+                };
+            });
+        }
+
+        function sbActo(numero, total) {
+            if (!total) return '';
+            const r = numero / total;
+            if (r <= 0.3) return 'Acto I';
+            if (r <= 0.75) return 'Acto II';
+            return 'Acto III';
+        }
+
+        function sbCambiarVista(v) {
+            sbVista = v;
+            lsSet('sbVista', v);
+            atualizarStoryboard(obtenerTecnicoActual());
+        }
+
+        function sbFilaChips(tipo, seqNum, actual) {
+            const ops = tipo === 'PLANO' ? SB_PLANOS : SB_ANGULOS;
+            const fn = tipo === 'PLANO' ? 'cambiarPlano' : 'cambiarAngulo';
+            return `<div class="sb-chips"><span class="sb-chip-label">${tipo}</span>` + ops.map(op =>
+                `<button class="sb-chip ${op[0] === actual ? 'on' : ''}" title="${esc(op[0])}" onclick="${fn}(${seqNum}, '${esc(op[0])}')">${op[1]}</button>`
+            ).join('') + `</div>`;
+        }
+
+        function sbFicha(pares) {
+            const filas = pares.filter(x => x[1]);
+            if (!filas.length) return '';
+            return `<dl class="sb-ficha">` + filas.map(x =>
+                `<dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd>`).join('') + `</dl>`;
+        }
+
+        // ---------- una tarjeta por SECUENCIA ----------
+        function sbTarjetaSecuencia(seq, total) {
+            const d = datosTecnicosSeq(seq.numero);
+            const nPlanos = partirPlanos(d.planos).length;
+            const nota = notasStoryboard['s' + seq.numero] || '';
+            const sinDecupar = !d.plano && !d.angulo;
+
+            return `<div class="storyboard-card" data-seq="${seq.numero}">
+                <div class="sb-info">
+                    <div class="sb-cab">
+                        <strong>SEQ ${seq.numero}</strong>
+                        <span class="sb-acto">${sbActo(seq.numero, total)}</span>
+                    </div>
+                    <div class="sb-titulo">${esc(seq.titulo)}</div>
+                    ${sbFicha([
+                        ['Plano', d.plano], ['Ángulo', d.angulo], ['Movimiento', d.movimiento],
+                        ['Planos', nPlanos ? nPlanos + ' planos numerados' : ''],
+                        ['Arte', d.arte], ['Notas', d.notas],
+                        ['Som', seq.son], ['Animación', (seq.animacoes || []).join('. ')]
+                    ])}
+                    ${sinDecupar ? '<p class="sb-vacio-txt">Sin decupagem: elegí plano y ángulo abajo y se escribe solo en el guion técnico.</p>' : ''}
+                </div>
+                <div class="sb-panel-wrap">
+                    <div class="storyboard-canvas" id="canvas-${seq.numero}">${generarBocetoSVG(seq, d.plano, d.angulo, d.movimiento)}</div>
+                    ${sbFilaChips('PLANO', seq.numero, d.plano)}
+                    ${sbFilaChips('ÁNGULO', seq.numero, d.angulo)}
+                </div>
+                <input class="sb-nota" placeholder="Nota para quien ilustra o para cámara..." value="${esc(nota)}" onchange="guardarNotaPanel('s${seq.numero}', this.value)">
+            </div>`;
+        }
+
+        // ---------- una tarjeta por PLANO NUMERADO ----------
+        function sbTarjetaPlano(pl, total) {
+            const clave = 'p' + pl.num;
+            const nota = notasStoryboard[clave] || '';
+            return `<div class="storyboard-card" data-plano="${esc(pl.num)}">
+                <div class="sb-info">
+                    <div class="sb-cab">
+                        <strong>${esc(pl.num)}</strong>
+                        <span class="sb-acto">SEQ ${pl.seq.numero} · ${sbActo(pl.seq.numero, total)}</span>
+                    </div>
+                    <div class="sb-titulo">${esc(pl.seq.titulo)}</div>
+                    <p class="sb-accion">${esc(pl.texto)}</p>
+                    ${sbFicha([
+                        ['Plano', pl.plano], ['Ángulo', pl.angulo],
+                        ['Lente', pl.lente], ['Movimiento', pl.movimiento]
+                    ])}
+                </div>
+                <div class="sb-panel-wrap">
+                    <div class="storyboard-canvas">${generarBocetoSVG(pl.seq, pl.plano, pl.angulo, pl.movimiento, pl.texto)}</div>
+                </div>
+                <input class="sb-nota" placeholder="Nota de este plano..." value="${esc(nota)}" onchange="guardarNotaPanel('${esc(clave)}', this.value)">
+            </div>`;
+        }
+
+        function atualizarStoryboard(guiaoTecnico) {
+            const cont = document.getElementById('storyboardContainer');
+            const total = secuenciasParseadas.length;
+
+            if (!total) {
+                cont.innerHTML = estadoVacio('Todavía no hay storyboard',
+                    'El storyboard se dibuja desde el guion literario. Escribí (o dictá) la idea y generá el guion, o pegá uno en la pestaña Literario.');
+                return;
+            }
+
+            const planos = [];
+            secuenciasParseadas.forEach(seq => {
+                sbDesglosarPlanos(seq, datosTecnicosSeq(seq.numero)).forEach(x => planos.push(x));
+            });
+
+            const barra = `<div class="sb-barra">
+                <div class="sb-seg">
+                    <button class="${sbVista === 'secuencia' ? 'on' : ''}" onclick="sbCambiarVista('secuencia')">Por secuencia</button>
+                    <button class="${sbVista === 'plano' ? 'on' : ''}" onclick="sbCambiarVista('plano')">Por plano</button>
+                </div>
+                <span class="sb-cuenta">${total} secuencias · ${planos.length} planos numerados</span>
+            </div>`;
+
+            let cuerpo;
+            if (sbVista === 'plano') {
+                cuerpo = planos.length
+                    ? planos.map(pl => sbTarjetaPlano(pl, total)).join('')
+                    : estadoVacio('Ninguna secuencia tiene planos numerados todavía',
+                        'La vista por plano sale del campo PLANOS del guion técnico (1.1, 1.2, 1.3...). Abrí la pestaña Técnico y usá el asistente, o escribilos a mano.');
+            } else {
+                cuerpo = secuenciasParseadas.map(seq => sbTarjetaSecuencia(seq, total)).join('');
+            }
+
+            cont.innerHTML = barra + cuerpo;
+        }
+        function guardarNotaPanel(clave, valor) {
+            notasStoryboard[clave] = valor;
             pset('storyboardNotas', JSON.stringify(notasStoryboard));
+            marcarEstadoGuardado('guardado');
         }
 
         function actualizarCampoTecnico(seqNum, campo, valor) {
             const lineas = document.getElementById('guiaoTecnico').value.split('\n');
             const re = new RegExp('SEQU[ÊE]NCIA\\s+' + seqNum + '(\\D|$)', 'i');
+            // Si la secuencia aún no tiene línea técnica, se crea: antes el clic se perdía
+            if (!lineas.some(l => re.test(l))) lineas.push('SEQUÊNCIA ' + seqNum);
 
             for (let i = 0; i < lineas.length; i++) {
                 if (re.test(lineas[i])) {
@@ -4504,24 +4852,13 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         function redibujarPanel(seqNum) {
-            const d = datosTecnicosSeq(seqNum);
-            const seq = secuenciasParseadas.find(s =>s.numero === seqNum);
-            const canvas = document.getElementById(`canvas-${seqNum}`);
-            if (canvas) canvas.innerHTML = generarBocetoSVG(seq, d.plano, d.angulo, d.movimiento);
-
-            const wrap = canvas ? canvas.parentElement : null;
-            if (wrap) {
-                const filas = wrap.querySelectorAll('.sb-chips');
-                if (filas[0]) filas[0].querySelectorAll('.sb-chip').forEach((b, i) =>b.classList.toggle('on', SB_PLANOS[i][0] === d.plano));
-                if (filas[1]) filas[1].querySelectorAll('.sb-chip').forEach((b, i) =>b.classList.toggle('on', SB_ANGULOS[i][0] === d.angulo));
-            }
-
-            const info = canvas ? canvas.closest('.storyboard-card').querySelector('div[style*="font-size: 11px"]') : null;
-            if (info) {
-                const spans = info.querySelectorAll('span');
-                if (spans[0]) spans[0].textContent = d.plano;
-                if (spans[1]) spans[1].textContent = d.angulo;
-            }
+            // Se repinta la tarjeta completa: buscar <span> por posición rompía la
+            // ficha en cuanto faltaba un campo.
+            if (sbVista === 'plano') { atualizarStoryboard(obtenerTecnicoActual()); return; }
+            const vieja = document.querySelector('.storyboard-card[data-seq="' + seqNum + '"]');
+            const seq = secuenciasParseadas.find(s => s.numero === seqNum);
+            if (!vieja || !seq) return;
+            vieja.outerHTML = sbTarjetaSecuencia(seq, secuenciasParseadas.length);
         }
 
         function cambiarPlano(seqNum, nuevoPlano) {
@@ -4543,14 +4880,27 @@ ANIMAÇÃO: [Transiciones finales suaves]`
         }
 
         // ==================== PALETA / GUARDAR / PDF ====================
+        // El acento es lo único que la paleta puede mover sin romper el contraste
+        // del texto: el resto de la hoja está calculada para AA sobre las dos
+        // superficies y no se toca desde un selector de color.
+        function aplicarPaleta(paleta) {
+            const r = document.documentElement.style;
+            if (paleta.primary) {
+                r.setProperty('--acento', paleta.primary);
+                r.setProperty('--acento-texto', paleta.primary);
+                r.setProperty('--acento-hover', paleta.primary);
+                r.setProperty('--acento-activo', paleta.primary);
+            }
+            if (paleta.secondary) r.setProperty('--acento-fondo', paleta.secondary);
+        }
+
         function salvarPaleta() {
             const paleta = {
                 primary: document.getElementById('colorPrimarioText').value,
                 secondary: document.getElementById('colorSecundarioText').value
             };
             pset('paleta', JSON.stringify(paleta));
-            document.documentElement.style.setProperty('--primary', paleta.primary);
-            document.documentElement.style.setProperty('--secondary', paleta.secondary);
+            aplicarPaleta(paleta);
             marcarEstadoGuardado('guardado');
         }
 
@@ -4584,9 +4934,9 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             const portada = document.createElement('div');
             portada.className = 'pdf-portada';
             const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-            portada.innerHTML = '<div class="obra">' + (proyecto.nombre || 'Sin título') + '</div>'
-                + '<div class="doc">' + (TITULOS_PDF[nombre] || nombre) + '</div>'
-                + '<div class="meta">' + (TIPOS_PROYECTO[proyecto.tipo] || 'Cortometraje') + ' · ' + fecha + '</div>';
+            portada.innerHTML = '<div class="obra">' + esc(proyecto.nombre || 'Sin título') + '</div>'
+                + '<div class="doc">' + esc(TITULOS_PDF[nombre] || nombre) + '</div>'
+                + '<div class="meta">' + esc(TIPOS_PROYECTO[proyecto.tipo] || 'Cortometraje') + ' · ' + fecha + '</div>';
             elemento.insertBefore(portada, elemento.firstChild);
 
             // Tema claro y contraste de papel ANTES de rasterizar
@@ -4619,17 +4969,117 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             html2pdf().set(opt).from(elemento).save().then(restaurar).catch(restaurar);
         }
 
+        // ==================== COPIA DE SEGURIDAD ====================
+        // Todo el trabajo vive en el almacén del navegador. Un "borrar datos de
+        // navegación", un perfil nuevo o un disco que se muere y no queda nada.
+        // Esto es lo que vuelve la herramienta prestable a otra persona.
+        function datosProyecto(id) {
+            const meta = proyectos.find(p => p.id === id) || {};
+            const d = { id: id, nombre: meta.nombre || '', tipo: meta.tipo || 'corto', claves: {} };
+            CLAVES_PROYECTO.forEach(c => {
+                const v = lsGet('proy:' + id + ':' + c);
+                if (v !== null) d.claves[c] = v;
+            });
+            return d;
+        }
+
+        function descargar(nombre, texto, tipo) {
+            const blob = new Blob([texto], { type: (tipo || 'application/json') + ';charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = nombre;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        }
+
+        function nombreArchivo(t) {
+            return (t || 'proyecto').replace(/[^\wÀ-ÿ -]/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'proyecto';
+        }
+
+        function exportarProyecto() {
+            guardarEstadoActual();
+            const d = datosProyecto(proyectoActivo);
+            descargar(nombreArchivo(d.nombre) + '-ade.json',
+                JSON.stringify({ formato: 'ade/1', fecha: new Date().toISOString(), proyectos: [d] }, null, 1));
+        }
+
+        function exportarTodo() {
+            guardarEstadoActual();
+            descargar('ade-todos-los-proyectos.json',
+                JSON.stringify({ formato: 'ade/1', fecha: new Date().toISOString(), proyectos: proyectos.map(p => datosProyecto(p.id)) }, null, 1));
+        }
+
+        function exportarGuionTexto() {
+            const t = document.getElementById('guiaoLiterario').value;
+            if (!t.trim()) { alert('No hay guion literario para descargar.'); return; }
+            descargar(nombreArchivo(proyectoActual().nombre) + '.fountain', t, 'text/plain');
+        }
+
+        function importarProyecto(input) {
+            const archivo = input.files && input.files[0];
+            input.value = '';
+            if (!archivo) return;
+            const lector = new FileReader();
+            lector.onerror = () => alert('No se pudo leer el archivo.');
+            lector.onload = () => {
+                const datos = jsonSeguro(lector.result, null);
+                const entrantes = datos && Array.isArray(datos.proyectos) ? datos.proyectos : null;
+                if (!entrantes || !entrantes.length) {
+                    alert('Ese archivo no es una copia de Ade. Tiene que ser el .json que genera "Copia de seguridad".');
+                    return;
+                }
+                if (!confirm('Importar ' + entrantes.length + ' proyecto(s)?\n\nSe agregan como proyectos nuevos. Nada de lo que ya tenés se toca.')) return;
+                let ultimo = null;
+                entrantes.forEach(d => {
+                    if (!d || typeof d !== 'object') return;
+                    const id = 'p' + Date.now() + Math.floor(Math.random() * 1000);
+                    Object.keys(d.claves || {}).forEach(c => {
+                        if (CLAVES_PROYECTO.indexOf(c) >= 0) lsSet('proy:' + id + ':' + c, String(d.claves[c]));
+                    });
+                    proyectos.push({
+                        id: id,
+                        nombre: (d.nombre || 'Proyecto importado') + ' (importado)',
+                        tipo: ['corto', 'largo', 'serie'].indexOf(d.tipo) >= 0 ? d.tipo : 'corto'
+                    });
+                    ultimo = id;
+                });
+                lsSet('proyectos', JSON.stringify(proyectos));
+                if (ultimo) lsSet('proyectoActivo', ultimo);
+                location.reload();
+            };
+            lector.readAsText(archivo);
+        }
+
         // ==================== INICIALIZACIÓN ====================
         window.addEventListener('load', () => {
+            try { arrancar(); }
+            catch (e) {
+                // Antes, cualquier excepción aquí dejaba la página muerta y muda.
+                console.error(e);
+                const b = document.getElementById('avisoAlmacen');
+                if (b) {
+                    b.querySelector('.txt').textContent = 'Algo falló al abrir el proyecto (' + (e && e.message ? e.message : e) + '). Tu guion sigue guardado: probá recargar, y si no abre, usá "Recuperar" para descargar todo en crudo.';
+                    b.hidden = false;
+                }
+            }
+        });
+
+        function arrancar() {
             initProyectos();
+            Object.values(CAMPOS_IDEA).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', guardarIdea);
+            });
+            window.addEventListener('beforeunload', guardarEstadoActual);
 
             const litGuardado = pget('guiaoLiterario');
             const tecGuardado = pget('guiaoTecnico');
             document.getElementById('guiaoLiterario').value = litGuardado !== null ? litGuardado : guiaoPadrao;
             document.getElementById('guiaoTecnico').value = tecGuardado !== null ? tecGuardado : guiaoTecnicoPredefinido;
 
-            notasStoryboard = JSON.parse(pget('storyboardNotas') || '{}');
-            mckeeRespuestas = JSON.parse(pget('mckeeRespuestas') || '{}');
+            notasStoryboard = jsonSeguro(pget('storyboardNotas'), {});
+            mckeeRespuestas = jsonSeguro(pget('mckeeRespuestas'), {});
 
             const texto = document.getElementById('guiaoLiterario').value;
             ultimoTextoGuardado = texto;
@@ -4642,7 +5092,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             actualizarNudgeMcKee();
 
             // Restaurar idea guardada
-            const ideaGuardada = JSON.parse(pget('ideaCorto') || '{}');
+            const ideaGuardada = jsonSeguro(pget('ideaCorto'), {});
             if (ideaGuardada.idea) document.getElementById('ideaLibre').value = ideaGuardada.idea;
             if (ideaGuardada.titulo) document.getElementById('ideaTitulo').value = ideaGuardada.titulo;
             if (ideaGuardada.protRaw) document.getElementById('ideaProtagonista').value = ideaGuardada.protRaw;
@@ -4652,18 +5102,17 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (ideaGuardada.final) document.getElementById('ideaFinal').value = ideaGuardada.final;
             if (ideaGuardada.loc) document.getElementById('ideaLocacion').value = ideaGuardada.loc;
 
-            const paleta = JSON.parse(pget('paleta') || '{}');
+            const paleta = jsonSeguro(pget('paleta'), {});
+            aplicarPaleta(paleta);
             if (paleta.primary) {
-                document.documentElement.style.setProperty('--primary', paleta.primary);
                 document.getElementById('colorPrimario').value = paleta.primary;
                 document.getElementById('colorPrimarioText').value = paleta.primary;
             }
             if (paleta.secondary) {
-                document.documentElement.style.setProperty('--secondary', paleta.secondary);
                 document.getElementById('colorSecundario').value = paleta.secondary;
                 document.getElementById('colorSecundarioText').value = paleta.secondary;
             }
-        });
+        }
     </script>
 </body>
 </html>
