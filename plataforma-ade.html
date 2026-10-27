@@ -440,6 +440,23 @@ body.vista-completa #ficha-tab .grupo { break-inside: avoid; }
 body.vista-completa .vista-solo-completa { display: inline-flex; }
 body.vista-completa .vista-solo-dividida { display: none; }
 
+/* Ficha técnica de una secuencia: etiqueta a la izquierda, valor a la derecha.
+   Antes era una sola línea de 400 caracteres con bullets: ilegible en pantalla y en papel. */
+.rodaje-seq .tec { display: grid; grid-template-columns: 92px 1fr; gap: 2px var(--e3); margin: var(--e2) 0 0; }
+.rodaje-seq .tec dt {
+  font-size: 11px; letter-spacing: .3px; color: var(--texto-3);
+  text-align: right; padding-top: 1px;
+}
+.rodaje-seq .tec dd { margin: 0; font-size: 13px; color: var(--texto-1); line-height: 19px; }
+.rodaje-seq .tec dd .items { display: block; }
+.rodaje-seq .tec dd .item {
+  display: block; white-space: normal; overflow-wrap: anywhere;
+  padding: 2px 0 2px var(--e3); text-indent: calc(var(--e3) * -1);
+}
+.rodaje-seq .tec dd .item + .item::before { content: none; }
+:root.exportando .rodaje-seq .tec dt { color: #333; }
+:root.exportando .rodaje-seq .tec dd { color: #000; }
+
 .pie { margin-top: var(--e3); color: var(--texto-3); font: 400 12px/18px var(--sans); max-width: var(--medida-prosa); }
 
 .campo-idea .hint {
@@ -1269,6 +1286,77 @@ header p { display: none; }
    El min-height táctil vive bajo @media (hover: none), no en los tokens: esto es una app de
    escritorio que se maneja con teclado, y engordar las filas de un inspector de 292px por una
    restricción táctil importa un problema que no existe. */
+
+/* ═══ MODO EXPORTACIÓN ═══
+   html2pdf rasteriza el DOM VIVO con los estilos de pantalla: el bloque @media print
+   nunca se aplica. Esta clase se activa justo antes de rasterizar y se quita después.
+   Va al final de la hoja para ganarle al tema oscuro por orden de cascada. */
+:root.exportando {
+  --fondo: #FFFFFF; --fondo-2: #FFFFFF;
+  --relleno: #EDEDED; --relleno-2: #EDEDED; --relleno-hover: #EDEDED;
+  --hover-sutil: transparent;
+  --texto-1: #000000; --texto-2: #1C1C1C; --texto-3: #333333; --texto-4: #555555;
+  --linea: #9A9A9A; --linea-fuerte: #4A4A4A;
+  --acento: #000000; --acento-texto: #000000; --acento-fondo: #EDEDED;
+  --seleccion: transparent; --scrim: transparent;
+  background: #FFFFFF;
+}
+:root.exportando body { background: #FFFFFF; }
+
+/* Nada de controles en el papel */
+html.exportando button,
+html.exportando .tabs,
+html.exportando .barra-insertar,
+html.exportando .barra-estado,
+html.exportando .sb-chips,
+html.exportando .sb-nota,
+html.exportando .btn-texto,
+html.exportando input,
+html.exportando select,
+html.exportando .no-imprimir { display: none !important; }
+
+/* Una sola columna: dos columnas en A4 es lo que vuelve ilegible el desglose */
+html.exportando #desglocesContainer,
+html.exportando #fichaContainer { columns: auto !important; }
+
+/* Nada pegado ni flotando mientras se rasteriza */
+html.exportando .panel.right,
+html.exportando .panel.right .tabs { position: static !important; overflow: visible !important; }
+html.exportando .panel.right { width: auto !important; padding: 0 !important; }
+html.exportando .layout { display: block !important; }
+
+/* Que un grupo no se parta entre dos páginas */
+html.exportando .grupo,
+html.exportando .fila-bloque,
+html.exportando .storyboard-card,
+html.exportando .rodaje-dia,
+html.exportando .rodaje-body,
+html.exportando .metricas { break-inside: avoid; page-break-inside: avoid; }
+
+/* Jerarquía impresa: los títulos de grupo se separan del cuerpo con una regla real */
+html.exportando .grupo { margin-bottom: 18px; padding-bottom: 10px; }
+html.exportando .grupo > h3 {
+  font-size: 15px; font-weight: 700; color: #000;
+  border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 10px;
+  letter-spacing: 0;
+}
+html.exportando .fila-bloque { border-bottom: 1px solid #C8C8C8; padding: 7px 0; }
+html.exportando .fila-bloque strong { color: #000; font-weight: 700; }
+html.exportando .metricas .cifra { color: #000; }
+html.exportando .metricas .et { color: #333; }
+html.exportando .pie { color: #333; font-style: italic; }
+html.exportando .rodaje-dia {
+  background: #000 !important; color: #fff !important;
+  padding: 7px 10px; font-weight: 700; margin-top: 16px;
+}
+html.exportando .rodaje-dia .n { color: #fff !important; }
+html.exportando .storyboard-canvas { border: 1px solid #000; }
+
+/* Portada del documento */
+.pdf-portada { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #000; }
+.pdf-portada .obra { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #000; }
+.pdf-portada .doc { font-size: 14px; color: #000; margin-top: 4px; }
+.pdf-portada .meta { font-size: 11px; color: #333; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -2710,8 +2798,17 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
                 html += `<div style="margin-bottom: 10px;"><strong style="color: var(--primary); font-size: 11px;">Secuencias a rodar (${seqs.length}):</strong></div>`;
                 seqs.forEach(s => {
-                    const tec = tecnicoPorSeq[s.numero] ? tecnicoPorSeq[s.numero].split('|').slice(1).map(p =>p.trim()).join(' • ') : 'Técnico a definir';
-                    html += `<div class="rodaje-seq"><strong>SEQ ${s.numero}: ${s.titulo}</strong><br><span style="color: var(--texto-2); font-size: 10px;">${tec}</span></div>`;
+                    const d = datosTecnicosSeq(s.numero);
+                    const planosSeq = partirPlanos(d.planos);
+                    const campos = [
+                        ['Plano', d.plano], ['Ángulo', d.angulo], ['Movimiento', d.movimiento],
+                        ['Arte', d.arte], ['Notas', d.notas]
+                    ].filter(x => x[1]);
+                    html += `<div class="rodaje-seq">
+                        <strong>SEQ ${s.numero} — ${s.titulo}</strong>
+                        ${campos.length ? `<dl class="tec">${campos.map(c => `<dt>${c[0]}</dt><dd>${c[1]}</dd>`).join('')}</dl>` : '<p class="pie">Sin decupagem técnica</p>'}
+                        ${planosSeq.length ? `<dl class="tec"><dt>Planos</dt><dd><span class="items">${planosSeq.map(x => `<span class="item">${x}</span>`).join('')}</span></dd></dl>` : ''}
+                    </div>`;
                 });
 
                 html += `<div style="margin-top: 12px;"><strong style="color: var(--primary); font-size: 11px;">Elenco necesario:</strong><br>`;
@@ -4465,20 +4562,61 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             marcarEstadoGuardado('guardado');
         }
 
+        const TITULOS_PDF = {
+            desgloses: 'Desglose de producción',
+            storyboard: 'Storyboard',
+            'plan-de-rodaje': 'Plan de rodaje',
+            'ficha-historia': 'Ficha de historia'
+        };
+
         function exportarPDF(containerId, nombre) {
             const elemento = document.getElementById(containerId);
             if (!elemento || !elemento.innerText.trim() || elemento.innerText.includes('Cargando')) {
                 alert('No hay contenido para exportar todavía.');
                 return;
             }
+
+            const raiz = document.documentElement;
+            const temaPrevio = raiz.dataset.tema || '';
+            const proyecto = proyectoActual();
+
+            // Portada: sin esto el PDF empieza a mitad de una tabla y no se sabe de qué es
+            const portada = document.createElement('div');
+            portada.className = 'pdf-portada';
+            const fecha = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+            portada.innerHTML = '<div class="obra">' + (proyecto.nombre || 'Sin título') + '</div>'
+                + '<div class="doc">' + (TITULOS_PDF[nombre] || nombre) + '</div>'
+                + '<div class="meta">' + (TIPOS_PROYECTO[proyecto.tipo] || 'Cortometraje') + ' · ' + fecha + '</div>';
+            elemento.insertBefore(portada, elemento.firstChild);
+
+            // Tema claro y contraste de papel ANTES de rasterizar
+            raiz.dataset.tema = 'claro';
+            raiz.classList.add('exportando');
+            // El PDF heredaba el ancho del panel en pantalla: exportado desde la vista
+            // dividida salia una columna de 340px. 780px mapea bien a A4 con 12mm de margen.
+            const anchoPrevio = elemento.style.width;
+            const maxPrevio = elemento.style.maxWidth;
+            elemento.style.width = '780px';
+            elemento.style.maxWidth = '780px';
+
             const opt = {
-                margin: 10,
-                filename: `${nombre}-voce-e.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: [12, 12, 14, 12],
+                filename: (proyecto.nombre || 'proyecto').replace(/[^\wÀ-ÿ -]/g, '').trim().replace(/\s+/g, '-').toLowerCase() + '-' + nombre + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, backgroundColor: '#FFFFFF', useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['.grupo', '.fila-bloque', '.storyboard-card', '.metricas', '.rodaje-body'] }
             };
-            html2pdf().set(opt).from(elemento).save();
+
+            const restaurar = () => {
+                raiz.classList.remove('exportando');
+                elemento.style.width = anchoPrevio;
+                elemento.style.maxWidth = maxPrevio;
+                if (temaPrevio) raiz.dataset.tema = temaPrevio; else delete raiz.dataset.tema;
+                if (portada.parentNode) portada.parentNode.removeChild(portada);
+            };
+
+            html2pdf().set(opt).from(elemento).save().then(restaurar).catch(restaurar);
         }
 
         // ==================== INICIALIZACIÓN ====================
