@@ -1345,6 +1345,14 @@ header p { display: none; }
   input[type="text"], textarea, select { font-size: 16px; }
   #fsGuiaoTexto { padding-left: var(--e4); padding-right: var(--e4); }
 }
+/* Dictar la idea al telefono es EL caso de uso de esta pantalla: a 375px la
+   etiqueta no puede comerse 112px y dejar el valor en 130. Se apila. */
+@media (max-width: 620px) {
+  .ra-lista li { grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--e2); }
+  .ra-et { grid-column: 1 / -1; }
+  .resumen-audio { padding: var(--e3); }
+}
+
 @media (hover: none) {
   button:not(.btn-texto):not(.btn-mas):not(.btn-cerrar), .option-btn, .sb-chip { min-height: 44px; }
 }
@@ -1355,6 +1363,60 @@ header p { display: none; }
    El min-height táctil vive bajo @media (hover: none), no en los tokens: esto es una app de
    escritorio que se maneja con teclado, y engordar las filas de un inspector de 292px por una
    restricción táctil importa un problema que no existe. */
+
+/* ═══ LO QUE ADE ENTENDIÓ DEL AUDIO ═══
+   No es un informe: es la lista de lo que ya está y lo que falta, para que
+   quien dictó responda dos preguntas en vez de rellenar siete campos. */
+.resumen-audio {
+  margin: var(--e4) 0 var(--e5);
+  padding: var(--e4);
+  background: var(--relleno);
+  border-radius: var(--r2);
+}
+.resumen-audio[hidden] { display: none; }
+.ra-cab {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--e3);
+  margin-bottom: var(--e3);
+}
+.ra-cab strong { font: 600 14px/20px var(--sans); color: var(--texto-1); }
+.ra-cuenta { font: 400 12px/16px var(--sans); color: var(--texto-3); white-space: nowrap; }
+.ra-lista { list-style: none; margin: 0; padding: 0; }
+.ra-lista li {
+  display: grid; grid-template-columns: 112px minmax(0, 1fr) auto;
+  gap: var(--e3); align-items: baseline;
+  padding: var(--e2) 0;
+  border-top: 1px solid var(--linea);
+}
+.ra-et { font: 400 12px/18px var(--sans); color: var(--texto-3); }
+.ra-val { font: 400 13px/19px var(--sans); color: var(--texto-1); overflow-wrap: anywhere; }
+.ra-pide { color: var(--acento-texto); cursor: pointer; text-decoration: none; }
+.ra-pide:hover { text-decoration: underline; }
+.ra-marca { font: 400 11px/16px var(--sans); color: var(--texto-3); white-space: nowrap; }
+.ra-lista li.falta .ra-marca { color: var(--rojo); }
+.ra-pie { margin: var(--e3) 0 var(--e2); font: 400 13px/20px var(--sans); color: var(--texto-2); }
+.ra-pie.ok { color: var(--texto-1); }
+.ra-ej { display: block; font-size: 12px; color: var(--texto-3); margin-top: 2px; }
+.resumen-audio button { width: 100%; margin: 0; }
+.ra-costos {
+  margin-top: var(--e4); padding-top: var(--e3);
+  border-top: 1px solid var(--linea-fuerte);
+}
+.ra-costos strong { display: block; font: 600 13px/19px var(--sans); color: var(--texto-1); margin-bottom: var(--e2); }
+.ra-costo { font: 400 13px/19px var(--sans); color: var(--texto-2); padding: var(--e2) 0; }
+.ra-costo .q { color: var(--texto-1); font-weight: 500; }
+
+/* De dónde salió cada campo, y cuál es el que hay que responder ahora */
+.campo-idea[data-origen]::after {
+  content: attr(data-origen);
+  display: inline-block; margin-top: 3px;
+  font: 400 11px/16px var(--sans); color: var(--texto-3);
+}
+.campo-idea[data-origen="audio"]::after { content: 'del audio'; }
+.campo-idea[data-origen="supuesto"]::after { content: 'supuesto — revisalo'; color: var(--rojo); }
+.campo-idea.pedido input {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-fondo);
+}
 
 /* Aviso de almacenamiento: una banda, no un alert. Un modal bloqueante en mitad de
    una frase es peor que el problema que anuncia. */
@@ -1488,16 +1550,24 @@ html.exportando #storyboardContainer { display: block !important; }
                 <div class="campo-idea">
                     <label>Tu idea (libre)</label>
                     <textarea id="ideaLibre" style="height: 120px; font-family: inherit; font-size: 13px;" placeholder="Ej: Quiero contar la historia de una artista que borra todos sus dibujos porque intenta copiar estilos de moda, hasta que su madre le trae un juguete de la infancia y ella recuerda quién es..."></textarea>
-                    <div style="display: flex; gap: 8px; margin-top: 8px;">
-                        <button class="mic-btn" id="micBtn" onclick="toggleDictado()" style="flex: 1;">Hablar (dictar idea)</button>
-                        <button class="secondary" onclick="limpiarIdea()" style="flex: 1;">Limpiar</button>
+                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                        <button class="mic-btn" id="micBtn" onclick="toggleDictado()" style="flex: 2 1 160px;">Hablar (dictar idea)</button>
+                        <select id="idiomaDictado" title="Idioma del dictado" style="flex: 0 1 120px;">
+                            <option value="es-ES">Español</option>
+                            <option value="pt-BR">Português</option>
+                            <option value="en-US">English</option>
+                        </select>
+                        <button class="secondary" onclick="limpiarIdea()" style="flex: 1 1 90px;">Limpiar</button>
                    </div>
-                    <span class="hint" id="micHint">El dictado por voz funciona en Chrome. Toca el micrófono y habla; tu voz se convierte en texto.</span>
+                    <button onclick="analizarDictado()" style="width: 100%; margin-top: 8px;">Analizar lo que conté</button>
+                    <span class="hint" id="micHint">Contá tu idea como se la contarías a alguien. Ade separa sola quién es, qué quiere, qué se lo impide, qué la hace cambiar y cómo termina.</span>
                </div>
 
+                <div id="resumenAudio" class="resumen-audio" hidden></div>
+
                 <div class="ayuda">
-                    <strong style="color: var(--texto-1); font-size: 13px;">Preguntas guiadas (opcional pero recomendado)</strong>
-                    <p style="font-size: 11px; margin-top: 5px;">Cuanto más respondas, mejor quedará la estructura. Lo que dejes vacío, Ade lo dejará marcado para que lo completes después.</p>
+                    <strong style="color: var(--texto-1); font-size: 13px;">Lo que Ade entendió</strong>
+                    <p style="font-size: 11px; margin-top: 5px;">Lo de abajo se rellena solo con lo que dictaste. Corregí lo que esté mal y respondé sólo lo que quedó vacío: no hace falta escribirlo todo.</p>
                </div>
 
                 <div class="campo-idea">
@@ -1864,12 +1934,14 @@ html.exportando #storyboardContainer { display: block !important; }
         };
 
         function guardarIdea() {
-            const datos = {};
+            const datos = { origen: {} };
             let algo = false;
             Object.keys(CAMPOS_IDEA).forEach(k => {
                 const el = document.getElementById(CAMPOS_IDEA[k]);
                 datos[k] = el ? el.value : '';
                 if (datos[k].trim()) algo = true;
+                const caja = el && el.closest('.campo-idea');
+                if (caja && caja.dataset.origen) datos.origen[k] = caja.dataset.origen;
             });
             if (algo) pset('ideaCorto', JSON.stringify(datos));
         }
@@ -2276,7 +2348,9 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
             'REJEITADA', 'FRACASSO', 'ESTRANHA', 'INVISÍVEL', 'IGNORADA', 'FRACASSADA', 'DESCONHECIDA',
             'K-POP', 'POP', 'ART', 'POP ART', 'GRAFITE', 'IDENTIDADE', 'O.S', 'V.O',
             'CONT', 'VOZ', 'ENVIADO', 'CONCURSO', 'ILUSTRAM', 'GENERICA', 'GENÉRICA', 'COPIA', 'CÓPIA',
-            'NINGUEM', 'NINGUÉM', 'VIU', 'TEMA', 'CORTE', 'CORTA', 'ENCADENA', 'FUNDE', 'FINAL'];
+            'NINGUEM', 'NINGUÉM', 'VIU', 'TEMA', 'CORTE', 'CORTA', 'ENCADENA', 'FUNDE', 'FINAL',
+            'RECURSO', 'MONTAGEM', 'MONTAJE', 'SONIDO', 'SOUND', 'ANIMACION', 'ANIMAÇÃO', 'SEQUENCIA',
+            'SECUENCIA', 'ESCENA', 'SCENE', 'CENA', 'PLANOS', 'TOMAS', 'SHOTS', 'LOGLINE', 'IDEA'];
 
         // ==================== DICTADO POR VOZ ====================
         function toggleDictado() {
@@ -2292,7 +2366,8 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
             }
 
             reconocimiento = new SpeechRec();
-            reconocimiento.lang = 'es-ES';
+            const selIdioma = document.getElementById('idiomaDictado');
+            reconocimiento.lang = (selIdioma && selIdioma.value) || 'es-ES';
             reconocimiento.continuous = true;
             reconocimiento.interimResults = false;
 
@@ -2301,7 +2376,7 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
                 const btn = document.getElementById('micBtn');
                 btn.classList.add('grabando');
                 btn.textContent = '⏹ Detener dictado';
-                document.getElementById('micHint').textContent = 'Escuchando... Habla tu idea. Toca "Detener" cuando termines.';
+                document.getElementById('micHint').textContent = 'Escuchando. Contá la historia entera de corrido; al terminar, Ade la separa sola.';
             };
 
             reconocimiento.onresult = (event) => {
@@ -2330,7 +2405,10 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
                 const btn = document.getElementById('micBtn');
                 btn.classList.remove('grabando');
                 btn.textContent = 'Hablar (dictar idea)';
-                document.getElementById('micHint').textContent = 'El dictado por voz funciona en Chrome. Toca el micrófono y habla; tu voz se convierte en texto.';
+                document.getElementById('micHint').textContent = 'Contá tu idea como se la contarías a alguien. Ade separa sola quién es, qué quiere, qué se lo impide, qué la hace cambiar y cómo termina.';
+                // El análisis arranca solo al soltar el micrófono: ése es el punto
+                // del proyecto, que un audio alcance sin pulsar nada más.
+                analizarDictado(true);
             };
 
             reconocimiento.start();
@@ -2339,28 +2417,371 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
         function limpiarIdea() {
             if (confirm('¿Borrar la idea escrita?')) {
                 document.getElementById('ideaLibre').value = '';
+                const panel = document.getElementById('resumenAudio');
+                if (panel) { panel.hidden = true; panel.innerHTML = ''; }
                 guardarIdea();
             }
+        }
+
+
+        // ══════════════════════════════════════════════════════════════════
+        // EXTRACTOR DE DICTADO
+        // ══════════════════════════════════════════════════════════════════
+        // El eje del proyecto es que un solo audio alcance para arrancar. Hasta
+        // ahora el dictado caía en un textarea y de ahí a una plantilla con seis
+        // [corchetes] vacíos: el audio no alimentaba nada, la persona seguía
+        // escribiendo el guion entero a mano.
+        //
+        // Esto corre ENTERO en el navegador, sin red y sin clave de ninguna API.
+        // No es una decisión de ahorro: la página está publicada en GitHub Pages,
+        // cualquiera que tenga el enlace puede leer el código fuente, y una clave
+        // ahí dentro es una clave regalada. Y el guion es obra inédita para un
+        // concurso: no sale de esta máquina.
+
+        // Conectores del habla. Quien dicta no pone puntos, así que el corte de
+        // una idea a la siguiente lo marcan estas palabras y no la puntuación.
+        const ADE_CORTES = '(?:pero|mas|porem|but|however|aunque|embora|although|sin embargo|no entanto|' +
+            'y entonces|entonces|entao|luego|depois|despues|then|hasta que|ate que|until|' +
+            'un dia|um dia|one day|cierto dia|certo dia|' +
+            'al final|no final|ao final|in the end|finally|finalmente|por ultimo|' +
+            'y al final|y termina|termina con|acaba con|ends with|' +
+            'de repente|suddenly|de pronto|cuando|quando|when|' +
+            // "y hay" introduce un hecho nuevo: cierra el fragmento anterior
+            'y hay|y habia|y tiene|e tem|e havia|and there is|and there are|and there was|' +
+            'porque|porque|because|asi que|entao|so that|' +
+            // las pistas fuertes de otro rol también cierran el fragmento
+            'quiere|queria|quer|wants? to|desea|deseja|suena con|sonha com|dreams? of|' +
+            'necesita|precisa|needs? to|descubre|descobre|encuentra|encontra|finds?|' +
+            'recuerda|lembra|remembers?|se da cuenta|percebe|realizes?)';
+
+        // Para cada rol: la pista que lo anuncia y el peso con el que la creemos.
+        // El valor se toma de lo que viene DESPUÉS de la pista, no de la frase
+        // entera: "quiere ser cantante" da "ser cantante", no toda la oración.
+        const ADE_ROLES = [
+            {
+                id: 'final', campo: 'ideaFinal', etiqueta: 'Cómo termina',
+                pregunta: '¿Cómo termina la historia?',
+                ejemplo: 'Ej: canta delante de todos y su padre la escucha desde el fondo',
+                pistas: [
+                    [/\b(?:al final|no final|ao final|in the end|finalmente|finally|por ultimo|y al final)\s+/g, 5],
+                    [/\b(?:termina(?:ndo)? (?:con|cuando|en)|acaba (?:con|cuando)|ends? (?:with|when))\s+/g, 4]
+                ]
+            },
+            {
+                id: 'giro', campo: 'ideaGiro', etiqueta: 'Qué la hace cambiar',
+                pregunta: '¿Qué descubre o qué la hace cambiar?',
+                ejemplo: 'Ej: encuentra una grabación de su madre cantando',
+                pistas: [
+                    [/\b(?:un dia|um dia|one day|cierto dia|hasta que|ate que|until|de repente|de pronto|suddenly)\s+/g, 5],
+                    [/\b(?:descubre|descobre|discovers?|encuentra|encontra|finds?|recuerda|lembra|remembers?|se da cuenta(?: de)?|percebe|realizes?|aparece|le trae|lhe traz)\s+/g, 3]
+                ]
+            },
+            {
+                id: 'obstaculo', campo: 'ideaObstaculo', etiqueta: 'Qué se lo impide',
+                pregunta: '¿Qué obstáculo enfrenta?',
+                ejemplo: 'Ej: su padre no la deja, y ella no se anima a desobedecerlo',
+                pistas: [
+                    [/\b(?:pero|mas|porem|but|however|sin embargo|no entanto)\s+/g, 5],
+                    [/\b(?:el problema es|o problema e|the problem is|no puede|nao pode|cannot|can't|no la deja|no lo deja|nao deixa|le impide|a impede|tiene miedo de|tem medo de|is afraid of)\s*/g, 4],
+                    [/\b(?:aunque|embora|although)\s+/g, 3]
+                ]
+            },
+            {
+                id: 'deseo', campo: 'ideaDeseo', etiqueta: 'Qué quiere',
+                pregunta: '¿Qué quiere o qué problema tiene?',
+                ejemplo: 'Ej: quiere ser cantante aunque nunca cantó delante de nadie',
+                pistas: [
+                    [/\b(?:quiere|queria|quer|queria|wants? to|deseja|desea)\s+/g, 5],
+                    [/\b(?:suena con|sonha com|dreams? of|su sueno es|seu sonho e|necesita|precisa|needs? to)\s+/g, 4],
+                    [/\b(?:intenta|tenta|tries to|busca|procura|esta tratando de)\s+/g, 3]
+                ]
+            },
+            {
+                id: 'protagonista', campo: 'ideaProtagonista', etiqueta: 'Quién es',
+                pregunta: '¿Quién es tu protagonista?',
+                ejemplo: 'Ej: una chica de 20 años que trabaja en una panadería',
+                pistas: [
+                    [/\b(?:es|era|va|trata|habla)\s+(?:sobre|de)\s+/g, 5],
+                    [/\b(?:la historia de|a historia de|the story of|protagonista es|personaje principal es)\s+/g, 5],
+                    [/\b(?:quiero contar|queria contar|i want to tell)\s+(?:la historia de|a historia de)?\s*/g, 4]
+                ]
+            },
+            {
+                id: 'locacion', campo: 'ideaLocacion', etiqueta: 'Dónde pasa',
+                pregunta: '¿Dónde pasa? Una sola locación.',
+                ejemplo: 'Ej: la trastienda de la panadería',
+                pistas: [
+                    [/\b(?:(?:todo )?(?:pasa|sucede|transcurre|ocurre)\s+en|se passa em|ambientad[oa] en|takes? place in)\s+(?:un|una|um|uma|el|la|o|a|the)?\s*/g, 5]
+                ]
+            }
+        ];
+
+        // Si nadie dijo "pasa en", el lugar igual suele estar nombrado.
+        const ADE_LUGARES = /\b(?:en|em|no|na|dentro de|in|at)\s+(?:un|una|um|uma|el|la|o|a|the|su|sua|seu|his|her)?\s*((?:cuarto|habitacion|quarto|dormitorio|pieza|sala|salon|living|cocina|cozinha|kitchen|bano|banheiro|bathroom|casa|departamento|apartamento|apartment|oficina|escritorio|office|taller|estudio|studio|aula|escuela|colegio|school|hospital|consultorio|bar|cafe|restaurante|tienda|loja|shop|panaderia|padaria|peluqueria|garaje|garagem|sotano|porao|azotea|terraza|balcon|pasillo|corredor|ascensor|elevador|auto|coche|carro|car|tren|trem|bus|colectivo|calle|rua|street|parque|plaza|patio|jardin|iglesia|igreja|biblioteca|libreria|galeria|museo|teatro|cine|gimnasio|vestuario|deposito|almacen)(?:\s+(?:de|da|do|del)\s+[a-z]+)?)/i;
+
+        // Palabras que disparan una decisión de presupuesto. No alcanza con
+        // marcarlas: cada una viene con la forma barata de contar lo mismo, que
+        // es la regla permanente del proyecto.
+        const ADE_COSTOSOS = [
+            [/\b(?:multitud|multidao|mucha gente|crowd|publico|estadio|concierto|manifestacion|fiesta grande)\b/i,
+             'una multitud',
+             'Tres o cuatro personas en primer término y el resto en sonido. Un estadio lleno se cuenta con un plano cerrado de una cara y un rumor fuera de campo.'],
+            [/\b(?:persecucion|perseguicao|car chase|choque|accidente|explosion|explosao|incendio|fuego|fogo)\b/i,
+             'una persecución, un choque o fuego',
+             'Fuera de campo: el sonido, la luz que cambia sobre una cara, y el después. Lo que no se ve no se paga y además da más miedo.'],
+            [/\b(?:lluvia|chuva|rain|tormenta|tempestade|nieve|neve|snow|inundacion)\b/i,
+             'lluvia o nieve',
+             'Por ventana, con sonido y una manguera fina sobre el vidrio. O ropa ya mojada al entrar: la lluvia pasó, no se filma.'],
+            [/\b(?:avion|aviao|plane|helicoptero|barco|lancha|tren en marcha|moto|camion)\b/i,
+             'un vehículo grande',
+             'Interior parado con luz que pasa y sonido. Un auto detenido de noche con luces cruzando resuelve casi cualquier escena de viaje.'],
+            [/\b(?:playa|praia|beach|bosque|floresta|montana|desierto|campo abierto|acantilado)\b/i,
+             'un exterior lejano',
+             'Un exterior lejano es transporte, permisos, clima y una jornada entera. Si la escena es íntima, un balcón, un patio o una ventana dan el mismo aire.'],
+            [/\b(?:nino|nina|bebe|crianca|baby|child|menor de edad|adolescente de 1[0-5])\b/i,
+             'un menor de edad',
+             'Lleva tutor en set, horario reducido y cesión firmada. Si es un recuerdo, se puede contar con una voz, una foto, una mano o un objeto de esa edad.'],
+            [/\b(?:perro|gato|caballo|animal|cachorro|cao|dog|horse|pajaro)\b/i,
+             'un animal',
+             'Un animal no actúa a pedido y come jornada. Resolver con sonido fuera de campo, una correa que entra en cuadro, o un plano de detalle muy corto.'],
+            [/\b(?:epoca|siglo|medieval|victoriano|anos (?:20|30|40|50|60|70)|1[89]\d\d)\b/i,
+             'una época',
+             'Vestuario, utilería y limpieza de cuadro en cada plano. Si la época es un recuerdo, basta un objeto y un sonido: lo demás lo pone quien mira.'],
+            [/\b(?:disparo|balazo|pistola|arma|tiro|sangre|sangue|blood|herida grave)\b/i,
+             'un arma o sangre',
+             'Fuera de campo y reacción. El disparo es sonido; lo que se filma es la cara de quien lo oye.'],
+            [/\b(?:exterior de noche|de noche en la calle|noite na rua|calle de noche)\b/i,
+             'un exterior de noche',
+             'Es la escena más cara que existe en un corto: hay que llevar la luz. Un umbral, un auto o una ventana iluminada desde dentro dan la noche gratis.']
+        ];
+
+        function adeLimpiar(t) {
+            let v = String(t || '').trim()
+                .replace(/^(?:que|de|a|el|la|lo|los|las|y|e)\s+/i, '')
+                .replace(/\s+/g, ' ')
+                .replace(/[\s,;:.]+$/, '')
+                .replace(/\s+(?:y|e|o|u|and|or|ou|de|a|que|con|com|with|para|pra|en|em)$/i, '')
+                .replace(/[\s,;:.]+$/, '');
+            if (v.length > 110) {
+                const corte = v.lastIndexOf(' ', 110);
+                v = v.slice(0, corte > 40 ? corte : 110).replace(/[\s,;:.]+$/, '');
+            }
+            return v;
+        }
+
+        // El análisis. Devuelve qué se entendió, de dónde, y qué falta.
+        function adeAnalizar(texto) {
+            const bruto = String(texto || '').replace(/\s+/g, ' ').trim();
+            // sinTildes conserva la longitud, así que un índice vale en las dos
+            // cadenas: se busca sobre la plana y se recorta de la original.
+            const plana = sinTildes(bruto).toLowerCase();
+            const campos = {}, fuente = {};
+            const tomados = [];
+
+            // Dónde termina un fragmento: en el próximo conector o en puntuación.
+            const reCorte = new RegExp('(?:[.;!?]|\\s+' + ADE_CORTES + '\\b)', 'g');
+            function finDeFragmento(desde) {
+                reCorte.lastIndex = desde;
+                let m;
+                while ((m = reCorte.exec(plana)) !== null) {
+                    // Se acepta el primer corte que deje una respuesta de verdad.
+                    // Con doce, "quiere cantar pero..." perdia el deseo entero;
+                    // con seis, "she" sigue siendo demasiado corto y se extiende.
+                    if (m.index - desde >= 6) return m.index;
+                }
+                return Math.min(plana.length, desde + 150);
+            }
+            function libre(a, b) {
+                return !tomados.some(r => a < r[1] && b > r[0]);
+            }
+
+            ADE_ROLES.forEach(rol => {
+                for (let i = 0; i < rol.pistas.length; i++) {
+                    const re = rol.pistas[i][0];
+                    re.lastIndex = 0;
+                    let m;
+                    while ((m = re.exec(plana)) !== null) {
+                        const ini = m.index + m[0].length;
+                        const fin = finDeFragmento(ini);
+                        const valor = adeLimpiar(bruto.slice(ini, fin));
+                        if (valor.length >= 6 && libre(m.index, fin)) {
+                            campos[rol.id] = valor;
+                            fuente[rol.id] = 'audio';
+                            tomados.push([m.index, fin]);
+                            return;
+                        }
+                    }
+                }
+            });
+
+            // Protagonista sin "es sobre": el primer "un/una ... que ..."
+            if (!campos.protagonista) {
+                const m = /\b(?:un|una|um|uma)\s+((?:[a-z]+\s+){0,3}?[a-z]+(?:\s+de\s+\d+\s+a[nñ]os)?)\s+que\s+/i.exec(plana);
+                if (m && libre(m.index, m.index + m[0].length)) {
+                    campos.protagonista = adeLimpiar(bruto.substr(m.index, m[0].length).replace(/\s+que\s+$/i, ''));
+                    fuente.protagonista = 'audio';
+                }
+            }
+
+            // Locación sin "pasa en": el primer lugar nombrado
+            if (!campos.locacion) {
+                const m = ADE_LUGARES.exec(plana);
+                if (m) {
+                    const ini = m.index + m[0].length - m[1].length;
+                    campos.locacion = adeLimpiar(bruto.substr(ini, m[1].length));
+                    fuente.locacion = 'supuesto';
+                }
+            }
+
+            // Título dicho en voz alta
+            const mt = /\b(?:se llama|se titula|el titulo es|o titulo e|it'?s called|titulada?)\s+/i.exec(plana);
+            if (mt) {
+                const ini = mt.index + mt[0].length;
+                const v = adeLimpiar(bruto.slice(ini, finDeFragmento(ini)));
+                if (v) { campos.titulo = v; fuente.titulo = 'audio'; }
+            }
+
+            // Avisos de presupuesto
+            const avisos = [];
+            ADE_COSTOSOS.forEach(c => {
+                if (c[0].test(plana)) avisos.push({ que: c[1], como: c[2] });
+            });
+
+            return { campos: campos, fuente: fuente, avisos: avisos, palabras: bruto ? bruto.split(/\s+/).length : 0 };
+        }
+
+        // ---------- Puente con el formulario ----------
+        const ADE_CAMPO_DE = {
+            protagonista: 'ideaProtagonista', deseo: 'ideaDeseo', obstaculo: 'ideaObstaculo',
+            giro: 'ideaGiro', final: 'ideaFinal', locacion: 'ideaLocacion', titulo: 'ideaTitulo'
+        };
+        const ADE_ESENCIALES = ['protagonista', 'deseo', 'obstaculo', 'giro', 'final'];
+
+        let adeUltimoAnalisis = null;
+
+        function adeFaltantes() {
+            return ADE_ESENCIALES.filter(id => {
+                const el = document.getElementById(ADE_CAMPO_DE[id]);
+                return !el || !el.value.trim();
+            });
+        }
+
+        function adeRolPorId(id) {
+            return ADE_ROLES.find(r => r.id === id) || { pregunta: id, ejemplo: '' };
+        }
+
+        function analizarDictado(silencioso) {
+            const texto = document.getElementById('ideaLibre').value.trim();
+            if (!texto) {
+                if (!silencioso) alert('Primero dictá o escribí tu idea, aunque sean dos frases.');
+                return;
+            }
+            const res = adeAnalizar(texto);
+            adeUltimoAnalisis = res;
+
+            // Sólo se rellena lo que está vacío: nunca se pisa lo que escribió la persona
+            Object.keys(res.campos).forEach(id => {
+                const el = document.getElementById(ADE_CAMPO_DE[id]);
+                if (el && !el.value.trim()) {
+                    el.value = res.campos[id];
+                    el.closest('.campo-idea').dataset.origen = res.fuente[id];
+                }
+            });
+            guardarIdea();
+            pintarResumenAudio(res);
+            marcarEstadoGuardado('guardado');
+        }
+
+        function pintarResumenAudio(res) {
+            const cont = document.getElementById('resumenAudio');
+            if (!cont) return;
+            const faltan = adeFaltantes();
+            const puestos = ADE_ESENCIALES.filter(id => faltan.indexOf(id) < 0);
+
+            let h = '<div class="ra-cab"><strong>Esto entendí de tu idea</strong>'
+                + `<span class="ra-cuenta">${puestos.length} de ${ADE_ESENCIALES.length}</span></div>`;
+
+            h += '<ul class="ra-lista">';
+            ADE_ESENCIALES.concat(['locacion']).forEach(id => {
+                const el = document.getElementById(ADE_CAMPO_DE[id]);
+                const v = el ? el.value.trim() : '';
+                const rol = adeRolPorId(id);
+                const origen = el && el.closest('.campo-idea').dataset.origen;
+                if (v) {
+                    h += `<li class="ok"><span class="ra-et">${esc(rol.etiqueta || id)}</span>`
+                        + `<span class="ra-val">${esc(v)}</span>`
+                        + `<span class="ra-marca">${origen === 'audio' ? 'del audio' : (origen === 'supuesto' ? 'supuesto — revisalo' : 'tuyo')}</span></li>`;
+                } else {
+                    h += `<li class="falta"><span class="ra-et">${esc(rol.etiqueta || id)}</span>`
+                        + `<a class="ra-val ra-pide" onclick="adeIrACampo('${id}')">${esc(rol.pregunta)}</a>`
+                        + `<span class="ra-marca">falta</span></li>`;
+                }
+            });
+            h += '</ul>';
+
+            if (faltan.length) {
+                const r = adeRolPorId(faltan[0]);
+                h += `<p class="ra-pie">Falta${faltan.length > 1 ? 'n ' + faltan.length + ' cosas' : ' una cosa'}. `
+                    + `Empezá por esta: <strong>${esc(r.pregunta)}</strong> <span class="ra-ej">${esc(r.ejemplo)}</span></p>`
+                    + `<button class="secondary" onclick="adeIrACampo('${faltan[0]}')">Responder lo que falta</button>`;
+            } else {
+                h += '<p class="ra-pie ok">Está todo. Ya se puede generar el guion, el técnico, el storyboard, los desgloses y el plan de rodaje.</p>';
+            }
+
+            if (res && res.avisos && res.avisos.length) {
+                h += '<div class="ra-costos"><strong>Para que se pueda rodar con poco</strong>';
+                res.avisos.forEach(a => {
+                    h += `<div class="ra-costo"><span class="q">Dijiste ${esc(a.que)}.</span> ${esc(a.como)}</div>`;
+                });
+                h += '</div>';
+            }
+
+            cont.innerHTML = h;
+            cont.hidden = false;
+        }
+
+        function adeIrACampo(id) {
+            const el = document.getElementById(ADE_CAMPO_DE[id]);
+            if (!el) return;
+            const caja = el.closest('.campo-idea');
+            caja.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            caja.classList.add('pedido');
+            setTimeout(() => caja.classList.remove('pedido'), 1600);
+            el.focus();
         }
 
         // ==================== GENERADOR: IDEA  GUION ====================
         function generarGuionDesdeIdea() {
             const idea = document.getElementById('ideaLibre').value.trim();
-            const titulo = document.getElementById('ideaTitulo').value.trim() || 'MI CORTOMETRAJE';
-            const protRaw = document.getElementById('ideaProtagonista').value.trim() || 'la protagonista';
-            const deseo = document.getElementById('ideaDeseo').value.trim() || '[¿Qué quiere el personaje? — completa aquí]';
-            const obstaculo = document.getElementById('ideaObstaculo').value.trim() || '[¿Qué obstáculo enfrenta? — completa aquí]';
-            const giro = document.getElementById('ideaGiro').value.trim() || '[¿Qué la hace cambiar? — completa aquí]';
-            const final = document.getElementById('ideaFinal').value.trim() || '[¿Cómo termina? — completa aquí]';
-            const loc = (document.getElementById('ideaLocacion').value.trim() || 'LOCACIÓN PRINCIPAL').toUpperCase();
 
-            if (!idea && !document.getElementById('ideaProtagonista').value.trim()) {
-                alert('Escribe (o dicta) tu idea, o responde al menos quién es tu protagonista.');
+            // Si hay dictado sin analizar, se analiza ahora: nadie debería tener
+            // que acordarse de pulsar un botón intermedio.
+            if (idea && adeFaltantes().length) analizarDictado(true);
+
+            const faltan = adeFaltantes();
+            if (faltan.length) {
+                pintarResumenAudio(adeUltimoAnalisis);
+                const r = adeRolPorId(faltan[0]);
+                alert('Falta' + (faltan.length > 1 ? 'n ' + faltan.length + ' cosas' : ' una cosa') + ' para armar el guion:\n\n'
+                    + faltan.map(f => '· ' + adeRolPorId(f).pregunta).join('\n')
+                    + '\n\nEmpezá por: ' + r.pregunta + '\n' + r.ejemplo
+                    + '\n\nAde prefiere preguntarte esto ahora y no dejarte un guion con huecos marcados.');
+                adeIrACampo(faltan[0]);
                 return;
             }
 
+            const titulo = document.getElementById('ideaTitulo').value.trim() || 'SIN TÍTULO';
+            const protRaw = document.getElementById('ideaProtagonista').value.trim();
+            const deseo = document.getElementById('ideaDeseo').value.trim();
+            const obstaculo = document.getElementById('ideaObstaculo').value.trim();
+            const giro = document.getElementById('ideaGiro').value.trim();
+            const final = document.getElementById('ideaFinal').value.trim();
+            // Una sola locación interior mientras no se diga otra cosa: es la
+            // decisión que más barato vuelve un corto.
+            const loc = (document.getElementById('ideaLocacion').value.trim() || 'INTERIOR ÚNICO').toUpperCase();
+
             // Nombre corto del protagonista en mayúsculas (primera palabra significativa)
-            const protNombre = extraerNombreProtagonista(protRaw);
+            const protNombre = extraerNombreProtagonista(protRaw, idea);
             const logline = idea || `${protRaw} ${deseo.toLowerCase()}, pero ${obstaculo.toLowerCase()}. Cuando ${giro.toLowerCase()}, todo cambia.`;
 
             // Guardar idea original
@@ -2379,27 +2800,27 @@ SEQUÊNCIA 10 | PLANO: Close-up | ÁNGULO: Frontal | MOVIMENTO: Zoom out | ARTE:
                     t: 'APRESENTAÇÃO',
                     cuerpo: `INT. ${loc} - DIA
 
-Conocemos a ${protNombre}, ${protRaw}.
+${protNombre} — ${protRaw} — en su rutina. Todavía no pasa nada: lo que vemos es cómo es su vida cuando nadie la mira.
 
-Su mundo cotidiano: aquí mostramos cómo vive, qué hace cada día, antes de que todo cambie.
+Un gesto suyo, repetido, que la define sin que haga falta explicarlo.
 
-Detalle visual importante: un objeto o gesto que define quién es ${protNombre} por dentro.
+Un objeto del lugar que después va a significar otra cosa. Ahora es sólo parte del decorado.
 
-SOM: Ambiente cotidiano. Música: tema principal, suave.
-ANIMAÇÃO: [Elementos visuales de la vida diaria de ${protNombre}]`
+SOM: Ambiente del lugar, sin música. El silencio de la rutina es el tono de partida.
+RECURSO: Un plano sostenido. Que la cámara aguante más de lo cómodo es gratis y ya dice que algo no va bien.`
                 },
                 {
                     t: 'O DESEJO',
                     cuerpo: `INT. ${loc} - DIA
 
-Vemos claramente lo que ${protNombre} quiere: ${deseo}.
+Queda claro lo que ${protNombre} quiere: ${deseo}.
 
-Algo aparece (una noticia, una oportunidad, una fecha límite) que hace ese deseo urgente.
+Algo lo vuelve urgente — una fecha, un aviso, una voz que llega de fuera. No lo vemos venir: lo oímos.
 
 ${protNombre} reacciona. Todavía no sabemos si va a intentarlo.
 
-SOM: Un sonido que marca la oportunidad (notificación, carta, voz). Música sube levemente.
-ANIMAÇÃO: [Cómo se visualiza el deseo/oportunidad]`
+SOM: El aviso llega por sonido (un mensaje, una voz en otra habitación, la radio). La fuente queda fuera de campo.
+RECURSO: Lo que trae la noticia se resuelve en audio y en la cara que lo escucha. Nada que construir.`
                 },
                 {
                     t: 'O PRIMEIRO OBSTÁCULO',
@@ -2407,25 +2828,25 @@ ANIMAÇÃO: [Cómo se visualiza el deseo/oportunidad]`
 
 ${protNombre} lo intenta por primera vez.
 
-Pero aparece el obstáculo: ${obstaculo}.
+Y aparece lo que se lo impide: ${obstaculo}.
 
-El primer intento falla. ${protNombre} no se rinde todavía, pero la duda ya está sembrada.
+El intento falla. No se rinde todavía, pero la duda ya está puesta.
 
-SOM: Música tensa, contenida.
-ANIMAÇÃO: [Visualización del obstáculo]`
+SOM: Lo que antes era ambiente ahora molesta. Mismo sonido, otra intención.
+RECURSO: El obstáculo se muestra en una sola acción concreta que sale mal, no en una explicación.`
                 },
                 {
                     t: 'A CRISE CRESCE',
                     cuerpo: `INT. ${loc} - NOITE
 
-Los intentos se acumulan. Los fracasos también.
+El mismo lugar, de noche. Los intentos se acumulan y los fracasos también.
 
-El obstáculo (${obstaculo}) crece y se vuelve abrumador.
+${obstaculo} — y ahora ocupa todo.
 
-Todo lo que ${protNombre} intenta parece empeorar la situación. El caos aumenta.
+Cada cosa que ${protNombre} prueba empeora la anterior. El desorden del lugar cuenta el desorden de adentro.
 
-SOM: Sonidos que se acumulan, se distorsionan. Música llega a un clímax incómodo.
-ANIMAÇÃO: [El caos visual en su punto máximo]`
+SOM: Capas que se suman hasta incomodar. La música, si entra, entra tarde.
+RECURSO: El paso del día a la noche se hace apagando prácticos, no cambiando de locación. Es el mismo decorado, desordenado.`
                 },
                 {
                     t: 'O FUNDO DO POÇO',
@@ -2433,51 +2854,51 @@ ANIMAÇÃO: [El caos visual en su punto máximo]`
 
 ${protNombre} se quiebra.
 
-Silêncio absoluto.
+Silencio absoluto.
 
-Por primera vez, ${protNombre} dice (o muestra) su verdad más honesta. El momento más vulnerable del cortometraje.
+Por primera vez dice en voz alta lo que no se animaba a decir. Una frase corta, suya, sin adornos.
 
-${protNombre}: [Escribe aquí la frase más honesta de tu personaje]
+${protNombre}: No puedo más.
 
-SOM: Silencio casi total. Respiración. La música desaparece.
-ANIMAÇÃO: [Mínima o ninguna — este momento es íntimo]`
+SOM: Silencio casi total. Sólo la respiración. Si había música, desaparece acá.
+RECURSO: El momento más barato del corto y el más importante: una cara, un plano fijo, nada más.`
                 },
                 {
                     t: 'O GIRO',
                     cuerpo: `INT. ${loc} - NOITE
 
-Algo inesperado sucede: ${giro}.
+Entonces: ${giro}.
 
-Puede ser pequeño — un objeto, una persona, un recuerdo — pero cambia la forma en que ${protNombre} ve todo.
+Es pequeño y es físico — algo que se puede tocar, o alguien que entra y no dice casi nada. Cambia cómo ${protNombre} ve todo lo anterior.
 
-SOM: Música regresa, mínima, cálida, esperanzadora.
-ANIMAÇÃO: [Cambio sutil de luz/color que acompaña el giro]`
+SOM: Vuelve el sonido, mínimo. Un solo elemento, cálido.
+RECURSO: El giro entra por un objeto o por una puerta. Ninguna de las dos cosas cuesta dinero.`
                 },
                 {
                     t: 'A DESCOBERTA',
                     cuerpo: `INT. ${loc} - NOITE
 
-${protNombre} entiende algo que antes no podía ver.
+${protNombre} entiende algo que estaba a la vista desde la primera secuencia.
 
-Momento de reconocimiento interior: la solución no estaba afuera, estaba en aceptar/cambiar algo propio.
+Lo que buscaba fuera estaba en lo que ya tenía. El objeto del principio vuelve, y ahora significa otra cosa.
 
-${protNombre} sonríe (o respira distinto) por primera vez.
+Respira distinto. No hace falta que lo diga.
 
-SOM: Música sube con esperanza genuina.
-ANIMAÇÃO: [Flashback breve o cambio de iluminación]`
+SOM: Un sonido del principio vuelve, igual, y suena distinto porque cambió quien escucha.
+RECURSO: Repetir un plano de la secuencia 1 con la misma cámara y el mismo encuadre. El sentido lo pone el montaje, no el presupuesto.`
                 },
                 {
                     t: 'A AÇÃO',
                     cuerpo: `INT. ${loc} - NOITE
 
-${protNombre} actúa — pero ahora de forma diferente, auténtica.
+${protNombre} vuelve a intentarlo, pero a su manera.
 
-Montaje: paso a paso, vemos a ${protNombre} haciendo lo que siempre debió hacer, a su manera.
+Montaje de trabajo: manos, materiales, tiempo que pasa. Nada de diálogo.
 
-Los viejos miedos aparecen brevemente... y se desvanecen.
+${obstaculo} aparece un momento — y esta vez no la detiene.
 
-SOM: Sonidos de la acción (manos, herramientas, pasos). Música: crescendo positivo.
-ANIMAÇÃO: [La nueva creación/acción tomando forma progresivamente]`
+SOM: Los sonidos del hacer, en primer plano: manos, objetos, papel, teclas. La música crece debajo.
+RECURSO: Un montaje de detalles se rueda en una mañana con una sola luz y resuelve toda la elipsis.`
                 },
                 {
                     t: 'CLÍMAX',
@@ -2485,27 +2906,27 @@ ANIMAÇÃO: [La nueva creación/acción tomando forma progresivamente]`
 
 El momento decisivo.
 
-${protNombre} enfrenta el resultado de su cambio. Todo lo que construyó la historia se concentra aquí.
+${protNombre} queda frente a lo que hizo. Todo lo que construyó la historia se concentra en esta imagen.
 
-No hacen falta muchas palabras. La imagen lo dice todo.
+Pocas palabras, o ninguna.
 
-SOM: Música resuelve en paz (o en el tono emocional de tu final).
-ANIMAÇÃO: [El momento culminante en imagen]`
+SOM: Lo que suena acá es lo que la historia venía prometiendo. Resuelve.
+RECURSO: El clímax es una decisión en una cara, no un acontecimiento. Un plano, sostenido.`
                 },
                 {
                     t: 'RESOLUÇÃO',
                     cuerpo: `INT. ${loc} - NOITE
 
-El desenlace: ${final}.
+${final}.
 
-Cierre visual: retomamos un detalle del inicio (objeto, gesto, lugar) que ahora significa algo distinto.
+Cierre visual: el objeto, el gesto o el rincón del principio, ahora con otro peso. Mismo encuadre que la secuencia 1.
 
 Corte a negro.
 
 FIM.
 
-SOM: Sonido final significativo. Silencio. Música desaparece gradualmente.
-ANIMAÇÃO: [Transiciones finales suaves]`
+SOM: Un último sonido significativo. Después, silencio.
+RECURSO: Terminar donde se empezó cuesta cero y es lo que hace que un corto se sienta terminado.`
                 }
             ];
 
@@ -2539,14 +2960,33 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             document.getElementById('literario-tab').classList.add('active');
             document.querySelectorAll('.panel:not(.right) .tab-button')[1].classList.add('active');
 
-            alert(' ¡Listo! Ade generó:\n\n Guion literario (10 secuencias, 3 actos)\n Guion técnico sugerido\n Storyboard\n Desgloses\n Plan de rodaje\n\nAhora revisa el guion y edita lo que quieras. Los textos entre [corchetes] son para que los completes.');
+            const avisos = (adeUltimoAnalisis && adeUltimoAnalisis.avisos) || [];
+            alert('Listo. Desde lo que contaste, Ade armó:\n\n'
+                + '· Guion literario — 10 secuencias en 3 actos\n'
+                + '· Guion técnico sugerido\n'
+                + '· Storyboard\n'
+                + '· Desgloses\n'
+                + '· Plan de rodaje\n\n'
+                + 'Todo en una sola locación y con el elenco mínimo, para que se pueda rodar.\n'
+                + (avisos.length ? '\nOjo con ' + avisos.length + ' cosa(s) que encarecen el rodaje: están en la pestaña Idea, con la forma barata de contarlas al lado.\n' : '')
+                + '\nAhora es tuyo: editá el guion a gusto.');
         }
 
-        function extraerNombreProtagonista(texto) {
-            // Toma la primera palabra "significativa" como nombre del personaje
-            const limpio = texto.replace(/^(una?|el|la|los|las|um|uma|o|a)\s+/i, '');
-            const primera = limpio.split(/[\s,]+/)[0] || 'PROTAGONISTA';
-            return primera.toUpperCase();
+        // Si la persona dijo un nombre propio, ése manda. Si no, el sustantivo
+        // que usó ("una chica que trabaja en una panadería" -> CHICA), que es lo
+        // que se hace con un personaje sin nombre en un guion de verdad.
+        function extraerNombreProtagonista(texto, ideaCompleta) {
+            const dicho = /\b(?:se llama|se chama|llamad[oa]|chamad[oa]|named|called)\s+([a-zá-úñ]{2,20})/i
+                .exec(sinTildes(String(ideaCompleta || '')));
+            if (dicho) {
+                const i = dicho.index + dicho[0].length - dicho[1].length;
+                return String(ideaCompleta).substr(i, dicho[1].length).toUpperCase();
+            }
+            const limpio = String(texto || '')
+                .replace(/^(?:una?|el|la|los|las|um|uma|os|as|o|a|the)\s+/i, '')
+                .replace(/^(?:joven|jovem|young|viejo|velho|old)\s+/i, '');
+            const primera = (limpio.split(/[\s,]+/)[0] || '').replace(/[^\wÀ-ÿ-]/g, '');
+            return (primera || 'PROTAGONISTA').toUpperCase();
         }
 
         function generarTecnicoSugerido(n) {
@@ -2642,7 +3082,7 @@ ANIMAÇÃO: [Transiciones finales suaves]`
                                 && !/^(INT\.|EXT\.|S[OÓ]M:|ANIMA|PLANO)/i.test(sig);
                         }
                         const nome = compacto ? compacto[1].trim() : (esCabecera ? cabecera[1].trim() : null);
-                        const esMarca = nome && /^(SOM|SONIDO|SOUND|AUDIO|ANIMA|PLANO|TOMA|SHOT|SEQU|SEC|ESCENA|SCENE|CENA|INT|EXT|TELA|FIM|FIN|END|CORTE|CORTA|CUT|ENCADENA|FUNDE|FADE|UPLOAD|ENVIAR|ENVIADO|TEMA|TITULO|LOGLINE)/.test(sinTildes(nome));
+                        const esMarca = nome && /^(SOM|SONIDO|SOUND|AUDIO|ANIMA|RECURSO|MONTAGEM|MONTAJE|MONTAGE|PLANO|TOMA|SHOT|SEQU|SEC|ESCENA|SCENE|CENA|INT|EXT|TELA|FIM|FIN|END|CORTE|CORTA|CUT|ENCADENA|FUNDE|FADE|UPLOAD|ENVIAR|ENVIADO|TEMA|TITULO|LOGLINE)/.test(sinTildes(nome));
                         if (nome && !esMarca && nome.length > 1) {
                             if (!secActual.personajes.includes(nome)) {
                                 secActual.personajes.push(nome);
@@ -2657,12 +3097,15 @@ ANIMAÇÃO: [Transiciones finales suaves]`
 
             if (secActual) sequencias.push(secActual);
 
-            // Detectar personajes mencionados en la descripción (sin diálogo) y props en mayúsculas
+            // Quien habla en alguna secuencia es un personaje en TODAS las que lo
+            // nombran, aunque ahí no abra la boca. El reparto sale del guion que
+            // haya, no de una lista escrita a mano.
+            const repartoHablado = [...new Set(sequencias.flatMap(s => s.personajes))];
             sequencias.forEach(seq => {
-                ['ARTISTA', 'MÃE'].forEach(n => {
-                    if (new RegExp('\\b' + n + '\\b').test(seq.descripcion) && !seq.personajes.includes(n)) {
-                        seq.personajes.push(n);
-                    }
+                repartoHablado.forEach(n => {
+                    if (seq.personajes.includes(n)) return;
+                    const re = new RegExp('\\b' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+                    if (re.test(seq.descripcion)) seq.personajes.push(n);
                 });
                 seq.props = extraerProps(seq.descripcion, seq.personajes);
             });
@@ -5108,7 +5551,14 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             initProyectos();
             Object.values(CAMPOS_IDEA).forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.addEventListener('input', guardarIdea);
+                if (!el) return;
+                el.addEventListener('input', () => {
+                    // Tocarlo lo vuelve tuyo: deja de estar marcado como deducido
+                    const caja = el.closest('.campo-idea');
+                    if (caja) delete caja.dataset.origen;
+                    guardarIdea();
+                    if (adeUltimoAnalisis) pintarResumenAudio(adeUltimoAnalisis);
+                });
             });
             window.addEventListener('beforeunload', guardarEstadoActual);
 
@@ -5140,6 +5590,12 @@ ANIMAÇÃO: [Transiciones finales suaves]`
             if (ideaGuardada.giro) document.getElementById('ideaGiro').value = ideaGuardada.giro;
             if (ideaGuardada.final) document.getElementById('ideaFinal').value = ideaGuardada.final;
             if (ideaGuardada.loc) document.getElementById('ideaLocacion').value = ideaGuardada.loc;
+            Object.keys(ideaGuardada.origen || {}).forEach(k => {
+                const el = document.getElementById(CAMPOS_IDEA[k]);
+                const caja = el && el.closest('.campo-idea');
+                if (caja) caja.dataset.origen = ideaGuardada.origen[k];
+            });
+            if (ideaGuardada.idea) pintarResumenAudio(null);
 
             const paleta = jsonSeguro(pget('paleta'), {});
             aplicarPaleta(paleta);
