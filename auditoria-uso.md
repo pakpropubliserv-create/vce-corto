@@ -20,6 +20,8 @@ proyecto no es el error que se ve, es el que no avisa.
 | Viñetas de storyboard para un guion de 11 secuencias | 10 | 11 |
 | Viñetas de storyboard a nivel de plano | 0 | 49 |
 | Forma de sacar un proyecto del navegador | ninguna | `.json` y `.fountain` |
+| Campos que el dictado rellenaba solo | 0 | hasta 6, y pregunta el resto |
+| Huecos `[corchetes]` en el guion generado | 11 | 0 |
 
 ---
 
@@ -242,16 +244,81 @@ sirven para nada.
 
 ---
 
+## 11 · El audio no alimentaba nada
+
+Este era el hallazgo de fondo, el que vuelve discutible todo lo demas: el eje
+del proyecto es que un solo audio alcance, y el audio no alcanzaba para nada.
+
+El dictado caia en un textarea y de ahi a una plantilla de diez secuencias con
+**once [corchetes] vacios**. La persona dictaba cinco minutos y despues escribia
+el guion entero a mano igual.
+
+### Lo que se hizo
+
+**El extractor.** `adeAnalizar()` separa del dictado quien es, que quiere, que
+se lo impide, que la hace cambiar, como termina, donde pasa y el titulo.
+Trabaja sobre habla **sin puntuacion**, que es como sale de un microfono, y
+corta las ideas por los conectores del habla — *pero*, *un dia*, *al final*,
+*hasta que* — en vez de por puntos que nadie dicta.
+
+Medido sobre dictados corridos de una sola tirada:
+
+| Dictado | Campos extraidos de 6 |
+|---|---|
+| Español, 63 palabras | **6** |
+| Português, 44 palabras | 5 (no nombraba lugar) |
+| English, 43 palabras | 4 (no nombraba lugar ni se podia inferir protagonista) |
+| Español vago, 5 palabras | 1 — y pregunta las otras cuatro |
+
+**Corre entero en el navegador, sin red y sin clave de ninguna API.** No es
+ahorro: la pagina esta publicada y cualquiera con el enlace puede leer el
+codigo fuente, asi que una clave ahi dentro es una clave regalada. Y el guion
+es obra inedita para un concurso: no sale de esta maquina.
+
+**Se dispara solo** al soltar el microfono. No hay un boton intermedio que haya
+que acordarse de pulsar.
+
+**Pregunta lo que falta en vez de dejar huecos.** El panel *Esto entendi de tu
+idea* muestra lo que esta, lo que falta como pregunta clicable, y de donde salio
+cada cosa: *del audio*, *supuesto — revisalo*, o *tuyo*. La procedencia
+sobrevive a una recarga, y corregir un campo a mano lo vuelve tuyo. Si falta
+algo esencial, generar ya no produce un guion con huecos marcados: se bloquea,
+se dicen las preguntas y se enfoca la primera.
+
+**Avisa de lo que encarece el rodaje, con la version barata al lado.** Diez
+familias de elementos — multitudes, persecuciones, lluvia, vehiculos,
+exteriores lejanos, menores, animales, epoca, armas, exterior de noche — se
+detectan en el dictado antes de escribir una sola linea de guion. No se marcan
+a secas: cada una viene con como contar lo mismo gastando poco.
+
+**Las diez secuencias, reescritas.** Cero corchetes, con las palabras de la
+persona, una sola locacion y elenco minimo. La linea `ANIMAÇÃO` sale de la
+plantilla por defecto — animar personajes es lo mas caro que se puede proponer,
+y se proponia diez veces — y entra `RECURSO`, que da la forma barata de
+resolver esa unidad.
+
+### Dos fallos que esto destapo
+
+- **El detector de personajes estaba cableado a `['ARTISTA','MÃE']`**, que es el
+  reparto de *Você é*. En cualquier otro proyecto el protagonista solo aparecia
+  en las secuencias donde tenia dialogo: el desglose decia *CHICA — Secuencias:
+  5* de un corto en el que sale en las diez. Ahora el reparto sale del guion que
+  haya.
+- **Un nombre propio dicho en voz alta se ignoraba.** «se llama Mara» ahora da
+  MARA, y MARA aparece en nueve secuencias.
+
+---
+
 ## Lo que queda abierto
 
-1. **La opción de idioma de la interfaz.** `traducciones.json` tiene las 455 cadenas en
-   portugués e inglés; falta el mecanismo: función de búsqueda, recorrido del DOM para
-   lo que se dibuja dinámicamente, selector en la cabecera y persistencia.
-2. **El extractor de audio.** Hoy el dictado cae en un textarea y de ahí a una
-   plantilla de diez secuencias con seis `[corchetes]` por rellenar. El eje del
-   proyecto pide que de ese audio salgan ya el deseo, el obstáculo, el giro y el final
-   separados, y que lo que falte se pregunte en vez de dejarse en blanco.
-3. **La sesión McKee son 41 preguntas con 41 campos vacíos.** Es la función que más se
-   aleja del eje: pide mucho antes de devolver nada.
-4. **Tres decisiones de guion sin responder:** el parpadeo del gato, el idioma del
-   guion y quién hace las tres ilustraciones de la secuencia 3.
+1. **La opción de idioma de la interfaz.** `traducciones.json` tiene las 455
+   cadenas en portugués e inglés; falta el mecanismo: función de búsqueda,
+   recorrido del DOM para lo que se dibuja dinámicamente, selector en la
+   cabecera y persistencia. El parser y el extractor ya son trilingües; lo que
+   sigue en un solo idioma son los rótulos.
+2. **La sesión McKee son 41 preguntas con 41 campos vacíos.** Ahora que el
+   extractor existe, la mayoría de esas respuestas se pueden prellenar desde el
+   dictado y la sesión pasa a ser una revisión en vez de un formulario. Es el
+   próximo trabajo con más sentido.
+3. **Tres decisiones de guion sin responder:** el parpadeo del gato, el idioma
+   del guion y quién hace las tres ilustraciones de la secuencia 3.
